@@ -4,9 +4,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "CommonJS",
-    "rootDir": "./src/",
     "esModuleInterop": true,
-    "outDir": "./dist/",
     "importHelpers": true,
     "experimentalDecorators": true,
     "allowJs": true,
