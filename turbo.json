@@ -1,8 +1,8 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": [
-    "tsconfig.json",
-    ".env.*"
+    ".env",
+    "tsconfig.json"
   ],
   "pipeline": {
     "build": {
@@ -27,6 +27,12 @@
       ]
     },
     "lint": {
+      "dependsOn": [
+        "lint:fix"
+      ],
+      "outputs": []
+    },
+    "lint:fix": {
       "outputs": []
     },
     "dev": {
