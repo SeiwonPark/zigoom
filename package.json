@@ -1,22 +1,28 @@
 {
+  "name": "goom",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "turbo dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
     "@turbo/gen": "^1.9.7",
-    "eslint": "^7.32.0",
+    "@typescript-eslint/eslint-plugin": "^5.60.0",
+    "dotenv-cli": "^7.2.1",
+    "eslint": "^8.43.0",
     "eslint-config-custom": "*",
+    "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.5.1",
     "turbo": "latest"
   },
-  "name": "goom",
   "packageManager": "npm@8.19.2",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "dependencies": {
+    "@typescript-eslint/parser": "^5.60.0"
+  }
 }
