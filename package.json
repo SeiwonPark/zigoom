@@ -1,21 +1,19 @@
 {
+  "name": "goom",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "lint": "npm --prefix ./client run lint && npm --prefix ./server run lint",
+    "lint:fix": "npm --prefix ./client run lint:fix && npm --prefix ./server run lint:fix",
+    "format": "npm --prefix ./client run format && npm --prefix ./server run format",
+    "dev": "concurrently \"cd ./server && npm run dev\" \"cd ./client && npm run start\"",
+    "start": "concurrently \"cd ./server && npm run start\" \"cd ./client && npm run start\""
   },
-  "devDependencies": {
-    "eslint": "^8.48.0",
-    "prettier": "^3.0.3",
-    "tsconfig": "*",
-    "turbo": "latest"
-  },
-  "name": "goom",
   "packageManager": "npm@8.19.2",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "bugs": {
+    "url": "https://github.com/SeiwonPark/goom/issues"
+  },
+  "homepage": "https://github.com/SeiwonPark/goom#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
 }
