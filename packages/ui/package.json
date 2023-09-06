@@ -5,17 +5,17 @@
   "types": "./index.tsx",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"**/*.ts*\"",
-    "lint:fix": "eslint \"**/*.ts*\" --fix",
+    "lint": "eslint .",
     "generate:component": "turbo gen react-component"
   },
   "devDependencies": {
+    "@turbo/gen": "^1.10.12",
+    "@types/node": "^20.5.2",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "eslint": "^8.43.0",
-    "eslint-config-custom": "*",
-    "react": "^17.0.2",
-    "tsconfig": "*",
+    "eslint-config-custom": "workspace:*",
+    "react": "^18.2.0",
+    "tsconfig": "workspace:*",
     "typescript": "^4.5.2"
   }
 }
