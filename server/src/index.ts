@@ -22,8 +22,8 @@ const io = new Server(server, {
 })
 
 io.on('connection', (socket: Socket) => {
-  socket.on('join', (payload) => {
-    const roomId = payload.roomId
+  const onJoin = (event: any) => {
+    const roomId = event.roomId
     const roomClients = io.sockets.adapter.rooms.get(roomId) || { size: 0 }
     const numOfClients = roomClients.size
 
@@ -40,36 +40,43 @@ io.on('connection', (socket: Socket) => {
         peerId: socket.id,
       })
     }
-  })
+  }
 
-  socket.on('call', (event) => {
+  const onCall = (event: any) => {
     socket.broadcast.to(event.roomId).emit('call', {
       senderId: event.senderId,
     })
-  })
+  }
 
-  socket.on('peer_offer', (event) => {
+  const onPeerOffer = (event: any) => {
     socket.broadcast.to(event.receiverId).emit('peer_offer', {
       sdp: event.sdp,
       senderId: event.senderId,
     })
-  })
+  }
 
-  socket.on('peer_answer', (event) => {
+  const onPeerAnswer = (event: any) => {
     socket.broadcast.to(event.receiverId).emit('peer_answer', {
       sdp: event.sdp,
       senderId: event.senderId,
     })
-  })
+  }
 
-  socket.on('peer_ice_candidate', (event) => {
+  const onPeerIceCandidate = (event: any) => {
     socket.broadcast.to(event.receiverId).emit('peer_ice_candidate', event)
-  })
+  }
 
-  socket.on('disconnect', () => {
+  const onDisconnect = () => {
     console.log(`Peer ${socket.id} has been disconnected`)
     socket.broadcast.emit('peer_disconnected', { peerId: socket.id })
-  })
+  }
+
+  socket.on('join', onJoin)
+  socket.on('call', onCall)
+  socket.on('peer_offer', onPeerOffer)
+  socket.on('peer_answer', onPeerAnswer)
+  socket.on('peer_ice_candidate', onPeerIceCandidate)
+  socket.on('disconnect', onDisconnect)
 })
 
 server.listen(PORT, () => {
