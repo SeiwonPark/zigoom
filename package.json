@@ -1,7 +1,11 @@
 {
   "name": "goom",
   "private": true,
+  "author": "Seiwon Park <psw7347@gmail.com>",
   "scripts": {
+    "postinstall": "pnpm run install:client && pnpm run install:server",
+    "install:client": "cd client && pnpm install",
+    "install:server": "cd server && pnpm install",
     "lint": "pnpm --prefix ./client run lint && pnpm --prefix ./server run lint",
     "lint:fix": "pnpm --prefix ./client run lint:fix && pnpm --prefix ./server run lint:fix",
     "format": "pnpm --prefix ./client run format && pnpm --prefix ./server run format",
