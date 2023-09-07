@@ -2,6 +2,8 @@
   "name": "server",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "private": true,
+  "type": "module",
   "scripts": {
     "lint": "eslint --ext ./src/**/*.ts ./src/**/*.ts",
     "lint:fix": "eslint --ext .ts --fix ./src/**/*.ts",
