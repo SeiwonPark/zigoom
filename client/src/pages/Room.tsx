@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { SocketContext } from '../contexts/SocketContext'
 import { RemoteVideo } from '../components/RemoteVideo'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
+import { handleKeyUp } from '../utils/keys'
 
 // FIXME: peerConnections type
 const peerConnections: any = {}
@@ -16,6 +17,8 @@ export default function Room() {
   const localStreamRef = useRef<MediaStream>()
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: string; message: string }>>([])
+  const [chatInput, setChatInput] = useState<string>('')
 
   useEffect(() => {
     setSocketListeners()
@@ -30,6 +33,7 @@ export default function Room() {
     socket.on('peer_answer', onPeerAnswer)
     socket.on('peer_ice_candidate', onPeerIceCandidate)
     socket.on('peer_disconnected', onPeerDisconnected)
+    socket.on('receive_chat', onReceiveChat)
   }
 
   const onRoomCreated = async (event: any) => {
@@ -193,11 +197,26 @@ export default function Room() {
 
       if (peerConnections[remotePeerId]) {
         peerConnections[remotePeerId].close()
-        peerConnections.delete(remotePeerId)
+        delete peerConnections[remotePeerId]
       }
 
       console.log(`Peer ${remotePeerId} has been disconnected`)
     }
+  }
+
+  const sendChatMessage = () => {
+    socket.emit('send_chat', {
+      roomId: roomId,
+      sender: localPeerId.current,
+      message: chatInput,
+    })
+
+    setChatMessages((prev) => [...prev, { sender: localPeerId.current, message: chatInput }])
+    setChatInput('')
+  }
+
+  const onReceiveChat = (data: { sender: string; message: string }) => {
+    setChatMessages((prev) => [...prev, data])
   }
 
   const toggleVideo = () => {
@@ -213,6 +232,24 @@ export default function Room() {
         <RemoteVideo key={peerId} peerId={peerId} stream={stream} />
       ))}
       <button onClick={toggleVideo}>Toggle Video</button>
+      <div>
+        <div>
+          {chatMessages.map((msg, idx) => (
+            <div key={idx}>
+              <strong>{msg.sender}</strong>: {msg.message}
+            </div>
+          ))}
+        </div>
+        <div>
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyUp={(e) => handleKeyUp(e, sendChatMessage)}
+          />
+          <button onClick={() => sendChatMessage()}>Send</button>
+        </div>
+      </div>
     </div>
   )
 }

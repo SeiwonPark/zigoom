@@ -71,12 +71,20 @@ io.on('connection', (socket: Socket) => {
     socket.broadcast.emit('peer_disconnected', { peerId: socket.id })
   }
 
+  const onSendChat = (event: any) => {
+    socket.to(event.roomId).emit('receive_chat', {
+      sender: event.sender,
+      message: event.message,
+    })
+  }
+
   socket.on('join', onJoin)
   socket.on('call', onCall)
   socket.on('peer_offer', onPeerOffer)
   socket.on('peer_answer', onPeerAnswer)
   socket.on('peer_ice_candidate', onPeerIceCandidate)
   socket.on('disconnect', onDisconnect)
+  socket.on('send_chat', onSendChat)
 })
 
 server.listen(PORT, () => {
