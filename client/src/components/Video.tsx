@@ -4,8 +4,6 @@ import { RemoteVideo } from './RemoteVideo'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { SocketContext } from '../contexts/SocketContext'
 
-const peerConnections: Record<string, RTCPeerConnection> = {}
-
 interface VideoProps {
   roomId?: string
   localPeerId: string
@@ -18,6 +16,7 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
   const localStreamRef = useRef<MediaStream>()
+  const peerConnectionRefs = useRef<Record<string, RTCPeerConnection>>({})
 
   useEffect(() => {
     setSocketListeners()
@@ -65,7 +64,7 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
     await addLocalTracks(rtcPeerConnection)
     await createOffer(rtcPeerConnection, remotePeerId)
 
-    peerConnections[remotePeerId] = rtcPeerConnection
+    peerConnectionRefs.current[remotePeerId] = rtcPeerConnection
   }
 
   const onPeerOffer = async (event: SocketEvent) => {
@@ -76,11 +75,11 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
     await addLocalTracks(rtcPeerConnection)
     await createAnswer(rtcPeerConnection, remotePeerId)
 
-    peerConnections[remotePeerId] = rtcPeerConnection
+    peerConnectionRefs.current[remotePeerId] = rtcPeerConnection
   }
 
   const onPeerAnswer = async (event: SocketEvent) => {
-    const peerConnection = peerConnections[event.senderId]
+    const peerConnection = peerConnectionRefs.current[event.senderId]
     peerConnection.setRemoteDescription(new RTCSessionDescription({ ...event }))
   }
 
@@ -135,8 +134,8 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
       candidate: event.candidate.candidate,
     })
 
-    if (peerConnections[senderPeerId]) {
-      peerConnections[senderPeerId].addIceCandidate(candidate)
+    if (peerConnectionRefs.current[senderPeerId]) {
+      peerConnectionRefs.current[senderPeerId].addIceCandidate(candidate)
     }
   }
 
@@ -161,7 +160,7 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
 
   const checkPeerDisconnect = (remotePeerId: string) => {
     try {
-      const state = peerConnections[remotePeerId].iceConnectionState
+      const state = peerConnectionRefs.current[remotePeerId].iceConnectionState
 
       if (
         state === PeerDisconnectionType.Failed ||
@@ -174,9 +173,9 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
           videoDisconnected.remove()
         }
 
-        if (peerConnections[remotePeerId]) {
-          peerConnections[remotePeerId].close()
-          delete peerConnections[remotePeerId]
+        if (peerConnectionRefs.current[remotePeerId]) {
+          peerConnectionRefs.current[remotePeerId].close()
+          delete peerConnectionRefs.current[remotePeerId]
         }
 
         console.log(`Peer ${remotePeerId} has been disconnected`)
