@@ -1,12 +1,3 @@
-export type SocketType = Socket<DefaultEventsMap, DefaultEventsMap>
-
-export type VideoElement = React.RefObject<HTMLVideoElement>
-
-export interface Message {
-  senderId: string
-  message: string
-}
-
 export interface SocketEvent extends RTCTrackEvent {
   peerId: string
   roomId: string

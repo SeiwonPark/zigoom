@@ -2,9 +2,9 @@ import { createRef, useContext, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { SocketContext } from '../contexts/SocketContext'
 import { RemoteVideo } from '../components/RemoteVideo'
-import { Message, SocketEvent, VideoElement } from '../typings/types'
+import { SocketEvent, VideoElement } from '../typings/types'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
-import { handleKeyUp } from '../utils/keys'
+import { Chat } from '../components/Chat'
 
 const peerConnections: Record<string, RTCPeerConnection> = {}
 
@@ -17,8 +17,6 @@ export default function Room() {
   const localStreamRef = useRef<MediaStream>()
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
-  const [chatMessages, setChatMessages] = useState<Message[]>([])
-  const [chatInput, setChatInput] = useState<string>('')
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
 
   useEffect(() => {
@@ -34,7 +32,6 @@ export default function Room() {
     socket.on('peer_answer', onPeerAnswer)
     socket.on('peer_ice_candidate', onPeerIceCandidate)
     socket.on('peer_disconnected', onPeerDisconnected)
-    socket.on('receive_chat', onReceiveChat)
   }
 
   const onRoomCreated = async (event: SocketEvent) => {
@@ -208,21 +205,6 @@ export default function Room() {
     }
   }
 
-  const sendChatMessage = () => {
-    socket.emit('send_chat', {
-      roomId: roomId,
-      sender: localPeerId.current,
-      message: chatInput,
-    })
-
-    setChatMessages((prev) => [...prev, { sender: localPeerId.current, message: chatInput }])
-    setChatInput('')
-  }
-
-  const onReceiveChat = (data: { sender: string; message: string }) => {
-    setChatMessages((prev) => [...prev, data])
-  }
-
   const toggleVideo = () => {
     if (localStream) {
       localStream.getVideoTracks()[0].enabled = !localStream.getVideoTracks()[0].enabled
@@ -236,33 +218,12 @@ export default function Room() {
         if (!remoteVideoRefs.current.has(peerId)) {
           remoteVideoRefs.current.set(peerId, createRef())
         }
-
         return <RemoteVideo key={peerId} peerId={peerId} stream={stream} ref={remoteVideoRefs.current.get(peerId)} />
       })}
-
       <button type="button" onClick={toggleVideo}>
         Toggle Video
       </button>
-      <div>
-        <div>
-          {chatMessages.map((msg, idx) => (
-            <div key={idx}>
-              <strong>{msg.sender}</strong>: {msg.message}
-            </div>
-          ))}
-        </div>
-        <div>
-          <input
-            type="text"
-            value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
-            onKeyUp={(e) => handleKeyUp(e, sendChatMessage)}
-          />
-          <button type="button" onClick={() => sendChatMessage()}>
-            Send
-          </button>
-        </div>
-      </div>
+      <Chat roomId={roomId} senderId={localPeerId.current} />
     </div>
   )
 }
