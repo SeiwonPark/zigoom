@@ -5,10 +5,10 @@ import { SocketContext } from '../contexts/SocketContext'
 
 interface ChatProps {
   roomId?: string
-  senderId: string
+  localPeerId: string
 }
 
-export const Chat = ({ roomId, senderId }: ChatProps) => {
+export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   const socket = useContext(SocketContext)
   const [chatMessages, setChatMessages] = useState<Message[]>([])
   const [chatInput, setChatInput] = useState<string>('')
@@ -20,12 +20,12 @@ export const Chat = ({ roomId, senderId }: ChatProps) => {
   const sendChatMessage = () => {
     socket.emit('send_chat', {
       roomId: roomId,
-      senderId: senderId,
+      senderId: localPeerId,
       message: chatInput,
     })
 
     const newChatMessage: Message = {
-      senderId: senderId,
+      senderId: localPeerId,
       message: chatInput,
     }
 
