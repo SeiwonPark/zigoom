@@ -1,12 +1,20 @@
-import { useEffect, useRef } from 'react'
+import { forwardRef, useEffect, useRef } from 'react'
 
 interface RemoteVideoProps {
   peerId: string
   stream: MediaStream
 }
 
-export const RemoteVideo = ({ peerId, stream }: RemoteVideoProps) => {
+export const RemoteVideo = forwardRef<HTMLVideoElement, RemoteVideoProps>(({ peerId, stream }, forwardedRef) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
+
+  useEffect(() => {
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(videoRef.current)
+    } else if (forwardedRef) {
+      forwardedRef.current = videoRef.current
+    }
+  }, [forwardedRef])
 
   useEffect(() => {
     if (videoRef.current) {
@@ -18,13 +26,11 @@ export const RemoteVideo = ({ peerId, stream }: RemoteVideoProps) => {
     <video
       ref={videoRef}
       key={peerId}
-      width="100"
-      height="100"
-      id={`remotevideo_${peerId}`}
+      id={`vid_${peerId}`}
       muted
       autoPlay
       playsInline
       style={{ backgroundColor: 'black', width: '100px', height: '100px' }}
     />
   )
-}
+})

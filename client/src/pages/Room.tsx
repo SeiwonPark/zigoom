@@ -1,12 +1,12 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { createRef, useContext, useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { SocketContext } from '../contexts/SocketContext'
 import { RemoteVideo } from '../components/RemoteVideo'
+import { Message, SocketEvent, VideoElement } from '../typings/types'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { handleKeyUp } from '../utils/keys'
 
-// FIXME: peerConnections type
-const peerConnections: any = {}
+const peerConnections: Record<string, RTCPeerConnection> = {}
 
 export default function Room() {
   const socket = useContext(SocketContext)
@@ -17,8 +17,9 @@ export default function Room() {
   const localStreamRef = useRef<MediaStream>()
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: string; message: string }>>([])
+  const [chatMessages, setChatMessages] = useState<Message[]>([])
   const [chatInput, setChatInput] = useState<string>('')
+  const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
 
   useEffect(() => {
     setSocketListeners()
@@ -36,12 +37,12 @@ export default function Room() {
     socket.on('receive_chat', onReceiveChat)
   }
 
-  const onRoomCreated = async (event: any) => {
+  const onRoomCreated = async (event: SocketEvent) => {
     localPeerId.current = event.peerId
     await initializeLocalStream()
   }
 
-  const onRoomJoined = async (event: any) => {
+  const onRoomJoined = async (event: SocketEvent) => {
     localPeerId.current = event.peerId
     await initializeLocalStream()
     socket.emit('call', {
@@ -51,16 +52,16 @@ export default function Room() {
   }
 
   const configurePeerConnection = (remotePeerId: string) => {
-    const rtcPeerConnection = new RTCPeerConnection(iceServers)
+    const rtcPeerConnection: RTCPeerConnection = new RTCPeerConnection(iceServers)
 
-    rtcPeerConnection.ontrack = (event: any) => setRemoteStream(event, remotePeerId)
-    rtcPeerConnection.oniceconnectionstatechange = (_: any) => checkPeerDisconnect(remotePeerId)
-    rtcPeerConnection.onicecandidate = (event: any) => sendIceCandidate(event, remotePeerId)
+    rtcPeerConnection.ontrack = (ev: RTCTrackEvent) => setRemoteStream(ev, remotePeerId)
+    rtcPeerConnection.oniceconnectionstatechange = () => checkPeerDisconnect(remotePeerId)
+    rtcPeerConnection.onicecandidate = (ev: RTCPeerConnectionIceEvent) => sendIceCandidate(ev, remotePeerId)
 
     return rtcPeerConnection
   }
 
-  const onCall = async (event: any) => {
+  const onCall = async (event: SocketEvent) => {
     const remotePeerId = event.senderId
 
     const rtcPeerConnection = configurePeerConnection(remotePeerId)
@@ -70,42 +71,20 @@ export default function Room() {
     peerConnections[remotePeerId] = rtcPeerConnection
   }
 
-  const onPeerOffer = async (event: any) => {
+  const onPeerOffer = async (event: SocketEvent) => {
     const remotePeerId = event.senderId
     const rtcPeerConnection = configurePeerConnection(remotePeerId)
 
-    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(event.sdp))
+    rtcPeerConnection.setRemoteDescription(new RTCSessionDescription({ ...event }))
     await addLocalTracks(rtcPeerConnection)
     await createAnswer(rtcPeerConnection, remotePeerId)
 
     peerConnections[remotePeerId] = rtcPeerConnection
   }
 
-  const onPeerAnswer = async (event: any) => {
-    peerConnections[event.senderId].setRemoteDescription(new RTCSessionDescription(event.sdp))
-  }
-
-  const onPeerIceCandidate = (event: any) => {
-    const senderPeerId = event.senderId
-    const candidate = new RTCIceCandidate({
-      sdpMLineIndex: event.label,
-      candidate: event.candidate,
-    })
-
-    if (peerConnections[senderPeerId]) {
-      peerConnections[senderPeerId].addIceCandidate(candidate)
-    }
-  }
-
-  const onPeerDisconnected = (event: any) => {
-    const disconnectedPeerId = event.peerId
-    console.log(`Peer ${disconnectedPeerId} has been disconnected`)
-
-    setRemoteStreams((prevStreams) => {
-      const newStreams = new Map(prevStreams)
-      newStreams.delete(disconnectedPeerId)
-      return newStreams
-    })
+  const onPeerAnswer = async (event: SocketEvent) => {
+    const peerConnection = peerConnections[event.senderId]
+    peerConnection.setRemoteDescription(new RTCSessionDescription({ ...event }))
   }
 
   const initializeLocalStream = async () => {
@@ -119,88 +98,113 @@ export default function Room() {
     }
   }
 
-  const setRemoteStream = (event: any, remotePeerId: string) => {
-    if (event.track.kind === 'video') {
+  const setRemoteStream = (ev: RTCTrackEvent, remotePeerId: string) => {
+    if (ev.track.kind === 'video') {
       setRemoteStreams((prevStreams) => {
-        const newStreams = new Map(prevStreams)
-        newStreams.set(remotePeerId, event.streams[0])
-        return newStreams
+        return new Map(prevStreams).set(remotePeerId, ev.streams[0])
       })
     }
   }
 
   const createOffer = async (rtcPeerConnection: RTCPeerConnection, remotePeerId: string) => {
-    let sessionDescription
     try {
-      sessionDescription = await rtcPeerConnection.createOffer(offerOptions)
+      const sessionDescription = await rtcPeerConnection.createOffer(offerOptions)
       rtcPeerConnection.setLocalDescription(sessionDescription)
+
+      socket.emit('peer_offer', {
+        type: sessionDescription.type,
+        sdp: sessionDescription.sdp,
+        senderId: localPeerId.current,
+        receiverId: remotePeerId,
+      })
     } catch (error) {
       console.error(error)
     }
-
-    socket.emit('peer_offer', {
-      type: 'peer_offer',
-      sdp: sessionDescription,
-      roomId: roomId,
-      senderId: localPeerId.current,
-      receiverId: remotePeerId,
-    })
   }
 
   const createAnswer = async (rtcPeerConnection: RTCPeerConnection, remotePeerId: string) => {
-    let sessionDescription
     try {
-      sessionDescription = await rtcPeerConnection.createAnswer(offerOptions)
+      const sessionDescription = await rtcPeerConnection.createAnswer(offerOptions)
       rtcPeerConnection.setLocalDescription(sessionDescription)
+
+      socket.emit('peer_answer', {
+        type: sessionDescription.type,
+        sdp: sessionDescription.sdp,
+        senderId: localPeerId.current,
+        receiverId: remotePeerId,
+      })
     } catch (error) {
       console.error(error)
     }
-
-    socket.emit('peer_answer', {
-      type: 'peer_answer',
-      sdp: sessionDescription,
-      roomId: roomId,
-      senderId: localPeerId.current,
-      receiverId: remotePeerId,
-    })
   }
 
-  const sendIceCandidate = (event: any, remotePeerId: string) => {
-    if (event.candidate) {
+  const sendIceCandidate = (ev: RTCPeerConnectionIceEvent, remotePeerId: string) => {
+    if (ev.candidate) {
       socket.emit('peer_ice_candidate', {
         senderId: localPeerId.current,
         receiverId: remotePeerId,
         roomId: roomId,
-        label: event.candidate.sdpMLineIndex,
-        candidate: event.candidate.candidate,
+        candidate: ev.candidate,
       })
     }
   }
 
+  const onPeerIceCandidate = (event: SocketEvent) => {
+    const senderPeerId = event.senderId
+
+    const candidate = new RTCIceCandidate({
+      sdpMLineIndex: event.candidate.sdpMLineIndex,
+      candidate: event.candidate.candidate,
+    })
+
+    if (peerConnections[senderPeerId]) {
+      peerConnections[senderPeerId].addIceCandidate(candidate)
+    }
+  }
+
+  const onPeerDisconnected = (event: SocketEvent) => {
+    const disconnectedPeerId = event.peerId
+    console.log(`Peer ${disconnectedPeerId} has been disconnected`)
+
+    setRemoteStreams((prevStreams) => {
+      const newStreams = new Map(prevStreams)
+      newStreams.delete(disconnectedPeerId)
+      return newStreams
+    })
+  }
+
   const addLocalTracks = async (rtcPeerConnection: RTCPeerConnection) => {
     if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track: any) => {
+      localStreamRef.current.getTracks().forEach((track: MediaStreamTrack) => {
         rtcPeerConnection.addTrack(track, localStreamRef.current!)
       })
     }
   }
 
   const checkPeerDisconnect = (remotePeerId: string) => {
-    const state = peerConnections[remotePeerId].iceConnectionState
+    try {
+      const state = peerConnections[remotePeerId].iceConnectionState
 
-    if (state === 'failed' || state === 'closed' || state === 'disconnected') {
-      const videoDisconnected = document.getElementById('remotevideo_' + remotePeerId)
+      if (
+        state === PeerDisconnectionType.Failed ||
+        state === PeerDisconnectionType.Closed ||
+        state === PeerDisconnectionType.Disconnected
+      ) {
+        const videoDisconnected = document.getElementById('vid_' + remotePeerId)
 
-      if (videoDisconnected) {
-        videoDisconnected.remove()
+        if (videoDisconnected) {
+          videoDisconnected.remove()
+        }
+
+        if (peerConnections[remotePeerId]) {
+          peerConnections[remotePeerId].close()
+          delete peerConnections[remotePeerId]
+        }
+
+        console.log(`Peer ${remotePeerId} has been disconnected`)
       }
-
-      if (peerConnections[remotePeerId]) {
-        peerConnections[remotePeerId].close()
-        delete peerConnections[remotePeerId]
-      }
-
-      console.log(`Peer ${remotePeerId} has been disconnected`)
+    } catch {
+      // DO NOTHING
     }
   }
 
@@ -228,10 +232,17 @@ export default function Room() {
   return (
     <div ref={videoChatContainerRef}>
       <video width="100" height="100" ref={userVideo} autoPlay muted />
-      {Array.from(remoteStreams.entries()).map(([peerId, stream]) => (
-        <RemoteVideo key={peerId} peerId={peerId} stream={stream} />
-      ))}
-      <button onClick={toggleVideo}>Toggle Video</button>
+      {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream]) => {
+        if (!remoteVideoRefs.current.has(peerId)) {
+          remoteVideoRefs.current.set(peerId, createRef())
+        }
+
+        return <RemoteVideo key={peerId} peerId={peerId} stream={stream} ref={remoteVideoRefs.current.get(peerId)} />
+      })}
+
+      <button type="button" onClick={toggleVideo}>
+        Toggle Video
+      </button>
       <div>
         <div>
           {chatMessages.map((msg, idx) => (
@@ -247,7 +258,9 @@ export default function Room() {
             onChange={(e) => setChatInput(e.target.value)}
             onKeyUp={(e) => handleKeyUp(e, sendChatMessage)}
           />
-          <button onClick={() => sendChatMessage()}>Send</button>
+          <button type="button" onClick={() => sendChatMessage()}>
+            Send
+          </button>
         </div>
       </div>
     </div>

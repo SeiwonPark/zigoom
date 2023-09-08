@@ -50,6 +50,7 @@ io.on('connection', (socket: Socket) => {
 
   const onPeerOffer = (event: any) => {
     socket.broadcast.to(event.receiverId).emit('peer_offer', {
+      type: event.type,
       sdp: event.sdp,
       senderId: event.senderId,
     })
@@ -57,6 +58,7 @@ io.on('connection', (socket: Socket) => {
 
   const onPeerAnswer = (event: any) => {
     socket.broadcast.to(event.receiverId).emit('peer_answer', {
+      type: event.type,
       sdp: event.sdp,
       senderId: event.senderId,
     })
