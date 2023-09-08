@@ -7,9 +7,10 @@ import { SocketContext } from '../contexts/SocketContext'
 interface VideoProps {
   roomId?: string
   localPeerId: string
+  setLocalPeerId: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const Video = ({ roomId, localPeerId }: VideoProps) => {
+export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
   const socket = useContext(SocketContext)
   const userVideo = useRef<any>()
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
@@ -35,11 +36,13 @@ export const Video = ({ roomId, localPeerId }: VideoProps) => {
 
   const onRoomCreated = async (event: SocketEvent) => {
     localPeerId = event.peerId
+    setLocalPeerId(localPeerId)
     await initializeLocalStream()
   }
 
   const onRoomJoined = async (event: SocketEvent) => {
     localPeerId = event.peerId
+    setLocalPeerId(localPeerId)
     await initializeLocalStream()
     socket.emit('call', {
       roomId: event.roomId,
