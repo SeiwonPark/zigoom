@@ -10,6 +10,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
+    "jsxImportSource": "@emotion/react",
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
@@ -22,4 +23,5 @@
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
+  
 }
