@@ -2,6 +2,8 @@ export type SocketType = Socket<DefaultEventsMap, DefaultEventsMap>
 
 export type VideoElement = React.RefObject<HTMLVideoElement>
 
+export type SVGProps = React.FC<React.SVGProps<SVGElement>>
+
 export interface Message {
   senderId: string
   message: string
