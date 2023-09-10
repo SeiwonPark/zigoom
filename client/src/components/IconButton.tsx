@@ -5,9 +5,10 @@ import { MouseEventHandler } from 'react'
 interface IconButtonProps {
   Icon: string | SVGProps
   onClick: MouseEventHandler
+  fill?: string
 }
 
-export const IconButton = ({ Icon, onClick }: IconButtonProps) => {
+export const IconButton = ({ Icon, onClick, fill }: IconButtonProps) => {
   return (
     <div
       css={css`
@@ -34,7 +35,7 @@ export const IconButton = ({ Icon, onClick }: IconButtonProps) => {
         `}
         onClick={onClick}
       >
-        <Icon fill="#5f6368" width={24} height={24} />
+        <Icon fill={fill ? fill : '#5f6368'} width={24} height={24} />
       </button>
     </div>
   )

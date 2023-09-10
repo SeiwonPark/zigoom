@@ -1,8 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { css } from '@emotion/react'
 import { Message } from '../typings/types'
 import { handleKeyUp } from '../utils/keys'
 import { SocketContext } from '../contexts/SocketContext'
+import SendIcon from '../assets/icons/send.svg'
+import { IconButton } from './IconButton'
 
 interface ChatProps {
   roomId?: string
@@ -14,9 +16,17 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   const [chatMessages, setChatMessages] = useState<Message[]>([])
   const [chatInput, setChatInput] = useState<string>('')
 
+  const onReceiveChat = useCallback((data: Message) => {
+    setChatMessages((prev) => [...prev, data])
+  }, [])
+
   useEffect(() => {
     socket.on('receive_chat', onReceiveChat)
-  }, [])
+
+    return () => {
+      socket.off('receive_chat')
+    }
+  }, [onReceiveChat])
 
   const sendChatMessage = () => {
     socket.emit('send_chat', {
@@ -34,10 +44,6 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
     setChatInput('')
   }
 
-  const onReceiveChat = (data: Message) => {
-    setChatMessages((prev) => [...prev, data])
-  }
-
   return (
     <div>
       <div>
@@ -47,16 +53,46 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
           </div>
         ))}
       </div>
-      <div>
-        <input
-          type="text"
-          value={chatInput}
-          onChange={(e) => setChatInput(e.target.value)}
-          onKeyUp={(e) => handleKeyUp(e, sendChatMessage)}
-        />
-        <button type="button" onClick={() => sendChatMessage()}>
-          Send
-        </button>
+      <div
+        css={css`
+          padding: 0.5rem;
+        `}
+      >
+        <div
+          css={css`
+            display: flex;
+            width: 100%;
+            border-radius: 20px;
+            background-color: #f1f3f4;
+          `}
+        >
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyUp={(e) => handleKeyUp(e, sendChatMessage)}
+            placeholder="Send a message to everyone"
+            css={css`
+              width: 100%;
+              border: none;
+              border-radius: 20px;
+              background-color: inherit;
+              padding-left: 1rem;
+
+              &:active,
+              &:focus {
+                outline: none;
+              }
+            `}
+          />
+          <div
+            css={css`
+              maring-left: auto;
+            `}
+          >
+            <IconButton Icon={SendIcon} fill="#aaa" onClick={() => sendChatMessage()} />
+          </div>
+        </div>
       </div>
     </div>
   )

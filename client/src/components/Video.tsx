@@ -1,4 +1,4 @@
-import { createRef, useContext, useEffect, useRef, useState } from 'react'
+import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/react'
 import { SocketEvent, VideoElement } from '../typings/types'
 import { RemoteVideo } from './RemoteVideo'
@@ -28,6 +28,8 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
   useEffect(() => {
     setSocketListeners()
     socket.emit('join', { roomId: roomId, peerId: localPeerId })
+
+    return () => removeSocketListeners()
   }, [])
 
   const setSocketListeners = () => {
@@ -39,6 +41,16 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
     socket.on('peer_ice_candidate', onPeerIceCandidate)
     socket.on('peer_disconnected', onPeerDisconnected)
   }
+
+  const removeSocketListeners = useCallback(() => {
+    socket.off('room_created')
+    socket.off('room_joined')
+    socket.off('call')
+    socket.off('peer_offer')
+    socket.off('peer_answer')
+    socket.off('peer_ice_candidate')
+    socket.off('peer_disconnected')
+  }, [socket])
 
   const onRoomCreated = async (event: SocketEvent) => {
     localPeerId = event.peerId
@@ -239,7 +251,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
           ref={userVideo}
           css={css`
             min-width: 200px;
-            width: 90%;
+            width: ${isChatOpen ? '90%' : '100%'};
             height: 100%;
             background-color: rgb(32, 33, 36);
           `}
@@ -257,8 +269,8 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
         css={css`
           height: calc(100% - 5rem);
           background-color: rgb(32, 33, 36);
-          min-width: ${isChatOpen ? 'max(25%, 300px)' : '0px'};
-          width: ${isChatOpen ? 'max(25%, 300px)' : '0px'};
+          min-width: ${isChatOpen ? 'max(30%, 400px)' : '0px'};
+          width: ${isChatOpen ? 'max(30%, 400px)' : '0px'};
           overflow-y: scroll;
           transition: width 0.28s;
           display: flex;
