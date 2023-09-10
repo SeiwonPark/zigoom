@@ -4,7 +4,7 @@ import { css } from '@emotion/react'
 import { v4 as uuidv4 } from 'uuid'
 import { SocketContext } from '../contexts/SocketContext'
 import { Button } from '../components/Button'
-import VideoIcon from '../assets/icons/video-add.svg'
+import VideoAddIcon from '../assets/icons/video_add.svg'
 
 export default function Home() {
   const socket = useContext(SocketContext)
@@ -29,7 +29,19 @@ export default function Home() {
     >
       <section
         css={css`
-          margin: 72px;
+          // FIXME: responsive test
+          @media screen and (max-width: 1440px) {
+            max-width: 1296px;
+            margin: 0 auto;
+          }
+
+          @media screen and (max-width: 1024px) {
+            margin: 72px;
+          }
+
+          @media screen and (max-width: 600px) {
+            margin: 40px;
+          }
         `}
       >
         <h1
@@ -40,7 +52,7 @@ export default function Home() {
         >
           Video calls and meetings for everyone.
         </h1>
-        <Button Icon={VideoIcon} text="Start a meeting" onClick={enterRoom} />
+        <Button Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
       </section>
     </div>
   )

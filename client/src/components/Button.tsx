@@ -33,10 +33,17 @@ export const Button = ({ Icon, text, onClick }: ButtonProps) => {
           align-items: center;
         `}
       >
-        {Icon && <Icon fill="#fff" width={20} height={20} />}
+        <div
+          css={css`
+            padding-right: 0.5rem;
+            display: flex;
+            align-items: center;
+          `}
+        >
+          {Icon && <Icon fill="#fff" width={20} height={20} />}
+        </div>
         <span
           css={css`
-            padding-left: 0.5rem;
             font-size: 1rem;
             font-weight: 500;
             color: #fff;

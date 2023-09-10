@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
+import { css } from '@emotion/react'
 import { Message } from '../typings/types'
 import { handleKeyUp } from '../utils/keys'
 import { SocketContext } from '../contexts/SocketContext'
@@ -38,7 +39,7 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   }
 
   return (
-    <>
+    <div>
       <div>
         {chatMessages.map((msg, idx) => (
           <div key={idx}>
@@ -57,6 +58,6 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
           Send
         </button>
       </div>
-    </>
+    </div>
   )
 }

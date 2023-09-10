@@ -1,8 +1,13 @@
 import { createRef, useContext, useEffect, useRef, useState } from 'react'
+import { css } from '@emotion/react'
 import { SocketEvent, VideoElement } from '../typings/types'
 import { RemoteVideo } from './RemoteVideo'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { SocketContext } from '../contexts/SocketContext'
+import { ControlBar } from './ControlBar'
+import { Chat } from './Chat'
+import { IconButton } from './IconButton'
+import CloseIcon from '../assets/icons/close.svg'
 
 interface VideoProps {
   roomId?: string
@@ -18,6 +23,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
   const localStreamRef = useRef<MediaStream>()
   const peerConnectionRefs = useRef<Record<string, RTCPeerConnection>>({})
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
 
   useEffect(() => {
     setSocketListeners()
@@ -207,24 +213,107 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
     }
   }
 
-  const toggleVideo = () => {
-    if (localStream) {
-      localStream.getVideoTracks()[0].enabled = !localStream.getVideoTracks()[0].enabled
-    }
+  const toggleChat = () => {
+    setIsChatOpen(!isChatOpen)
   }
 
   return (
-    <>
-      <video width="100" height="100" ref={userVideo} autoPlay muted />
+    <div
+      css={css`
+        height: inherit;
+        width: 100%;
+        display: flex;
+        background-color: rgb(32, 33, 36);
+      `}
+    >
+      <div
+        css={css`
+          width: 100%;
+          height: calc(100% - 5rem);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        `}
+      >
+        <video
+          ref={userVideo}
+          css={css`
+            min-width: 200px;
+            width: 90%;
+            height: 100%;
+            background-color: rgb(32, 33, 36);
+          `}
+          autoPlay
+          muted
+        />
+      </div>
       {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream]) => {
         if (!remoteVideoRefs.current.has(peerId)) {
           remoteVideoRefs.current.set(peerId, createRef())
         }
         return <RemoteVideo key={peerId} peerId={peerId} stream={stream} ref={remoteVideoRefs.current.get(peerId)} />
       })}
-      <button type="button" onClick={toggleVideo}>
-        Toggle Video
-      </button>
-    </>
+      <div
+        css={css`
+          height: calc(100% - 5rem);
+          background-color: rgb(32, 33, 36);
+          min-width: ${isChatOpen ? 'max(25%, 300px)' : '0px'};
+          width: ${isChatOpen ? 'max(25%, 300px)' : '0px'};
+          overflow-y: scroll;
+          transition: width 0.28s;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        `}
+      >
+        <div
+          css={css`
+            padding: 1rem;
+            margin-right: 2rem;
+            width: 100%;
+            height: 90%;
+            border-radius: 16px;
+            background-color: #fff;
+          `}
+        >
+          <div
+            css={css`
+              display: flex;
+              align-items: center;
+            `}
+          >
+            <span
+              css={css`
+                line-height: 1.5rem;
+                font-size: 1.125rem;
+                letter-spacing: 0;
+                font-weight: 400;
+                align-items: center;
+                box-sizing: border-box;
+                display: flex;
+                flex-direction: row;
+                height: 4rem;
+                min-height: 4rem;
+                padding-left: 1rem;
+              `}
+            >
+              In-call messages
+            </span>
+            <div
+              css={css`
+                display: flex;
+                align-items: center;
+                margin-left: auto;
+              `}
+            >
+              <IconButton Icon={CloseIcon} onClick={toggleChat} />
+            </div>
+          </div>
+          <Chat roomId={roomId} localPeerId={localPeerId} />
+        </div>
+      </div>
+      {/* FIXME: isChatOpen to be global state */}
+      <ControlBar roomId={roomId} localStream={localStream} isChatOpen={isChatOpen} toggleChat={toggleChat} />
+    </div>
   )
 }
