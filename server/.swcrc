@@ -2,10 +2,15 @@
   "jsc": {
     "parser": {
       "syntax": "typescript",
-      "tsx": false,
       "decorators": true,
       "dynamicImport": true
-    }
+    },
+    "target": "es2021",
+    "keepClassNames": true,
+    "loose": true
   },
-  "minify": true
+  "module": {
+    "type": "commonjs"
+  },
+  "sourceMaps": true
 }
