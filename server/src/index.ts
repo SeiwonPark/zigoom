@@ -1,5 +1,5 @@
 import express from 'express'
-import { setupMiddlewares } from './middlewares'
+import { setupExpress } from './middlewares'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { setupSocketHandlers } from './handlers/socket.handler'
@@ -7,7 +7,7 @@ import { PORT, ALLOWED_ORIGIN } from './configs/env.config'
 
 const app = express()
 
-setupMiddlewares(app)
+setupExpress(app)
 
 const server = createServer(app)
 const io = new Server(server, {
