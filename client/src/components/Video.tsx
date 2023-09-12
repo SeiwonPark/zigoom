@@ -16,12 +16,18 @@ interface VideoProps {
 export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
   const socket = useContext(SocketContext)
   const userVideo = useRef<any>()
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null)
-  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
   const localStreamRef = useRef<MediaStream>()
   const peerConnectionRefs = useRef<Record<string, RTCPeerConnection>>({})
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (!localStream) {
+      initializeLocalStream()
+    }
+  }, [localStream])
 
   useEffect(() => {
     setSocketListeners()

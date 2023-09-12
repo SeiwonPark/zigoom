@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { ControlButton } from './ControlButton'
 import VideoIcon from '../assets/icons/video.svg'
@@ -7,7 +8,9 @@ import MicIcon from '../assets/icons/mic.svg'
 import MicOffIcon from '../assets/icons/mic_off.svg'
 import ChatIconEnabled from '../assets/icons/chat_enabled.svg'
 import ChatIconDisabled from '../assets/icons/chat_disabled.svg'
+import CallEndIcon from '../assets/icons/call_end.svg'
 import { HostOptionButton } from './HostOptionButton'
+import { SocketContext } from '../contexts/SocketContext'
 
 interface ControlBarProps {
   roomId?: string
@@ -17,6 +20,8 @@ interface ControlBarProps {
 }
 
 export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: ControlBarProps) => {
+  const socket = useContext(SocketContext)
+  const navigate = useNavigate()
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [micEnabled, setMicEnabled] = useState(false)
 
@@ -34,6 +39,18 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
       localStream.getAudioTracks()[0].enabled = enabled
       setMicEnabled(enabled)
     }
+  }
+
+  const clearLocalStream = () => {
+    if (localStream) {
+      localStream.getTracks().forEach((track) => track.stop())
+    }
+  }
+
+  const handleCancelCall = () => {
+    socket.emit('cancel')
+    clearLocalStream()
+    navigate('/')
   }
 
   return (
@@ -71,6 +88,7 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
         >
           <ControlButton Icon={videoEnabled ? VideoIcon : VideoOffIcon} onClick={toggleVideo} enabled={videoEnabled} />
           <ControlButton Icon={micEnabled ? MicIcon : MicOffIcon} onClick={toggleMic} enabled={micEnabled} />
+          <ControlButton Icon={CallEndIcon} onClick={handleCancelCall} enabled={false} />
         </div>
         <div
           css={css`

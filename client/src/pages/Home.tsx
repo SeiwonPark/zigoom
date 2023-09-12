@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { v4 as uuidv4 } from 'uuid'
@@ -9,10 +9,14 @@ import VideoAddIcon from '../assets/icons/video_add.svg'
 export default function Home() {
   const socket = useContext(SocketContext)
   const naviagte = useNavigate()
+  const [isNavigating, setIsNavigating] = useState<boolean>(false)
 
   const enterRoom = () => {
     if (socket) {
-      naviagte(`/room/${uuidv4()}`)
+      setIsNavigating(true)
+      setTimeout(() => {
+        naviagte(`/room/${uuidv4()}`)
+      }, 1000)
     }
   }
 
@@ -25,6 +29,8 @@ export default function Home() {
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        background-color: ${isNavigating ? 'rgba(0, 0, 0, 0.8)' : 'transparent'};
+        transition: background-color 1s;
       `}
     >
       <section
@@ -54,6 +60,21 @@ export default function Home() {
         </h1>
         <Button Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
       </section>
+      {isNavigating && (
+        <div
+          css={css`
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 500;
+          `}
+        >
+          Loading...
+        </div>
+      )}
     </div>
   )
 }

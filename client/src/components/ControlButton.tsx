@@ -35,7 +35,7 @@ export const ControlButton = ({ Icon, onClick, enabled }: ControlButtonProps) =>
         `}
         onClick={onClick}
       >
-        <Icon fill="#fff" width={20} height={20} />
+        <Icon fill="#fff" />
       </button>
     </div>
   )

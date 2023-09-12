@@ -76,11 +76,6 @@ export const setupSocketHandlers = (io: Server) => {
       socket.broadcast.to(payload.receiverId).emit('peer_ice_candidate', payload)
     }
 
-    const onDisconnect = () => {
-      console.log(`Peer ${socket.id} has been disconnected`)
-      socket.broadcast.emit('peer_disconnected', { peerId: socket.id })
-    }
-
     const onSendChat = (payload: any) => {
       if (!isSendChatSchema(payload)) {
         throw Error('Invalid paylod type for SendChatSchema.')
@@ -92,12 +87,23 @@ export const setupSocketHandlers = (io: Server) => {
       })
     }
 
+    const onDisconnect = () => {
+      console.log(`Peer ${socket.id} has been disconnected`)
+      socket.broadcast.emit('peer_disconnected', { peerId: socket.id })
+    }
+
+    const onCancel = () => {
+      console.log(`Peer ${socket.id} has cancelled the call`)
+      socket.disconnect()
+    }
+
     socket.on('join', onJoin)
     socket.on('call', onCall)
     socket.on('peer_offer', onPeerOffer)
     socket.on('peer_answer', onPeerAnswer)
     socket.on('peer_ice_candidate', onPeerIceCandidate)
-    socket.on('disconnect', onDisconnect)
     socket.on('send_chat', onSendChat)
+    socket.on('disconnect', onDisconnect)
+    socket.on('cancel', onCancel)
   })
 }
