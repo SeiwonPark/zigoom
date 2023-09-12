@@ -1,18 +1,13 @@
 import z from 'zod'
 
-export type JoinSchema = z.infer<typeof joinPayload>
-
-export type CallSchema = z.infer<typeof callPayload>
-
-export type PeerOfferSchema = z.infer<typeof peerOfferPayload>
-
-export type PeerAnswerSchema = z.infer<typeof peerAnswerPayload>
-
-export type PeerIceCandidateSchema = z.infer<typeof peerIceCandidatePayload>
-
-export type SendChatSchema = z.infer<typeof sendChatPayload>
-
-export type PeerDisconnectedSchema = z.infer<typeof peerDisconnectedPayload>
+import {
+  JoinSchema,
+  CallSchema,
+  PeerOfferSchema,
+  PeerAnswerSchema,
+  PeerIceCandidateSchema,
+  SendChatSchema,
+} from '../typings/socket'
 
 export const joinPayload = z.object({
   roomId: z.string().uuid(),
@@ -53,10 +48,6 @@ export const sendChatPayload = z.object({
   roomId: z.string().uuid(),
   senderId: z.string(),
   message: z.string(),
-})
-
-export const peerDisconnectedPayload = z.object({
-  peerId: z.string(),
 })
 
 export const isJoinSchema = (obj: any): obj is JoinSchema => {
