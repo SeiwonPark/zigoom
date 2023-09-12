@@ -1,12 +1,4 @@
-import z from 'zod'
-import { Socket } from 'socket.io'
-
-declare module 'socket.io' {
-  interface Socket {
-    sessionId?: string
-    userId?: string
-  }
-}
+import { z } from 'zod'
 
 export type JoinSchema = z.infer<typeof joinPayload>
 

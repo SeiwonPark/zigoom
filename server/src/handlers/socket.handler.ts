@@ -6,7 +6,7 @@ import {
   isPeerAnswerSchema,
   isPeerIceCandidateSchema,
   isSendChatSchema,
-} from '../validations/socket.validate'
+} from '../validations/socket.validation'
 
 export const setupSocketHandlers = (io: Server) => {
   io.on('connection', (socket: Socket) => {
