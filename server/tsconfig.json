@@ -12,7 +12,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "removeComments": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
