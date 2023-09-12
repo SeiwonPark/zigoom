@@ -35,7 +35,7 @@ export const HostOptionButton = ({ Icon, fill, onClick }: HostOptionButtonProps)
         `}
         onClick={onClick}
       >
-        <Icon fill={fill ? fill : '#fff'} width={20} height={20} />
+        <Icon fill={fill ? fill : '#fff'} />
       </button>
     </div>
   )
