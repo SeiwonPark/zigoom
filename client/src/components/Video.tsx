@@ -49,7 +49,10 @@ export const Video = ({ stream, peerId, numOfparticipants, muted = true }: Video
           left: 0;
           color: #fff;
           pointer-events: none;
-          transition: opacity 150ms linear;
+          background-color: rgba(0, 0, 0, 0.65);
+          font-size: 14px;
+          border-radius: 0px 8px;
+          padding: 2px 12px;
         `}
       >
         {peerId}
