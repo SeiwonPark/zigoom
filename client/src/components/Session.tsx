@@ -1,17 +1,17 @@
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/react'
 import { SocketEvent, VideoElement } from '../typings/types'
-import { RemoteVideo } from './RemoteVideo'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { SocketContext } from '../contexts/SocketContext'
 import { ControlBar } from './ControlBar'
 import { ChatBox } from './ChatBox'
+import { Video } from './Video'
 
-interface VideoProps {
+interface SessionProps {
   roomId?: string
 }
 
-export const Session = ({ roomId }: VideoProps) => {
+export const Session = ({ roomId }: SessionProps) => {
   const socket = useContext(SocketContext)
   const userVideo = useRef<any>()
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
@@ -21,6 +21,11 @@ export const Session = ({ roomId }: VideoProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+  const [totalVideos, setTotalVideos] = useState<number>(1)
+
+  useEffect(() => {
+    setTotalVideos(1 + remoteStreams.size)
+  }, [remoteStreams])
 
   useEffect(() => {
     if (!localStream) {
@@ -247,27 +252,18 @@ export const Session = ({ roomId }: VideoProps) => {
           display: flex;
           align-items: center;
           justify-content: center;
+          gap: 60px;
           overflow: hidden;
         `}
       >
-        <video
-          ref={userVideo}
-          css={css`
-            min-width: 200px;
-            width: ${isChatOpen ? '90%' : '100%'};
-            height: 100%;
-            background-color: rgb(32, 33, 36);
-          `}
-          autoPlay
-          muted
-        />
+        <Video stream={localStream} peerId="You" numOfparticipants={totalVideos} />
+        {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream]) => {
+          if (!remoteVideoRefs.current.has(peerId)) {
+            remoteVideoRefs.current.set(peerId, createRef())
+          }
+          return <Video key={peerId} stream={stream} peerId={peerId} numOfparticipants={totalVideos} />
+        })}
       </div>
-      {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream]) => {
-        if (!remoteVideoRefs.current.has(peerId)) {
-          remoteVideoRefs.current.set(peerId, createRef())
-        }
-        return <RemoteVideo key={peerId} peerId={peerId} stream={stream} ref={remoteVideoRefs.current.get(peerId)} />
-      })}
       <ChatBox roomId={roomId} isChatOpen={isChatOpen} localPeerId={localPeerId.current} toggleChat={toggleChat} />
       {/* FIXME: isChatOpen to be global state */}
       <ControlBar roomId={roomId} localStream={localStream} isChatOpen={isChatOpen} toggleChat={toggleChat} />
