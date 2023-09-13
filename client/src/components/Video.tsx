@@ -9,11 +9,10 @@ import { ChatBox } from './ChatBox'
 
 interface VideoProps {
   roomId?: string
-  localPeerId: string
-  setLocalPeerId: React.Dispatch<React.SetStateAction<string>>
 }
 
-export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
+export const Video = ({ roomId }: VideoProps) => {
+  const localPeerId = useRef<string>('')
   const socket = useContext(SocketContext)
   const userVideo = useRef<any>()
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
@@ -31,7 +30,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
 
   useEffect(() => {
     setSocketListeners()
-    socket.emit('join', { roomId: roomId, peerId: localPeerId })
+    socket.emit('join', { roomId: roomId, peerId: localPeerId.current })
 
     return () => removeSocketListeners()
   }, [])
@@ -57,14 +56,12 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
   }, [socket])
 
   const onRoomCreated = async (event: SocketEvent) => {
-    localPeerId = event.peerId
-    setLocalPeerId(localPeerId)
+    localPeerId.current = event.peerId
     await initializeLocalStream()
   }
 
   const onRoomJoined = async (event: SocketEvent) => {
-    localPeerId = event.peerId
-    setLocalPeerId(localPeerId)
+    localPeerId.current = event.peerId
     await initializeLocalStream()
     socket.emit('call', {
       roomId: event.roomId,
@@ -116,7 +113,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
       socket.emit('peer_offer', {
         type: sessionDescription.type,
         sdp: sessionDescription.sdp,
-        senderId: localPeerId,
+        senderId: localPeerId.current,
         receiverId: remotePeerId,
       })
     } catch (error) {
@@ -132,7 +129,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
       socket.emit('peer_answer', {
         type: sessionDescription.type,
         sdp: sessionDescription.sdp,
-        senderId: localPeerId,
+        senderId: localPeerId.current,
         receiverId: remotePeerId,
       })
     } catch (error) {
@@ -143,7 +140,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
   const sendIceCandidate = (ev: RTCPeerConnectionIceEvent, remotePeerId: string) => {
     if (ev.candidate) {
       socket.emit('peer_ice_candidate', {
-        senderId: localPeerId,
+        senderId: localPeerId.current,
         receiverId: remotePeerId,
         roomId: roomId,
         candidate: ev.candidate,
@@ -271,7 +268,7 @@ export const Video = ({ roomId, localPeerId, setLocalPeerId }: VideoProps) => {
         }
         return <RemoteVideo key={peerId} peerId={peerId} stream={stream} ref={remoteVideoRefs.current.get(peerId)} />
       })}
-      <ChatBox roomId={roomId} isChatOpen={isChatOpen} localPeerId={localPeerId} toggleChat={toggleChat} />
+      <ChatBox roomId={roomId} isChatOpen={isChatOpen} localPeerId={localPeerId.current} toggleChat={toggleChat} />
       {/* FIXME: isChatOpen to be global state */}
       <ControlBar roomId={roomId} localStream={localStream} isChatOpen={isChatOpen} toggleChat={toggleChat} />
     </div>
