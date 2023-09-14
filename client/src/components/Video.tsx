@@ -22,8 +22,8 @@ export const Video = ({ stream, peerId, numOfparticipants, muted = true }: Video
       css={css`
         position: relative;
         display: flex;
-        width: ${numOfparticipants === 1 ? '100%' : '45%'};
-        height: ${numOfparticipants === 1 ? '100%' : '55%'};
+        width: 100%;
+        height: 100%;
         align-items: center;
         justify-content: center;
         background-color: ${numOfparticipants === 1 ? 'black' : 'rgb(32, 33, 36)'};
