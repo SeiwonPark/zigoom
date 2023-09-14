@@ -15,6 +15,7 @@ export default function Home() {
     if (socket) {
       setIsNavigating(true)
       setTimeout(() => {
+        socket.connect()
         naviagte(`/room/${uuidv4()}`)
       }, 1000)
     }
