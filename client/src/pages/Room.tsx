@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import { Video } from '../components/Video'
+import { Session } from '../components/Session'
 import { css } from '@emotion/react'
 
 export default function Room() {
@@ -14,7 +14,7 @@ export default function Room() {
         width: 100vw;
       `}
     >
-      <Video roomId={roomId} />
+      <Session roomId={roomId} />
     </div>
   )
 }
