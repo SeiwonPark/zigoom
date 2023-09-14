@@ -13,9 +13,8 @@ interface SessionProps {
 
 export const Session = ({ roomId }: SessionProps) => {
   const socket = useContext(SocketContext)
-  const userVideo = useRef<any>()
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
-  const localStreamRef = useRef<MediaStream | null>()
+  const localStreamRef = useRef<MediaStream>()
   const peerConnectionRefs = useRef<Record<string, RTCPeerConnection>>({})
   const localPeerId = useRef<string>('')
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
@@ -217,7 +216,6 @@ export const Session = ({ roomId }: SessionProps) => {
       const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
       setLocalStream(stream)
       localStreamRef.current = stream
-      userVideo.current.srcObject = stream
     } catch (error) {
       console.error('Could not get user media', error)
     }
