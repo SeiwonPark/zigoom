@@ -20,17 +20,6 @@ export const Session = ({ roomId }: SessionProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
-  const [totalVideos, setTotalVideos] = useState<number>(1)
-
-  useEffect(() => {
-    setTotalVideos(1 + remoteStreams.size)
-  }, [remoteStreams])
-
-  useEffect(() => {
-    if (!localStream) {
-      initializeLocalStream()
-    }
-  }, [localStream])
 
   useEffect(() => {
     setSocketListeners()
@@ -233,6 +222,84 @@ export const Session = ({ roomId }: SessionProps) => {
     setIsChatOpen(!isChatOpen)
   }
 
+  const grids = [
+    [
+      { rowStart: 1, rowEnd: 7, colStart: 1, colEnd: 7 }, // n = 0
+      { rowStart: 1, rowEnd: 7, colStart: 1, colEnd: 7 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 7, colStart: 1, colEnd: 7 }, // n = 1
+      { rowStart: 1, rowEnd: 7, colStart: 1, colEnd: 7 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 7, colStart: 1, colEnd: 4 }, // n = 2
+      { rowStart: 1, rowEnd: 7, colStart: 4, colEnd: 7 },
+      { rowStart: 1, rowEnd: 7, colStart: 4, colEnd: 7 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 4, colStart: 1, colEnd: 4 }, // n = 3
+      { rowStart: 1, rowEnd: 4, colStart: 4, colEnd: 7 },
+      { rowStart: 4, rowEnd: 7, colStart: 2, colEnd: 6 },
+      { rowStart: 4, rowEnd: 7, colStart: 2, colEnd: 6 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 4, colStart: 1, colEnd: 4 }, // n = 4
+      { rowStart: 1, rowEnd: 4, colStart: 4, colEnd: 7 },
+      { rowStart: 4, rowEnd: 7, colStart: 1, colEnd: 4 },
+      { rowStart: 4, rowEnd: 7, colStart: 4, colEnd: 7 },
+      { rowStart: 4, rowEnd: 7, colStart: 4, colEnd: 7 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 4, colStart: 1, colEnd: 3 }, // n = 5
+      { rowStart: 1, rowEnd: 4, colStart: 3, colEnd: 5 },
+      { rowStart: 1, rowEnd: 4, colStart: 5, colEnd: 7 },
+      { rowStart: 4, rowEnd: 7, colStart: 2, colEnd: 4 },
+      { rowStart: 4, rowEnd: 7, colStart: 4, colEnd: 6 },
+      { rowStart: 4, rowEnd: 7, colStart: 4, colEnd: 6 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 4, colStart: 1, colEnd: 3 }, // n = 6
+      { rowStart: 1, rowEnd: 4, colStart: 3, colEnd: 5 },
+      { rowStart: 1, rowEnd: 4, colStart: 5, colEnd: 7 },
+      { rowStart: 4, rowEnd: 7, colStart: 1, colEnd: 3 },
+      { rowStart: 4, rowEnd: 7, colStart: 3, colEnd: 5 },
+      { rowStart: 4, rowEnd: 7, colStart: 5, colEnd: 7 },
+      { rowStart: 4, rowEnd: 7, colStart: 5, colEnd: 7 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 3, colStart: 1, colEnd: 3 }, // n = 7
+      { rowStart: 1, rowEnd: 3, colStart: 3, colEnd: 5 },
+      { rowStart: 1, rowEnd: 3, colStart: 5, colEnd: 7 },
+      { rowStart: 3, rowEnd: 5, colStart: 1, colEnd: 3 },
+      { rowStart: 3, rowEnd: 5, colStart: 3, colEnd: 5 },
+      { rowStart: 3, rowEnd: 5, colStart: 5, colEnd: 7 },
+      { rowStart: 5, rowEnd: 7, colStart: 3, colEnd: 5 },
+      { rowStart: 5, rowEnd: 7, colStart: 3, colEnd: 5 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 3, colStart: 1, colEnd: 3 }, // n = 8
+      { rowStart: 1, rowEnd: 3, colStart: 3, colEnd: 5 },
+      { rowStart: 1, rowEnd: 3, colStart: 5, colEnd: 7 },
+      { rowStart: 3, rowEnd: 5, colStart: 1, colEnd: 3 },
+      { rowStart: 3, rowEnd: 5, colStart: 3, colEnd: 5 },
+      { rowStart: 3, rowEnd: 5, colStart: 5, colEnd: 7 },
+      { rowStart: 5, rowEnd: 7, colStart: 2, colEnd: 4 },
+      { rowStart: 5, rowEnd: 7, colStart: 4, colEnd: 6 },
+      { rowStart: 5, rowEnd: 7, colStart: 4, colEnd: 6 },
+    ],
+    [
+      { rowStart: 1, rowEnd: 3, colStart: 1, colEnd: 3 }, // n = 9
+      { rowStart: 1, rowEnd: 3, colStart: 3, colEnd: 5 },
+      { rowStart: 1, rowEnd: 3, colStart: 5, colEnd: 7 },
+      { rowStart: 3, rowEnd: 5, colStart: 1, colEnd: 3 },
+      { rowStart: 3, rowEnd: 5, colStart: 3, colEnd: 5 },
+      { rowStart: 3, rowEnd: 5, colStart: 5, colEnd: 7 },
+      { rowStart: 5, rowEnd: 7, colStart: 2, colEnd: 4 },
+      { rowStart: 5, rowEnd: 7, colStart: 4, colEnd: 6 },
+      { rowStart: 5, rowEnd: 7, colStart: 4, colEnd: 6 },
+    ],
+  ]
+
   return (
     <div
       css={css`
@@ -247,19 +314,46 @@ export const Session = ({ roomId }: SessionProps) => {
         css={css`
           width: 100%;
           height: calc(100% - 5rem);
-          display: flex;
+          display: grid;
+          grid-template-rows: repeat(6, 1fr);
+          grid-template-columns: repeat(6, 1fr);
+          grid-gap: 60px;
           align-items: center;
           justify-content: center;
-          gap: 60px;
-          overflow: hidden;
         `}
       >
-        <Video stream={localStream} peerId="You" numOfparticipants={totalVideos} />
-        {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream]) => {
+        <div
+          css={css`
+            width: 100%;
+            height: 100%;
+            grid-row-start: ${grids[1 + remoteStreams.size][0].rowStart};
+            grid-row-end: ${grids[1 + remoteStreams.size][0].rowEnd};
+            grid-column-start: ${grids[1 + remoteStreams.size][0].colStart};
+            grid-column-end: ${grids[1 + remoteStreams.size][0].colEnd};
+          `}
+        >
+          <Video stream={localStream} peerId="You" numOfparticipants={1 + remoteStreams.size} />
+        </div>
+        {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream], index: number) => {
           if (!remoteVideoRefs.current.has(peerId)) {
             remoteVideoRefs.current.set(peerId, createRef())
           }
-          return <Video key={peerId} stream={stream} peerId={peerId} numOfparticipants={totalVideos} />
+
+          return (
+            <div
+              key={index}
+              css={css`
+                width: 100%;
+                height: 100%;
+                grid-row-start: ${grids[1 + remoteStreams.size][index + 1].rowStart};
+                grid-row-end: ${grids[1 + remoteStreams.size][index + 1].rowEnd};
+                grid-column-start: ${grids[1 + remoteStreams.size][index + 1].colStart};
+                grid-column-end: ${grids[1 + remoteStreams.size][index + 1].colEnd};
+              `}
+            >
+              <Video key={peerId} stream={stream} peerId={peerId} numOfparticipants={1 + remoteStreams.size} />
+            </div>
+          )
         })}
       </div>
       <ChatBox roomId={roomId} isChatOpen={isChatOpen} localPeerId={localPeerId.current} toggleChat={toggleChat} />
