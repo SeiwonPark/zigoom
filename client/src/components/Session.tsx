@@ -294,9 +294,10 @@ export const Session = ({ roomId }: SessionProps) => {
       { rowStart: 3, rowEnd: 5, colStart: 1, colEnd: 3 },
       { rowStart: 3, rowEnd: 5, colStart: 3, colEnd: 5 },
       { rowStart: 3, rowEnd: 5, colStart: 5, colEnd: 7 },
-      { rowStart: 5, rowEnd: 7, colStart: 2, colEnd: 4 },
-      { rowStart: 5, rowEnd: 7, colStart: 4, colEnd: 6 },
-      { rowStart: 5, rowEnd: 7, colStart: 4, colEnd: 6 },
+      { rowStart: 5, rowEnd: 7, colStart: 1, colEnd: 3 },
+      { rowStart: 5, rowEnd: 7, colStart: 3, colEnd: 5 },
+      { rowStart: 5, rowEnd: 7, colStart: 5, colEnd: 7 },
+      { rowStart: 5, rowEnd: 7, colStart: 5, colEnd: 7 },
     ],
   ]
 
