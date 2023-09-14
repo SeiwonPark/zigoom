@@ -16,7 +16,7 @@ export const Video = ({ roomId }: VideoProps) => {
   const socket = useContext(SocketContext)
   const userVideo = useRef<any>()
   const remoteVideoRefs = useRef<Map<string, VideoElement>>(new Map())
-  const localStreamRef = useRef<MediaStream>()
+  const localStreamRef = useRef<MediaStream | null>()
   const peerConnectionRefs = useRef<Record<string, RTCPeerConnection>>({})
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())

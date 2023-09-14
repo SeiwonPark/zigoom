@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { ControlButton } from './ControlButton'
@@ -25,6 +25,14 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
   const [videoEnabled, setVideoEnabled] = useState(true)
   const [micEnabled, setMicEnabled] = useState(false)
 
+  useEffect(() => {
+    socket.on('disconnect', async (reason: string) => {
+      if (reason === 'io server disconnect') {
+        navigate('/')
+      }
+    })
+  }, [localStream])
+
   const toggleVideo = () => {
     if (localStream && localStream.getVideoTracks().length > 0) {
       const enabled = !localStream.getVideoTracks()[0].enabled
@@ -41,16 +49,8 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
     }
   }
 
-  const clearLocalStream = () => {
-    if (localStream) {
-      localStream.getTracks().forEach((track) => track.stop())
-    }
-  }
-
   const handleCancelCall = () => {
     socket.emit('cancel')
-    clearLocalStream()
-    navigate('/')
   }
 
   return (
