@@ -318,7 +318,7 @@ export const Session = ({ roomId }: SessionProps) => {
           display: grid;
           grid-template-rows: repeat(6, 1fr);
           grid-template-columns: repeat(6, 1fr);
-          grid-gap: 60px;
+          grid-gap: 20px;
           align-items: center;
           justify-content: center;
         `}
