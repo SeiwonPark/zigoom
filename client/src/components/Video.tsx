@@ -2,6 +2,7 @@ import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react'
 import PinIconDisabled from '../assets/icons/pin_disabled.svg'
 import PinIconEnabled from '../assets/icons/pin_enabled.svg'
+import MoreIcon from '../assets/icons/more.svg'
 import { SVGIcon } from './SVGIcon'
 
 interface VideoProps {
@@ -91,6 +92,7 @@ export const Video = ({ stream, peerId, numOfparticipants, muted = true }: Video
             display: flex;
             border-radius: 30px;
             background-color: rgba(0, 0, 0, 0.33);
+            cursor: pointer;
 
             &:hover {
               -webkit-transition: background-color 0.1s ease-in;
@@ -119,6 +121,21 @@ export const Video = ({ stream, peerId, numOfparticipants, muted = true }: Video
             onClick={togglePin}
           >
             <SVGIcon Icon={pinned ? PinIconEnabled : PinIconDisabled} width={30} height={24} />
+          </div>
+          <div
+            id="icon"
+            css={css`
+              padding: 0.5rem;
+              border-radius: 30px;
+              align-items: center;
+              opacity: 0.5;
+
+              &:hover {
+                background-color: rgb(255, 255, 255, 0.1);
+              }
+            `}
+          >
+            <SVGIcon Icon={MoreIcon} width={30} height={24} />
           </div>
         </div>
       </div>

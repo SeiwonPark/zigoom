@@ -1,4 +1,5 @@
 import { MouseEventHandler } from 'react'
+import { css } from '@emotion/react'
 import { SVGProps } from '../typings/types'
 
 interface IconProps {
@@ -11,6 +12,14 @@ interface IconProps {
 
 export const SVGIcon = ({ Icon, fill, width, height, onClick }: IconProps) => {
   return (
-    <Icon fill={fill ? fill : '#f0f0f0'} width={width ? width : 24} height={height ? height : 24} onClick={onClick} />
+    <Icon
+      fill={fill ? fill : '#f0f0f0'}
+      width={width ? width : 24}
+      height={height ? height : 24}
+      onClick={onClick}
+      css={css`
+        cursor: pointer;
+      `}
+    />
   )
 }
