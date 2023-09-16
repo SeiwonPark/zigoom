@@ -14,4 +14,11 @@ export default defineConfig({
       exportAsDefault: true,
     }),
   ],
+  server: {
+    host: 'localhost',
+    headers: {
+      'Referrer-Policy': 'no-referrer-when-downgrade',
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    },
+  },
 })
