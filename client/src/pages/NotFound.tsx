@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
-import { Button } from '../components/Button'
+import { Button } from '../components/buttons/Button'
 
 export default function NotFound() {
   const navigate = useNavigate()

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { v4 as uuidv4 } from 'uuid'
 import { SocketContext } from '../contexts/SocketContext'
-import { Button } from '../components/Button'
+import { Button } from '../components/buttons/Button'
 import VideoAddIcon from '../assets/icons/video_add.svg'
+import { VITE_GOOGLE_CLIENT_ID, VITE_LOGIN_URL } from '../configs/env'
 
 export default function Home() {
   const socket = useContext(SocketContext)
@@ -59,6 +60,21 @@ export default function Home() {
         >
           Video calls and meetings for everyone.
         </h1>
+        <div
+          id="g_id_onload"
+          data-client_id={VITE_GOOGLE_CLIENT_ID}
+          data-login_uri={VITE_LOGIN_URL}
+          data-auto_prompt="false"
+        ></div>
+        <div
+          className="g_id_signin"
+          data-type="standard"
+          data-size="large"
+          data-theme="outline"
+          data-text="sign_in_with"
+          data-shape="rectangular"
+          data-logo_alignment="left"
+        ></div>
         <Button Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
       </section>
       {isNavigating && (

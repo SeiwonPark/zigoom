@@ -1,14 +1,14 @@
 import { css } from '@emotion/react'
-import { SVGProps } from '../typings/types'
+import { SVGProps } from '../../typings/types'
 import { MouseEventHandler } from 'react'
 
-interface IconButtonProps {
+interface HostOptionButtonProps {
   Icon: string | SVGProps
-  onClick: MouseEventHandler
   fill?: string
+  onClick: MouseEventHandler
 }
 
-export const IconButton = ({ Icon, onClick, fill }: IconButtonProps) => {
+export const HostOptionButton = ({ Icon, fill, onClick }: HostOptionButtonProps) => {
   return (
     <div
       css={css`
@@ -30,12 +30,12 @@ export const IconButton = ({ Icon, onClick, fill }: IconButtonProps) => {
           box-shadow: none;
 
           &:hover {
-            background-color: #f1f3f4;
+            background-color: rgba(232, 234, 237, 0.04);
           }
         `}
         onClick={onClick}
       >
-        <Icon fill={fill ? fill : '#5f6368'} width={24} height={24} />
+        <Icon fill={fill ? fill : '#fff'} />
       </button>
     </div>
   )
