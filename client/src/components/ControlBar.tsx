@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
-import { ControlButton } from './ControlButton'
+import { ControlButton } from './buttons/ControlButton'
 import VideoIcon from '../assets/icons/video.svg'
 import VideoOffIcon from '../assets/icons/video_off.svg'
 import MicIcon from '../assets/icons/mic.svg'
@@ -9,7 +9,7 @@ import MicOffIcon from '../assets/icons/mic_off.svg'
 import ChatIconEnabled from '../assets/icons/chat_enabled.svg'
 import ChatIconDisabled from '../assets/icons/chat_disabled.svg'
 import CallEndIcon from '../assets/icons/call_end.svg'
-import { HostOptionButton } from './HostOptionButton'
+import { HostOptionButton } from './buttons/HostOptionButton'
 import { SocketContext } from '../contexts/SocketContext'
 
 interface ControlBarProps {

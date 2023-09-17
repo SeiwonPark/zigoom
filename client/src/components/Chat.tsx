@@ -4,7 +4,7 @@ import { Message } from '../typings/types'
 import { handleKeyUp } from '../utils/keys'
 import { SocketContext } from '../contexts/SocketContext'
 import SendIcon from '../assets/icons/send.svg'
-import { IconButton } from './IconButton'
+import { IconButton } from './buttons/IconButton'
 
 interface ChatProps {
   roomId?: string
