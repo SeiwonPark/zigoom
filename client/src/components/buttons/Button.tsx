@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import { MouseEventHandler } from 'react'
-import { SVGProps } from '../typings/types'
+import { SVGProps } from '../../typings/types'
 
 interface ButtonProps {
   Icon?: string | SVGProps // FIXME: why it doesn't work?

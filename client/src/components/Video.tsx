@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import PinIconDisabled from '../assets/icons/pin_disabled.svg'
 import PinIconEnabled from '../assets/icons/pin_enabled.svg'
 import MoreIcon from '../assets/icons/more.svg'
-import { SVGIcon } from './SVGIcon'
+import { SVGIcon } from './buttons/SVGIcon'
 
 interface VideoProps {
   stream: MediaStream | null

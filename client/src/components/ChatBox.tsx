@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import { Chat } from './Chat'
-import { IconButton } from './IconButton'
+import { IconButton } from './buttons/IconButton'
 import CloseIcon from '../assets/icons/close.svg'
 
 interface ChatBoxProps {

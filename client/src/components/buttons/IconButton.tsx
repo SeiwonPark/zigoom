@@ -1,14 +1,14 @@
 import { css } from '@emotion/react'
-import { SVGProps } from '../typings/types'
+import { SVGProps } from '../../typings/types'
 import { MouseEventHandler } from 'react'
 
-interface ControlButtonProps {
+interface IconButtonProps {
   Icon: string | SVGProps
   onClick: MouseEventHandler
-  enabled: boolean
+  fill?: string
 }
 
-export const ControlButton = ({ Icon, onClick, enabled }: ControlButtonProps) => {
+export const IconButton = ({ Icon, onClick, fill }: IconButtonProps) => {
   return (
     <div
       css={css`
@@ -25,17 +25,17 @@ export const ControlButton = ({ Icon, onClick, enabled }: ControlButtonProps) =>
           justify-content: center;
           display: flex;
           border-radius: 100%;
-          background-color: ${enabled ? 'rgb(60, 64, 67)' : 'rgb(234, 67, 53)'};
+          background-color: transparent;
           cursor: pointer;
           box-shadow: none;
 
           &:hover {
-            background-color: ${enabled ? 'rgb(77, 80, 81)' : 'rgb(245, 77, 63)'};
+            background-color: #f1f3f4;
           }
         `}
         onClick={onClick}
       >
-        <Icon fill="#fff" />
+        <Icon fill={fill ? fill : '#5f6368'} width={24} height={24} />
       </button>
     </div>
   )
