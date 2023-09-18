@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { SocketContext } from '../contexts/SocketContext'
 import { Button } from '../components/buttons/Button'
 import VideoAddIcon from '../assets/icons/video_add.svg'
-import { VITE_GOOGLE_CLIENT_ID, VITE_LOGIN_URL } from '../configs/env'
+import { Header } from '../components/Header'
 
 export default function Home() {
   const socket = useContext(SocketContext)
@@ -23,75 +23,68 @@ export default function Home() {
   }
 
   return (
-    <div
-      css={css`
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: ${isNavigating ? 'rgba(0, 0, 0, 0.8)' : 'transparent'};
-        transition: background-color 1s;
-      `}
-    >
-      <section
+    <>
+      <Header
+        style={{
+          backgroundColor: `${isNavigating ? 'transparent' : '#fff'}`,
+          transition: `background-color 1s`,
+        }}
+      />
+      <div
         css={css`
-          // FIXME: responsive test
-          @media screen and (max-width: 1440px) {
-            max-width: 1296px;
-            margin: 0 auto;
-          }
-
-          @media screen and (max-width: 1024px) {
-            margin: 72px;
-          }
-
-          @media screen and (max-width: 600px) {
-            margin: 40px;
-          }
+          width: 100vw;
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background-color: ${isNavigating ? 'rgba(0, 0, 0, 0.8)' : 'transparent'};
+          transition: background-color 1s;
         `}
       >
-        <h1
+        <section
           css={css`
-            font-size: 3rem;
-            font-weight: 400;
+            // FIXME: responsive test
+            @media screen and (max-width: 1440px) {
+              max-width: 1296px;
+              margin: 0 auto;
+            }
+
+            @media screen and (max-width: 1024px) {
+              margin: 72px;
+            }
+
+            @media screen and (max-width: 600px) {
+              margin: 40px;
+            }
           `}
         >
-          Video calls and meetings for everyone.
-        </h1>
-        <div
-          id="g_id_onload"
-          data-client_id={VITE_GOOGLE_CLIENT_ID}
-          data-login_uri={VITE_LOGIN_URL}
-          data-auto_prompt="false"
-        ></div>
-        <div
-          className="g_id_signin"
-          data-type="standard"
-          data-size="large"
-          data-theme="outline"
-          data-text="sign_in_with"
-          data-shape="rectangular"
-          data-logo_alignment="left"
-        ></div>
-        <Button Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
-      </section>
-      {isNavigating && (
-        <div
-          css={css`
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 2rem;
-            font-weight: 500;
-          `}
-        >
-          Loading...
-        </div>
-      )}
-    </div>
+          <h1
+            css={css`
+              font-size: 3rem;
+              font-weight: 400;
+            `}
+          >
+            Video calls and meetings for everyone.
+          </h1>
+          <Button Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
+        </section>
+        {isNavigating && (
+          <div
+            css={css`
+              position: absolute;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: #fff;
+              font-size: 2rem;
+              font-weight: 500;
+            `}
+          >
+            Loading...
+          </div>
+        )}
+      </div>
+    </>
   )
 }
