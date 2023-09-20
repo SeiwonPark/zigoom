@@ -15,7 +15,7 @@ export const ChatBox = ({ isChatOpen, roomId, localPeerId, toggleChat }: ChatBox
     <div
       id="chat-container"
       css={css`
-        height: calc(100% - 5rem);
+        height: calc(100% - 7rem);
         background-color: rgb(32, 33, 36);
         min-width: ${isChatOpen ? 'max(30%, 400px)' : '0px'};
         width: ${isChatOpen ? 'max(30%, 400px)' : '0px'};
@@ -29,7 +29,7 @@ export const ChatBox = ({ isChatOpen, roomId, localPeerId, toggleChat }: ChatBox
     >
       <div
         css={css`
-          height: calc(100% - 5rem);
+          height: calc(100% - 7rem);
           background-color: rgb(32, 33, 36);
           min-width: ${isChatOpen ? 'max(30%, 400px)' : '0px'};
           width: ${isChatOpen ? 'max(30%, 400px)' : '0px'};

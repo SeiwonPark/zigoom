@@ -1,4 +1,5 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import type { LocalOptions } from '../typings/types'
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { v4 as uuidv4 } from 'uuid'
@@ -6,11 +7,20 @@ import { SocketContext } from '../contexts/SocketContext'
 import { Button } from '../components/buttons/Button'
 import VideoAddIcon from '../assets/icons/video_add.svg'
 import { Header } from '../components/Header'
+import { getLocalStorageItem, storeDataInLocalStorage } from '../utils/localStorage'
 
 export default function Home() {
   const socket = useContext(SocketContext)
   const naviagte = useNavigate()
   const [isNavigating, setIsNavigating] = useState<boolean>(false)
+
+  useEffect(() => {
+    const currentLocalOptions = getLocalStorageItem<LocalOptions>('local')
+
+    if (!currentLocalOptions) {
+      storeDataInLocalStorage<LocalOptions>('local', { isVideoOn: false, isAudioOn: false })
+    }
+  }, [])
 
   const enterRoom = () => {
     if (socket) {
@@ -24,12 +34,7 @@ export default function Home() {
 
   return (
     <>
-      <Header
-        style={{
-          backgroundColor: `${isNavigating ? 'transparent' : '#fff'}`,
-          transition: `background-color 1s`,
-        }}
-      />
+      <Header />
       <div
         css={css`
           width: 100vw;

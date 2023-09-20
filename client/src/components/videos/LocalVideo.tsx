@@ -1,9 +1,13 @@
+import type { GoogleJWTPayload } from '../../validations/auth.validation'
 import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react'
-import PinIconDisabled from '../assets/icons/pin_disabled.svg'
-import PinIconEnabled from '../assets/icons/pin_enabled.svg'
-import MoreIcon from '../assets/icons/more.svg'
-import { SVGIcon } from './buttons/SVGIcon'
+import PinIconDisabled from '../../assets/icons/pin_disabled.svg'
+import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
+import MoreIcon from '../../assets/icons/more.svg'
+import { SVGIcon } from '../buttons/SVGIcon'
+import { getLocalStorageItem } from '../../utils/localStorage'
+import Unnamed from '../../assets/images/unnamed.png'
+import { useLocalOption } from '../../hooks/useStore'
 
 interface VideoProps {
   stream: MediaStream | null
@@ -12,19 +16,28 @@ interface VideoProps {
   muted?: boolean
 }
 
-export const Video = ({ stream, peerId, numOfparticipants, muted = true }: VideoProps) => {
+export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [pinned, setPinned] = useState<boolean>(false)
+  const { isVideoOn, isAudioOn } = useLocalOption()
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.srcObject = stream
     }
-  }, [stream])
+
+    if (stream && stream.getVideoTracks().length > 0) {
+      stream.getVideoTracks()[0].enabled = isVideoOn
+    }
+  }, [stream, isVideoOn, isAudioOn])
 
   // FIXME: actually pin
   const togglePin = () => {
     setPinned(!pinned)
+  }
+
+  const getProfileImageFromLocalStorage = () => {
+    return getLocalStorageItem<GoogleJWTPayload>('user')?.picture
   }
 
   return (
@@ -47,19 +60,34 @@ export const Video = ({ stream, peerId, numOfparticipants, muted = true }: Video
         }
       `}
     >
-      <video
-        ref={videoRef}
-        muted={muted}
-        autoPlay
-        playsInline
-        css={css`
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 8px;
-          object-fit: ${numOfparticipants === 1 ? 'contain' : 'cover'};
-        `}
-      />
+      {isVideoOn ? (
+        <video
+          ref={videoRef}
+          muted={muted}
+          autoPlay
+          playsInline
+          css={css`
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: ${numOfparticipants === 1 ? 'contain' : 'cover'};
+          `}
+        />
+      ) : (
+        <div>
+          <img
+            css={css`
+              width: 20vh;
+              height: 20vh;
+              border-radius: 20vh;
+            `}
+            // FIXME: hope there's a better idea
+            src={getProfileImageFromLocalStorage()?.replace('=s96-c', '=l96-c') || Unnamed}
+            alt="Unnamed"
+          />
+        </div>
+      )}
       <div
         css={css`
           position: absolute;
