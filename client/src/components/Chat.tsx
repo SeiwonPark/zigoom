@@ -1,6 +1,7 @@
+import type { ReceiveChatPayloadSchema } from '../validations/socket.validation'
+import { isReceiveChatPayloadSchema } from '../validations/socket.validation'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { css } from '@emotion/react'
-import { Message } from '../typings/types'
 import { handleKeyUp } from '../utils/keys'
 import { SocketContext } from '../contexts/SocketContext'
 import SendIcon from '../assets/icons/send.svg'
@@ -13,10 +14,14 @@ interface ChatProps {
 
 export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   const socket = useContext(SocketContext)
-  const [chatMessages, setChatMessages] = useState<Message[]>([])
+  const [chatMessages, setChatMessages] = useState<ReceiveChatPayloadSchema[]>([])
   const [chatInput, setChatInput] = useState<string>('')
 
-  const onReceiveChat = useCallback((data: Message) => {
+  const onReceiveChat = useCallback((data: any) => {
+    if (!isReceiveChatPayloadSchema(data)) {
+      throw Error('Invalid payload type for ReceiveChatPayloadSchema.')
+    }
+
     setChatMessages((prev) => [...prev, data])
   }, [])
 
@@ -35,7 +40,7 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
       message: chatInput,
     })
 
-    const newChatMessage: Message = {
+    const newChatMessage: ReceiveChatPayloadSchema = {
       senderId: localPeerId,
       message: chatInput,
     }

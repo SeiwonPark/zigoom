@@ -12,7 +12,7 @@ export const setupSocketHandlers = (io: Server) => {
   io.on('connection', (socket: Socket) => {
     const onJoin = (payload: any) => {
       if (!isJoinSchema(payload)) {
-        throw Error('Invalid paylod type for JoinSchema.')
+        throw Error('Invalid payload type for JoinSchema.')
       }
 
       const { roomId } = payload
@@ -36,7 +36,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onCall = (payload: any) => {
       if (!isCallSchema(payload)) {
-        throw Error('Invalid paylod type for CallSchema.')
+        throw Error('Invalid payload type for CallSchema.')
       }
 
       socket.broadcast.to(payload.roomId).emit('call', {
@@ -46,7 +46,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onPeerOffer = (payload: any) => {
       if (!isPeerOfferSchema(payload)) {
-        throw Error('Invalid paylod type for PeerOfferSchema.')
+        throw Error('Invalid payload type for PeerOfferSchema.')
       }
 
       socket.broadcast.to(payload.receiverId).emit('peer_offer', {
@@ -58,7 +58,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onPeerAnswer = (payload: any) => {
       if (!isPeerAnswerSchema(payload)) {
-        throw Error('Invalid paylod type for PeerAnswerSchema.')
+        throw Error('Invalid payload type for PeerAnswerSchema.')
       }
 
       socket.broadcast.to(payload.receiverId).emit('peer_answer', {
@@ -70,7 +70,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onPeerIceCandidate = (payload: any) => {
       if (!isPeerIceCandidateSchema(payload)) {
-        throw Error('Invalid paylod type for PeerIceCandidateSchema.')
+        throw Error('Invalid payload type for PeerIceCandidateSchema.')
       }
 
       socket.broadcast.to(payload.receiverId).emit('peer_ice_candidate', payload)
@@ -78,7 +78,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onSendChat = (payload: any) => {
       if (!isSendChatSchema(payload)) {
-        throw Error('Invalid paylod type for SendChatSchema.')
+        throw Error('Invalid payload type for SendChatSchema.')
       }
 
       socket.to(payload.roomId).emit('receive_chat', {

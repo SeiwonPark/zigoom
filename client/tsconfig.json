@@ -17,7 +17,7 @@
     "typeRoots": ["./node_modules/@types", "./src/typings"],
 
     /* Linting */
-    "strict": true,
+    "strict": true, /* SHOULD be enabled to use 'zod' */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true

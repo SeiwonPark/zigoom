@@ -1,5 +1,5 @@
+import type { SVGProps } from '../../typings/types'
 import { css } from '@emotion/react'
-import { SVGProps } from '../../typings/types'
 import { MouseEventHandler } from 'react'
 
 interface IconButtonProps {

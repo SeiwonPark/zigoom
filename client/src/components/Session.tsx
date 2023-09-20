@@ -1,11 +1,21 @@
+import type { VideoElement } from '../typings/types'
+import { PeerDisconnectionType } from '../typings/enums'
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/react'
-import { SocketEvent, VideoElement } from '../typings/types'
+import {
+  isCallPayloadSchema,
+  isPeerAnswerPayloadSchema,
+  isPeerIceCandidatePayloadSchema,
+  isPeerOfferPayloadSchema,
+  isRoomCreatedPayloadSchema,
+  isRoomJoinedPayloadSchema,
+} from '../validations/socket.validation'
 import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { SocketContext } from '../contexts/SocketContext'
 import { ControlBar } from './ControlBar'
 import { ChatBox } from './ChatBox'
-import { Video } from './Video'
+import { LocalVideo } from './videos/LocalVideo'
+import { RemoteVideo } from './videos/RemoteVideo'
 
 interface SessionProps {
   roomId?: string
@@ -48,12 +58,20 @@ export const Session = ({ roomId }: SessionProps) => {
     socket.off('peer_disconnected')
   }, [socket])
 
-  const onRoomCreated = async (event: SocketEvent) => {
+  const onRoomCreated = async (event: any) => {
+    if (!isRoomCreatedPayloadSchema(event)) {
+      throw Error('Invalid payload type for RoomCreatedPayloadSchema.')
+    }
+
     localPeerId.current = event.peerId
     await initializeLocalStream()
   }
 
-  const onRoomJoined = async (event: SocketEvent) => {
+  const onRoomJoined = async (event: any) => {
+    if (!isRoomJoinedPayloadSchema(event)) {
+      throw Error('Invalid payload type for RoomJoinedPayloadSchema.')
+    }
+
     localPeerId.current = event.peerId
     await initializeLocalStream()
     socket.emit('call', {
@@ -72,7 +90,11 @@ export const Session = ({ roomId }: SessionProps) => {
     return rtcPeerConnection
   }
 
-  const onCall = async (event: SocketEvent) => {
+  const onCall = async (event: any) => {
+    if (!isCallPayloadSchema(event)) {
+      throw Error('Invalid payload type for CallPayloadSchema.')
+    }
+
     const remotePeerId = event.senderId
 
     const rtcPeerConnection = configurePeerConnection(remotePeerId)
@@ -82,7 +104,11 @@ export const Session = ({ roomId }: SessionProps) => {
     peerConnectionRefs.current[remotePeerId] = rtcPeerConnection
   }
 
-  const onPeerOffer = async (event: SocketEvent) => {
+  const onPeerOffer = async (event: any) => {
+    if (!isPeerOfferPayloadSchema(event)) {
+      throw Error('Invalid payload type for PeerOfferPayloadSchema.')
+    }
+
     const remotePeerId = event.senderId
     const rtcPeerConnection = configurePeerConnection(remotePeerId)
 
@@ -93,7 +119,11 @@ export const Session = ({ roomId }: SessionProps) => {
     peerConnectionRefs.current[remotePeerId] = rtcPeerConnection
   }
 
-  const onPeerAnswer = async (event: SocketEvent) => {
+  const onPeerAnswer = async (event: any) => {
+    if (!isPeerAnswerPayloadSchema(event)) {
+      throw Error('Invalid payload type for PeerAnswerPayloadSchema.')
+    }
+
     const peerConnection = peerConnectionRefs.current[event.senderId]
     peerConnection.setRemoteDescription(new RTCSessionDescription({ ...event }))
   }
@@ -141,7 +171,11 @@ export const Session = ({ roomId }: SessionProps) => {
     }
   }
 
-  const onPeerIceCandidate = (event: SocketEvent) => {
+  const onPeerIceCandidate = (event: any) => {
+    if (!isPeerIceCandidatePayloadSchema(event)) {
+      throw Error('Invalid payload type for PeerIceCandidatePayloadSchema.')
+    }
+
     const senderPeerId = event.senderId
 
     const candidate = new RTCIceCandidate({
@@ -154,7 +188,7 @@ export const Session = ({ roomId }: SessionProps) => {
     }
   }
 
-  const onPeerDisconnected = (event: SocketEvent) => {
+  const onPeerDisconnected = (event: any) => {
     const disconnectedPeerId = event.peerId
     console.log(`Peer ${disconnectedPeerId} has been disconnected`)
 
@@ -222,6 +256,7 @@ export const Session = ({ roomId }: SessionProps) => {
     setIsChatOpen(!isChatOpen)
   }
 
+  // FIXME: to dynamic values
   const grids = [
     [
       { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 }, // n = 0
@@ -314,7 +349,8 @@ export const Session = ({ roomId }: SessionProps) => {
       <div
         css={css`
           width: 100%;
-          height: calc(100% - 5rem);
+          padding: ${remoteStreams.size > 0 ? '1rem' : '0'};
+          height: calc(100% - 7rem);
           display: grid;
           grid-template-rows: repeat(12, 1fr);
           grid-template-columns: repeat(12, 1fr);
@@ -333,7 +369,7 @@ export const Session = ({ roomId }: SessionProps) => {
             grid-column-end: ${grids[1 + remoteStreams.size][0].colEnd};
           `}
         >
-          <Video stream={localStream} peerId="You" numOfparticipants={1 + remoteStreams.size} />
+          <LocalVideo stream={localStream} peerId="You" numOfparticipants={1 + remoteStreams.size} />
         </div>
         {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream], index: number) => {
           if (!remoteVideoRefs.current.has(peerId)) {
@@ -352,7 +388,7 @@ export const Session = ({ roomId }: SessionProps) => {
                 grid-column-end: ${grids[1 + remoteStreams.size][index + 1].colEnd};
               `}
             >
-              <Video key={peerId} stream={stream} peerId={peerId} numOfparticipants={1 + remoteStreams.size} />
+              <RemoteVideo key={peerId} stream={stream} peerId={peerId} numOfparticipants={1 + remoteStreams.size} />
             </div>
           )
         })}

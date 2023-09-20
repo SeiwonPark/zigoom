@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { ControlButton } from './buttons/ControlButton'
@@ -11,6 +11,7 @@ import ChatIconDisabled from '../assets/icons/chat_disabled.svg'
 import CallEndIcon from '../assets/icons/call_end.svg'
 import { HostOptionButton } from './buttons/HostOptionButton'
 import { SocketContext } from '../contexts/SocketContext'
+import { useLocalOption } from '../hooks/useStore'
 
 interface ControlBarProps {
   roomId?: string
@@ -22,8 +23,7 @@ interface ControlBarProps {
 export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: ControlBarProps) => {
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
-  const [videoEnabled, setVideoEnabled] = useState(true)
-  const [micEnabled, setMicEnabled] = useState(false)
+  const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
 
   useEffect(() => {
     socket.on('disconnect', async (reason: string) => {
@@ -31,13 +31,13 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
         navigate('/')
       }
     })
-  }, [localStream])
+  }, [localStream, isVideoOn, isAudioOn])
 
   const toggleVideo = () => {
     if (localStream && localStream.getVideoTracks().length > 0) {
       const enabled = !localStream.getVideoTracks()[0].enabled
       localStream.getVideoTracks()[0].enabled = enabled
-      setVideoEnabled(enabled)
+      setIsVideoOn()
     }
   }
 
@@ -45,7 +45,7 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
     if (localStream && localStream.getAudioTracks().length > 0) {
       const enabled = !localStream.getAudioTracks()[0].enabled
       localStream.getAudioTracks()[0].enabled = enabled
-      setMicEnabled(enabled)
+      setIsAudioOn()
     }
   }
 
@@ -86,8 +86,8 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
             display: flex;
           `}
         >
-          <ControlButton Icon={videoEnabled ? VideoIcon : VideoOffIcon} onClick={toggleVideo} enabled={videoEnabled} />
-          <ControlButton Icon={micEnabled ? MicIcon : MicOffIcon} onClick={toggleMic} enabled={micEnabled} />
+          <ControlButton Icon={isVideoOn ? VideoIcon : VideoOffIcon} onClick={toggleVideo} enabled={isVideoOn} />
+          <ControlButton Icon={isAudioOn ? MicIcon : MicOffIcon} onClick={toggleMic} enabled={isAudioOn} />
           <ControlButton Icon={CallEndIcon} onClick={handleCancelCall} enabled={false} />
         </div>
         <div
