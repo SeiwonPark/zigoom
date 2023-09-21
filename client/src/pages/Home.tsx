@@ -4,14 +4,14 @@ import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
 import { v4 as uuidv4 } from 'uuid'
 import { SocketContext } from '../contexts/SocketContext'
-import { Button } from '../components/buttons/Button'
+import { ElevatedButton } from '../components/buttons/ElevatedButton'
 import VideoAddIcon from '../assets/icons/video_add.svg'
 import { Header } from '../components/Header'
-import { getLocalStorageItem, storeDataInLocalStorage } from '../utils/localStorage'
+import { getLocalStorageItem, storeDataInLocalStorage } from '../utils'
 
 export default function Home() {
   const socket = useContext(SocketContext)
-  const naviagte = useNavigate()
+  const navigate = useNavigate()
   const [isNavigating, setIsNavigating] = useState<boolean>(false)
 
   useEffect(() => {
@@ -27,14 +27,14 @@ export default function Home() {
       setIsNavigating(true)
       setTimeout(() => {
         socket.connect()
-        naviagte(`/room/${uuidv4()}`)
+        navigate(`/room/${uuidv4()}`)
       }, 1000)
     }
   }
 
   return (
     <>
-      <Header />
+      <Header enterGuestMode={enterRoom} />
       <div
         css={css`
           width: 100vw;
@@ -72,7 +72,7 @@ export default function Home() {
           >
             Video calls and meetings for everyone.
           </h1>
-          <Button Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
+          <ElevatedButton Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
         </section>
         {isNavigating && (
           <div

@@ -37,5 +37,5 @@ const decodeBase64UriToJson = (encoded: string): GoogleJWTPayload => {
 }
 
 const decodeBase64 = (encoded: string): string => {
-  return window.atob(encoded.replace(/-/g, '+').replace(/_/g, '/'))
+  return globalThis.atob(encoded.replace(/-/g, '+').replace(/_/g, '/'))
 }

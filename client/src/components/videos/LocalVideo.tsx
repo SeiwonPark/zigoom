@@ -5,7 +5,7 @@ import PinIconDisabled from '../../assets/icons/pin_disabled.svg'
 import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
 import MoreIcon from '../../assets/icons/more.svg'
 import { SVGIcon } from '../buttons/SVGIcon'
-import { getLocalStorageItem } from '../../utils/localStorage'
+import { getLocalStorageItem } from '../../utils'
 import Unnamed from '../../assets/images/unnamed.png'
 import { useLocalOption } from '../../hooks/useStore'
 

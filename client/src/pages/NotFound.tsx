@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
-import { Button } from '../components/buttons/Button'
+import { ElevatedButton } from '../components/buttons/ElevatedButton'
 import { Header } from '../components/Header'
 
 export default function NotFound() {
@@ -42,7 +42,7 @@ export default function NotFound() {
           `}
         ></div>
         <div>
-          <Button text="Back to Home" onClick={() => navigate('/')} />
+          <ElevatedButton text="Back to Home" onClick={() => navigate('/')} />
         </div>
       </div>
     </>
