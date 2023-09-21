@@ -1,4 +1,4 @@
-import type { VideoElement } from '../typings/types'
+import type { PeerData, VideoElement } from '../typings/types'
 import { PeerDisconnectionType } from '../typings/enums'
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/react'
@@ -16,6 +16,9 @@ import { ControlBar } from './ControlBar'
 import { ChatBox } from './ChatBox'
 import { LocalVideo } from './videos/LocalVideo'
 import { RemoteVideo } from './videos/RemoteVideo'
+import { getLocalStorageItem, toDataURL } from '../utils'
+import { GoogleJWTPayload } from '../validations/auth.validation'
+import Unnamed from '../assets/images/unnamed.png'
 
 interface SessionProps {
   roomId?: string
@@ -30,6 +33,7 @@ export const Session = ({ roomId }: SessionProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
+  const [remoteProfiles, setRemoteProfiles] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
     setSocketListeners()
@@ -87,7 +91,37 @@ export const Session = ({ roomId }: SessionProps) => {
     rtcPeerConnection.oniceconnectionstatechange = () => checkPeerDisconnect(remotePeerId)
     rtcPeerConnection.onicecandidate = (ev: RTCPeerConnectionIceEvent) => sendIceCandidate(ev, remotePeerId)
 
+    const peersDataChannel = rtcPeerConnection.createDataChannel('peers')
+
+    peersDataChannel.onopen = async () => {
+      const profileImage = await getProfileImage()
+
+      peersDataChannel.send(
+        JSON.stringify({
+          id: localPeerId.current,
+          img: profileImage,
+        })
+      )
+    }
+
+    peersDataChannel.onclose = () => {
+      console.log(`Data channel is closed from ${remotePeerId}`)
+    }
+
+    rtcPeerConnection.ondatachannel = (event: RTCDataChannelEvent) => {
+      const receiveChannel = event.channel
+      receiveChannel.onmessage = handleReceiveMessage
+    }
+
     return rtcPeerConnection
+  }
+
+  const handleReceiveMessage = (event: MessageEvent<string>) => {
+    const receivedImage: PeerData = JSON.parse(event.data)
+
+    setRemoteProfiles((prev) => {
+      return new Map(prev).set(receivedImage.id, receivedImage.img)
+    })
   }
 
   const onCall = async (event: any) => {
@@ -252,6 +286,18 @@ export const Session = ({ roomId }: SessionProps) => {
     }
   }
 
+  const getProfileImage = async () => {
+    const unnamed = await toDataURL(Unnamed)
+    const localUserData = getLocalStorageItem<GoogleJWTPayload>('user')
+
+    if (localUserData) {
+      const localProfile = await toDataURL(localUserData.picture.replace('=s96-c', '=l96-c'))
+      return localProfile
+    }
+
+    return unnamed
+  }
+
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
   }
@@ -388,14 +434,26 @@ export const Session = ({ roomId }: SessionProps) => {
                 grid-column-end: ${grids[1 + remoteStreams.size][index + 1].colEnd};
               `}
             >
-              <RemoteVideo key={peerId} stream={stream} peerId={peerId} numOfparticipants={1 + remoteStreams.size} />
+              <RemoteVideo
+                key={peerId}
+                stream={stream}
+                peerId={peerId}
+                numOfparticipants={1 + remoteStreams.size}
+                remoteProfiles={remoteProfiles}
+              />
             </div>
           )
         })}
       </div>
       <ChatBox roomId={roomId} isChatOpen={isChatOpen} localPeerId={localPeerId.current} toggleChat={toggleChat} />
       {/* FIXME: isChatOpen to be global state */}
-      <ControlBar roomId={roomId} localStream={localStream} isChatOpen={isChatOpen} toggleChat={toggleChat} />
+      <ControlBar
+        roomId={roomId}
+        localPeerId={localPeerId.current}
+        localStream={localStream}
+        isChatOpen={isChatOpen}
+        toggleChat={toggleChat}
+      />
     </div>
   )
 }

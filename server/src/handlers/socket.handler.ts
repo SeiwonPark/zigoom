@@ -6,6 +6,7 @@ import {
   isPeerAnswerSchema,
   isPeerIceCandidateSchema,
   isSendChatSchema,
+  isToggleVideoSchema,
 } from '../validations/socket.validation'
 
 export const setupSocketHandlers = (io: Server) => {
@@ -97,6 +98,17 @@ export const setupSocketHandlers = (io: Server) => {
       socket.disconnect()
     }
 
+    const onToggleVideo = (payload: any) => {
+      if (!isToggleVideoSchema(payload)) {
+        throw Error('Invalid payload type for ToggleVideoSchema.')
+      }
+
+      socket.to(payload.roomId).emit('videoStatus', {
+        senderId: payload.senderId,
+        video: payload.video,
+      })
+    }
+
     socket.on('join', onJoin)
     socket.on('call', onCall)
     socket.on('peer_offer', onPeerOffer)
@@ -105,5 +117,6 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('send_chat', onSendChat)
     socket.on('disconnect', onDisconnect)
     socket.on('cancel', onCancel)
+    socket.on('toggleVideo', onToggleVideo)
   })
 }

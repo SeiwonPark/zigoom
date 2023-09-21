@@ -1,30 +1,68 @@
 import { css } from '@emotion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { SocketContext } from '../../contexts/SocketContext'
 import PinIconDisabled from '../../assets/icons/pin_disabled.svg'
 import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
 import MoreIcon from '../../assets/icons/more.svg'
 import { SVGIcon } from '../buttons/SVGIcon'
+import { isVideoStatusPayloadSchema } from '../../validations/socket.validation'
 
 interface VideoProps {
-  stream: MediaStream | null
+  stream: MediaStream
   peerId: string
   numOfparticipants: number
-  muted?: boolean
+  remoteProfiles: Map<string, string>
 }
 
-export const RemoteVideo = ({ stream, peerId, numOfparticipants, muted = true }: VideoProps) => {
+export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles }: VideoProps) => {
+  const socket = useContext(SocketContext)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [pinned, setPinned] = useState<boolean>(false)
+  const [videoActive, setVideoActive] = useState<boolean>(false)
 
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.srcObject = stream
     }
-  }, [stream])
+
+    const handleVideoStatus = (event: any) => {
+      if (!isVideoStatusPayloadSchema(event)) {
+        throw Error('Invalid payload type for VideoStatusPayloadSchema.')
+      }
+
+      if (event.senderId === peerId) {
+        if (videoRef.current) {
+          toggleVideo()
+        }
+
+        setVideoActive(event.video)
+      }
+    }
+
+    socket.on('videoStatus', handleVideoStatus)
+
+    return () => {
+      socket.off('videoStatus', handleVideoStatus)
+    }
+  }, [])
 
   // FIXME: actually pin
   const togglePin = () => {
     setPinned(!pinned)
+  }
+
+  const toggleVideo = () => {
+    if (stream && stream.getVideoTracks().length > 0) {
+      const enabled = !stream.getVideoTracks()[0].enabled
+      stream.getVideoTracks()[0].enabled = enabled
+    }
+  }
+
+  const setVideoRef = (node: HTMLVideoElement) => {
+    if (node) {
+      node.srcObject = stream
+      videoRef.current = node
+    }
   }
 
   return (
@@ -47,19 +85,33 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, muted = true }:
         }
       `}
     >
-      <video
-        ref={videoRef}
-        muted={muted}
-        autoPlay
-        playsInline
-        css={css`
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          border-radius: 8px;
-          object-fit: ${numOfparticipants === 1 ? 'contain' : 'cover'};
-        `}
-      />
+      {videoActive ? (
+        <video
+          ref={setVideoRef}
+          muted={true}
+          autoPlay
+          playsInline
+          css={css`
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: ${numOfparticipants === 1 ? 'contain' : 'cover'};
+          `}
+        />
+      ) : (
+        <div>
+          <img
+            css={css`
+              width: 20vh;
+              height: 20vh;
+              border-radius: 20vh;
+            `}
+            src={remoteProfiles.get(peerId)}
+            alt={peerId}
+          />
+        </div>
+      )}
       <div
         css={css`
           position: absolute;

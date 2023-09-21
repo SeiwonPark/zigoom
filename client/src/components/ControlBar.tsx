@@ -15,12 +15,13 @@ import { useLocalOption } from '../hooks/useStore'
 
 interface ControlBarProps {
   roomId?: string
+  localPeerId: string
   isChatOpen: boolean
   localStream: MediaStream | null
   toggleChat: () => void
 }
 
-export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: ControlBarProps) => {
+export const ControlBar = ({ roomId, localPeerId, isChatOpen, localStream, toggleChat }: ControlBarProps) => {
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
   const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
@@ -30,8 +31,8 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
       if (reason === 'io server disconnect') {
         if (localStream && localStream.getVideoTracks().length > 0) {
           localStream.getVideoTracks()[0].stop()
+          navigate('/')
         }
-        navigate('/')
       }
     })
   }, [localStream, isVideoOn, isAudioOn])
@@ -41,6 +42,12 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
       const enabled = !localStream.getVideoTracks()[0].enabled
       localStream.getVideoTracks()[0].enabled = enabled
       setIsVideoOn()
+
+      socket.emit('toggleVideo', {
+        roomId: roomId,
+        senderId: localPeerId,
+        video: enabled,
+      })
     }
   }
 
