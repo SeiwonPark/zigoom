@@ -37,7 +37,7 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
   }
 
   const getProfileImageFromLocalStorage = () => {
-    return getLocalStorageItem<GoogleJWTPayload>('user')?.picture
+    return getLocalStorageItem<GoogleJWTPayload>('user')?.picture.replace('=s96-c', '=l96-c')
   }
 
   return (
@@ -83,7 +83,7 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
               border-radius: 20vh;
             `}
             // FIXME: hope there's a better idea
-            src={getProfileImageFromLocalStorage()?.replace('=s96-c', '=l96-c') || Unnamed}
+            src={getProfileImageFromLocalStorage() || Unnamed}
             alt="Unnamed"
           />
         </div>

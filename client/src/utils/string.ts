@@ -39,3 +39,17 @@ const decodeBase64UriToJson = (encoded: string): GoogleJWTPayload => {
 const decodeBase64 = (encoded: string): string => {
   return globalThis.atob(encoded.replace(/-/g, '+').replace(/_/g, '/'))
 }
+
+export const toDataURL = async (url: string): Promise<string> => {
+  return fetch(url)
+    .then((response: Response) => response.blob())
+    .then(
+      (blob: Blob) =>
+        new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onloadend = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(blob)
+        })
+    )
+}

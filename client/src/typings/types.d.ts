@@ -8,3 +8,8 @@ export interface LocalOptions {
   isVideoOn: boolean
   isAudioOn: boolean
 }
+
+export interface PeerData {
+  id: string
+  img: string
+}
