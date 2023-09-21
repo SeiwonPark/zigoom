@@ -6,9 +6,10 @@ interface IconButtonProps {
   Icon: string | SVGProps
   onClick: MouseEventHandler
   fill?: string
+  hoverBackground?: string
 }
 
-export const IconButton = ({ Icon, onClick, fill }: IconButtonProps) => {
+export const IconButton = ({ Icon, onClick, fill, hoverBackground }: IconButtonProps) => {
   return (
     <div
       css={css`
@@ -30,7 +31,7 @@ export const IconButton = ({ Icon, onClick, fill }: IconButtonProps) => {
           box-shadow: none;
 
           &:hover {
-            background-color: #f1f3f4;
+            background-color: ${hoverBackground ? hoverBackground : '#f1f3f4'};
           }
         `}
         onClick={onClick}

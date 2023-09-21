@@ -28,6 +28,9 @@ export const ControlBar = ({ roomId, isChatOpen, localStream, toggleChat }: Cont
   useEffect(() => {
     socket.on('disconnect', async (reason: string) => {
       if (reason === 'io server disconnect') {
+        if (localStream && localStream.getVideoTracks().length > 0) {
+          localStream.getVideoTracks()[0].stop()
+        }
         navigate('/')
       }
     })
