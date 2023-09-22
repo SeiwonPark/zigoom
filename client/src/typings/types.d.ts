@@ -12,4 +12,10 @@ export interface LocalOptions {
 export interface PeerData {
   id: string
   img: string
+  video: boolean
+}
+
+export interface PeerInfo {
+  img: string
+  video: boolean
 }

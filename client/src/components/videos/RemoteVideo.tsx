@@ -6,12 +6,13 @@ import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
 import MoreIcon from '../../assets/icons/more.svg'
 import { SVGIcon } from '../buttons/SVGIcon'
 import { isVideoStatusPayloadSchema } from '../../validations/socket.validation'
+import { PeerInfo } from '../../typings/types'
 
 interface VideoProps {
   stream: MediaStream
   peerId: string
   numOfparticipants: number
-  remoteProfiles: Map<string, string>
+  remoteProfiles: Map<string, PeerInfo>
 }
 
 export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles }: VideoProps) => {
@@ -21,22 +22,15 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
   const [videoActive, setVideoActive] = useState<boolean>(false)
 
   useEffect(() => {
+    const remotePeerId = remoteProfiles.get(peerId)
+    if (remotePeerId) {
+      setVideoActive(remotePeerId.video)
+    }
+  }, [remoteProfiles, peerId])
+
+  useEffect(() => {
     if (videoRef.current) {
       videoRef.current.srcObject = stream
-    }
-
-    const handleVideoStatus = (event: any) => {
-      if (!isVideoStatusPayloadSchema(event)) {
-        throw Error('Invalid payload type for VideoStatusPayloadSchema.')
-      }
-
-      if (event.senderId === peerId) {
-        if (videoRef.current) {
-          toggleVideo()
-        }
-
-        setVideoActive(event.video)
-      }
     }
 
     socket.on('videoStatus', handleVideoStatus)
@@ -45,6 +39,20 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
       socket.off('videoStatus', handleVideoStatus)
     }
   }, [])
+
+  const handleVideoStatus = (event: any) => {
+    if (!isVideoStatusPayloadSchema(event)) {
+      throw Error('Invalid payload type for VideoStatusPayloadSchema.')
+    }
+
+    if (event.senderId === peerId) {
+      if (videoRef.current) {
+        toggleVideo()
+      }
+
+      setVideoActive(event.video)
+    }
+  }
 
   // FIXME: actually pin
   const togglePin = () => {
@@ -107,7 +115,7 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
               height: 20vh;
               border-radius: 20vh;
             `}
-            src={remoteProfiles.get(peerId)}
+            src={remoteProfiles.get(peerId)?.img}
             alt={peerId}
           />
         </div>

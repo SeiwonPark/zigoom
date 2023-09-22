@@ -1,4 +1,4 @@
-import type { PeerData, VideoElement } from '../typings/types'
+import type { PeerData, PeerInfo, VideoElement } from '../typings/types'
 import { PeerDisconnectionType } from '../typings/enums'
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/react'
@@ -10,15 +10,14 @@ import {
   isRoomCreatedPayloadSchema,
   isRoomJoinedPayloadSchema,
 } from '../validations/socket.validation'
-import { iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
+import { VIDEO_GRIDS, iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { SocketContext } from '../contexts/SocketContext'
 import { ControlBar } from './ControlBar'
 import { ChatBox } from './ChatBox'
 import { LocalVideo } from './videos/LocalVideo'
 import { RemoteVideo } from './videos/RemoteVideo'
-import { getLocalStorageItem, toDataURL } from '../utils'
-import { GoogleJWTPayload } from '../validations/auth.validation'
-import Unnamed from '../assets/images/unnamed.png'
+import { getProfileImage } from '../utils'
+import { useLocalOption } from '../hooks/useStore'
 
 interface SessionProps {
   roomId?: string
@@ -33,7 +32,8 @@ export const Session = ({ roomId }: SessionProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
-  const [remoteProfiles, setRemoteProfiles] = useState<Map<string, string>>(new Map())
+  const [remoteProfiles, setRemoteProfiles] = useState<Map<string, PeerInfo>>(new Map())
+  const { isVideoOn } = useLocalOption()
 
   useEffect(() => {
     setSocketListeners()
@@ -91,15 +91,17 @@ export const Session = ({ roomId }: SessionProps) => {
     rtcPeerConnection.oniceconnectionstatechange = () => checkPeerDisconnect(remotePeerId)
     rtcPeerConnection.onicecandidate = (ev: RTCPeerConnectionIceEvent) => sendIceCandidate(ev, remotePeerId)
 
-    const peersDataChannel = rtcPeerConnection.createDataChannel('peers')
+    const peersDataChannel = rtcPeerConnection.createDataChannel('peers', { ordered: true, maxRetransmits: 0 })
 
     peersDataChannel.onopen = async () => {
       const profileImage = await getProfileImage()
 
+      console.log('isVideoOn when sending:', isVideoOn)
       peersDataChannel.send(
         JSON.stringify({
           id: localPeerId.current,
           img: profileImage,
+          video: isVideoOn,
         })
       )
     }
@@ -117,10 +119,11 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const handleReceiveMessage = (event: MessageEvent<string>) => {
-    const receivedImage: PeerData = JSON.parse(event.data)
+    const receivedPeerData: PeerData = JSON.parse(event.data)
+    console.log('Received data:', receivedPeerData)
 
     setRemoteProfiles((prev) => {
-      return new Map(prev).set(receivedImage.id, receivedImage.img)
+      return new Map(prev).set(receivedPeerData.id, { img: receivedPeerData.img, video: receivedPeerData.video })
     })
   }
 
@@ -286,101 +289,9 @@ export const Session = ({ roomId }: SessionProps) => {
     }
   }
 
-  const getProfileImage = async () => {
-    const unnamed = await toDataURL(Unnamed)
-    const localUserData = getLocalStorageItem<GoogleJWTPayload>('user')
-
-    if (localUserData) {
-      const localProfile = await toDataURL(localUserData.picture.replace('=s96-c', '=l96-c'))
-      return localProfile
-    }
-
-    return unnamed
-  }
-
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen)
   }
-
-  // FIXME: to dynamic values
-  const grids = [
-    [
-      { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 }, // n = 0
-      { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 },
-    ],
-    [
-      { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 }, // n = 1
-      { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 },
-    ],
-    [
-      { rowStart: 3, rowEnd: 11, colStart: 2, colEnd: 7 }, // n = 2
-      { rowStart: 3, rowEnd: 11, colStart: 7, colEnd: 12 },
-      { rowStart: 3, rowEnd: 11, colStart: 7, colEnd: 12 },
-    ],
-    [
-      { rowStart: 1, rowEnd: 7, colStart: 3, colEnd: 7 }, // n = 3
-      { rowStart: 1, rowEnd: 7, colStart: 7, colEnd: 11 },
-      { rowStart: 7, rowEnd: 13, colStart: 5, colEnd: 9 },
-      { rowStart: 7, rowEnd: 13, colStart: 5, colEnd: 9 },
-    ],
-    [
-      { rowStart: 2, rowEnd: 7, colStart: 3, colEnd: 7 }, // n = 4
-      { rowStart: 2, rowEnd: 7, colStart: 7, colEnd: 11 },
-      { rowStart: 7, rowEnd: 12, colStart: 3, colEnd: 7 },
-      { rowStart: 7, rowEnd: 12, colStart: 7, colEnd: 11 },
-      { rowStart: 7, rowEnd: 12, colStart: 7, colEnd: 11 },
-    ],
-    [
-      { rowStart: 2, rowEnd: 7, colStart: 1, colEnd: 5 }, // n = 5
-      { rowStart: 2, rowEnd: 7, colStart: 5, colEnd: 9 },
-      { rowStart: 2, rowEnd: 7, colStart: 9, colEnd: 13 },
-      { rowStart: 7, rowEnd: 12, colStart: 3, colEnd: 7 },
-      { rowStart: 7, rowEnd: 12, colStart: 7, colEnd: 11 },
-      { rowStart: 7, rowEnd: 12, colStart: 7, colEnd: 11 },
-    ],
-    [
-      { rowStart: 2, rowEnd: 7, colStart: 1, colEnd: 5 }, // n = 6
-      { rowStart: 2, rowEnd: 7, colStart: 5, colEnd: 9 },
-      { rowStart: 2, rowEnd: 7, colStart: 9, colEnd: 13 },
-      { rowStart: 7, rowEnd: 12, colStart: 1, colEnd: 5 },
-      { rowStart: 7, rowEnd: 12, colStart: 5, colEnd: 9 },
-      { rowStart: 7, rowEnd: 12, colStart: 9, colEnd: 13 },
-      { rowStart: 7, rowEnd: 12, colStart: 9, colEnd: 13 },
-    ],
-    [
-      { rowStart: 1, rowEnd: 5, colStart: 1, colEnd: 5 }, // n = 7
-      { rowStart: 1, rowEnd: 5, colStart: 5, colEnd: 9 },
-      { rowStart: 1, rowEnd: 5, colStart: 9, colEnd: 13 },
-      { rowStart: 5, rowEnd: 9, colStart: 1, colEnd: 5 },
-      { rowStart: 5, rowEnd: 9, colStart: 5, colEnd: 9 },
-      { rowStart: 5, rowEnd: 9, colStart: 9, colEnd: 13 },
-      { rowStart: 9, rowEnd: 13, colStart: 5, colEnd: 9 },
-      { rowStart: 9, rowEnd: 13, colStart: 5, colEnd: 9 },
-    ],
-    [
-      { rowStart: 1, rowEnd: 5, colStart: 1, colEnd: 5 }, // n = 8
-      { rowStart: 1, rowEnd: 5, colStart: 5, colEnd: 9 },
-      { rowStart: 1, rowEnd: 5, colStart: 9, colEnd: 13 },
-      { rowStart: 5, rowEnd: 9, colStart: 1, colEnd: 5 },
-      { rowStart: 5, rowEnd: 9, colStart: 5, colEnd: 9 },
-      { rowStart: 5, rowEnd: 9, colStart: 9, colEnd: 13 },
-      { rowStart: 9, rowEnd: 13, colStart: 3, colEnd: 7 },
-      { rowStart: 9, rowEnd: 13, colStart: 7, colEnd: 11 },
-      { rowStart: 9, rowEnd: 13, colStart: 7, colEnd: 11 },
-    ],
-    [
-      { rowStart: 1, rowEnd: 5, colStart: 1, colEnd: 5 }, // n = 9
-      { rowStart: 1, rowEnd: 5, colStart: 5, colEnd: 9 },
-      { rowStart: 1, rowEnd: 5, colStart: 9, colEnd: 13 },
-      { rowStart: 5, rowEnd: 9, colStart: 1, colEnd: 5 },
-      { rowStart: 5, rowEnd: 9, colStart: 5, colEnd: 9 },
-      { rowStart: 5, rowEnd: 9, colStart: 9, colEnd: 13 },
-      { rowStart: 9, rowEnd: 13, colStart: 1, colEnd: 5 },
-      { rowStart: 9, rowEnd: 13, colStart: 5, colEnd: 9 },
-      { rowStart: 9, rowEnd: 13, colStart: 9, colEnd: 13 },
-      { rowStart: 9, rowEnd: 13, colStart: 9, colEnd: 13 },
-    ],
-  ]
 
   return (
     <div
@@ -409,10 +320,10 @@ export const Session = ({ roomId }: SessionProps) => {
           css={css`
             width: 100%;
             height: 100%;
-            grid-row-start: ${grids[1 + remoteStreams.size][0].rowStart};
-            grid-row-end: ${grids[1 + remoteStreams.size][0].rowEnd};
-            grid-column-start: ${grids[1 + remoteStreams.size][0].colStart};
-            grid-column-end: ${grids[1 + remoteStreams.size][0].colEnd};
+            grid-row-start: ${VIDEO_GRIDS[1 + remoteStreams.size][0].rowStart};
+            grid-row-end: ${VIDEO_GRIDS[1 + remoteStreams.size][0].rowEnd};
+            grid-column-start: ${VIDEO_GRIDS[1 + remoteStreams.size][0].colStart};
+            grid-column-end: ${VIDEO_GRIDS[1 + remoteStreams.size][0].colEnd};
           `}
         >
           <LocalVideo stream={localStream} peerId="You" numOfparticipants={1 + remoteStreams.size} />
@@ -428,10 +339,10 @@ export const Session = ({ roomId }: SessionProps) => {
               css={css`
                 width: 100%;
                 height: 100%;
-                grid-row-start: ${grids[1 + remoteStreams.size][index + 1].rowStart};
-                grid-row-end: ${grids[1 + remoteStreams.size][index + 1].rowEnd};
-                grid-column-start: ${grids[1 + remoteStreams.size][index + 1].colStart};
-                grid-column-end: ${grids[1 + remoteStreams.size][index + 1].colEnd};
+                grid-row-start: ${VIDEO_GRIDS[1 + remoteStreams.size][index + 1].rowStart};
+                grid-row-end: ${VIDEO_GRIDS[1 + remoteStreams.size][index + 1].rowEnd};
+                grid-column-start: ${VIDEO_GRIDS[1 + remoteStreams.size][index + 1].colStart};
+                grid-column-end: ${VIDEO_GRIDS[1 + remoteStreams.size][index + 1].colEnd};
               `}
             >
               <RemoteVideo

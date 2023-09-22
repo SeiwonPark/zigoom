@@ -5,6 +5,10 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage}
  */
 
+import { toDataURL } from './string'
+import Unnamed from '../assets/images/unnamed.png'
+import { GoogleJWTPayload } from '../validations/auth.validation'
+
 /**
  * Stores the given payload in the browser's localStorage.
  *
@@ -21,9 +25,26 @@ export const storeDataInLocalStorage = <T>(key: string, payload: T): void => {
  *
  * @template T - The expected type of the item.
  * @param {string} key - The key of the item to retrieve.
- * @returns {T | null} - The retrieved item if exists, or null is returned.
+ * @returns {T | null} The retrieved item if exists, or null is returned.
  */
 export const getLocalStorageItem = <T>(key: string): T | null => {
   const item = localStorage.getItem(key)
   return item ? (JSON.parse(item) as T) : null
+}
+
+/**
+ * Retrieves user's profile image from the browser's localStorage.
+ *
+ * @returns {Promise<string>} Returns user's profile image.
+ */
+export const getProfileImage = async (): Promise<string> => {
+  const unnamed = await toDataURL(Unnamed)
+  const localUserData = getLocalStorageItem<GoogleJWTPayload>('user')
+
+  if (localUserData) {
+    const localProfile = await toDataURL(localUserData.picture.replace('=s96-c', '=l96-c')) // FIXME: seems tricky
+    return localProfile
+  }
+
+  return unnamed
 }
