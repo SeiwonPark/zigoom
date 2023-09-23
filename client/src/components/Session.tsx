@@ -3,12 +3,12 @@ import { PeerDisconnectionType } from '../typings/enums'
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { css } from '@emotion/react'
 import {
-  isCallPayloadSchema,
-  isPeerAnswerPayloadSchema,
-  isPeerIceCandidatePayloadSchema,
-  isPeerOfferPayloadSchema,
-  isRoomCreatedPayloadSchema,
-  isRoomJoinedPayloadSchema,
+  isCallSchema,
+  isPeerAnswerSchema,
+  isPeerIceCandidateSchema,
+  isPeerOfferSchema,
+  isRoomCreatedSchema,
+  isRoomJoinedSchema,
 } from '../validations/socket.validation'
 import { VIDEO_GRIDS, iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
 import { SocketContext } from '../contexts/SocketContext'
@@ -42,7 +42,7 @@ export const Session = ({ roomId }: SessionProps) => {
     return () => removeSocketListeners()
   }, [])
 
-  const setSocketListeners = () => {
+  const setSocketListeners = useCallback(() => {
     socket.on('room_created', onRoomCreated)
     socket.on('room_joined', onRoomJoined)
     socket.on('call', onCall)
@@ -50,7 +50,7 @@ export const Session = ({ roomId }: SessionProps) => {
     socket.on('peer_answer', onPeerAnswer)
     socket.on('peer_ice_candidate', onPeerIceCandidate)
     socket.on('peer_disconnected', onPeerDisconnected)
-  }
+  }, [socket])
 
   const removeSocketListeners = useCallback(() => {
     socket.off('room_created')
@@ -63,8 +63,8 @@ export const Session = ({ roomId }: SessionProps) => {
   }, [socket])
 
   const onRoomCreated = async (event: any) => {
-    if (!isRoomCreatedPayloadSchema(event)) {
-      throw Error('Invalid payload type for RoomCreatedPayloadSchema.')
+    if (!isRoomCreatedSchema(event)) {
+      throw Error('Invalid payload type for RoomCreatedSchema.')
     }
 
     localPeerId.current = event.peerId
@@ -72,8 +72,8 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const onRoomJoined = async (event: any) => {
-    if (!isRoomJoinedPayloadSchema(event)) {
-      throw Error('Invalid payload type for RoomJoinedPayloadSchema.')
+    if (!isRoomJoinedSchema(event)) {
+      throw Error('Invalid payload type for RoomJoinedSchema.')
     }
 
     localPeerId.current = event.peerId
@@ -128,8 +128,8 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const onCall = async (event: any) => {
-    if (!isCallPayloadSchema(event)) {
-      throw Error('Invalid payload type for CallPayloadSchema.')
+    if (!isCallSchema(event)) {
+      throw Error('Invalid payload type for CallSchema.')
     }
 
     const remotePeerId = event.senderId
@@ -142,8 +142,8 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const onPeerOffer = async (event: any) => {
-    if (!isPeerOfferPayloadSchema(event)) {
-      throw Error('Invalid payload type for PeerOfferPayloadSchema.')
+    if (!isPeerOfferSchema(event)) {
+      throw Error('Invalid payload type for PeerOfferSchema.')
     }
 
     const remotePeerId = event.senderId
@@ -157,8 +157,8 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const onPeerAnswer = async (event: any) => {
-    if (!isPeerAnswerPayloadSchema(event)) {
-      throw Error('Invalid payload type for PeerAnswerPayloadSchema.')
+    if (!isPeerAnswerSchema(event)) {
+      throw Error('Invalid payload type for PeerAnswerSchema.')
     }
 
     const peerConnection = peerConnectionRefs.current[event.senderId]
@@ -209,8 +209,8 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const onPeerIceCandidate = (event: any) => {
-    if (!isPeerIceCandidatePayloadSchema(event)) {
-      throw Error('Invalid payload type for PeerIceCandidatePayloadSchema.')
+    if (!isPeerIceCandidateSchema(event)) {
+      throw Error('Invalid payload type for PeerIceCandidateSchema.')
     }
 
     const senderPeerId = event.senderId

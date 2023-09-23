@@ -5,7 +5,7 @@ import PinIconDisabled from '../../assets/icons/pin_disabled.svg'
 import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
 import MoreIcon from '../../assets/icons/more.svg'
 import { SVGIcon } from '../buttons/SVGIcon'
-import { isVideoStatusPayloadSchema } from '../../validations/socket.validation'
+import { isVideoStatusSchema } from '../../validations/socket.validation'
 import { PeerInfo } from '../../typings/types'
 
 interface VideoProps {
@@ -41,8 +41,8 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
   }, [])
 
   const handleVideoStatus = (event: any) => {
-    if (!isVideoStatusPayloadSchema(event)) {
-      throw Error('Invalid payload type for VideoStatusPayloadSchema.')
+    if (!isVideoStatusSchema(event)) {
+      throw Error('Invalid payload type for VideoStatusSchema.')
     }
 
     if (event.senderId === peerId) {
