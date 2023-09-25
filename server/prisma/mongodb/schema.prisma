@@ -1,0 +1,24 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/mongodb"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("MONGODB_DATABASE_URL")
+}
+
+model Message {
+    id         String      @id @default(auto()) @map("_id") @db.ObjectId
+    chatRoomId String
+    senderId   String
+    type       MessageType
+    content    String
+    createdAt  DateTime    @default(now())
+}
+
+enum MessageType {
+    IMAGE
+    TEXT
+    FILE
+}

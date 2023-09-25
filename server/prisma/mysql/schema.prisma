@@ -1,0 +1,101 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "./generated/mysql"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("MYSQL_DATABASE_URL")
+}
+
+model User {
+    id               String             @id @default(uuid())
+    google_id        String             @unique
+    name             String
+    profileThumbnail String
+    videoRoom        VideoRoom?         @relation(fields: [videoRoomId], references: [id])
+    videoRoomId      String?
+    profile          Profile?
+    createdAt        DateTime           @default(now())
+    modifiedAt       DateTime           @updatedAt
+    role             Role               @default(USER)
+    userNotification UserNotification[]
+    userChatRoom     UserChatRoom[]
+    notification     Notification[]     @relation("notofication")
+    following        Follow[]           @relation("following")
+    followers        Follow[]           @relation("followers")
+}
+
+model Follow {
+    followerId String
+    follower   User     @relation("followers", fields: [followerId], references: [id])
+    followeeId String
+    followee   User     @relation("following", fields: [followeeId], references: [id])
+    createdAt  DateTime @default(now())
+
+    @@id([followerId, followeeId])
+}
+
+model Profile {
+    id           String  @id @default(uuid())
+    family_name  String?
+    given_name   String?
+    profileImage String
+    email        String  @unique
+    userId       String  @unique
+    user         User    @relation(fields: [userId], references: [id])
+}
+
+model VideoRoom {
+    id         String    @unique @default(uuid())
+    private    Boolean   @default(false)
+    host       String
+    title      String
+    users      User[]
+    createdAt  DateTime  @default(now())
+    modifiedAt DateTime  @updatedAt
+    endedAt    DateTime?
+}
+
+model Notification {
+    id               String             @unique @default(uuid())
+    title            String
+    content          String             @db.Text()
+    createdAt        DateTime           @default(now())
+    userNotification UserNotification[]
+    sender           User               @relation("notofication", fields: [senderId], references: [id])
+    senderId         String
+}
+
+model UserNotification {
+    isRead         Boolean      @default(false)
+    createdAt      DateTime     @default(now())
+    modifiedAt     DateTime     @updatedAt
+    user           User         @relation(fields: [userId], references: [id])
+    userId         String
+    notification   Notification @relation(fields: [notificationId], references: [id])
+    notificationId String
+
+    @@id([userId, notificationId])
+}
+
+model ChatRoom {
+    id           String         @id @default(uuid())
+    userChatRoom UserChatRoom[]
+    createdAt    DateTime       @default(now())
+}
+
+model UserChatRoom {
+    user       User     @relation(fields: [userId], references: [id])
+    userId     String
+    chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id])
+    chatRoomId String
+    createdAt  DateTime @default(now())
+
+    @@id([userId, chatRoomId])
+}
+
+enum Role {
+    USER
+    ADMIN
+}
