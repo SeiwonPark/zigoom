@@ -5,12 +5,16 @@
       "decorators": true,
       "dynamicImport": true
     },
-    "target": "es2021",
+    "target": "es2022",
     "keepClassNames": true,
     "loose": true
   },
   "module": {
-    "type": "commonjs"
+    "type": "commonjs",
+    "strict": false,
+    "strictMode": true,
+    "lazy": false
   },
+  "exclude": ["src/**/*.test.ts"],
   "sourceMaps": true
 }
