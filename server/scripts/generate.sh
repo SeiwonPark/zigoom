@@ -30,14 +30,9 @@ get_input() {
     $'\x1b')
         read -rsn2 key
         case "$key" in
-        '[A')
-            [ "$SELECTION" -gt 0 ] && SELECTION=$((SELECTION-1))
-            ;;
-        '[B')
-            [ "$SELECTION" -lt $((${#OPTIONS[@]}-1)) ] && SELECTION=$((SELECTION+1))
-            ;;
-        esac
-        ;;
+        '[A') [ "$SELECTION" -gt 0 ] && SELECTION=$((SELECTION-1)) ;;
+        '[B') [ "$SELECTION" -lt $((${#OPTIONS[@]}-1)) ] && SELECTION=$((SELECTION+1)) ;;
+        esac ;;
     "")
         echo "\n[INFO] Generating database..."
         pnpm prisma generate --schema=./prisma/${OPTIONS[$SELECTION]}/schema.prisma

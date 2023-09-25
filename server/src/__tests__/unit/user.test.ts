@@ -1,13 +1,22 @@
 import { MockContext, Context, createMockContext } from '../context'
-import { createUser } from './functions/user'
-import { isCreateUserSchema } from '../../validations/user.validation'
+import { createUser, updateUser } from './functions/user'
+import { isCreateUserSchema, isUpdateUserSchema } from '../../validations/user.validation'
+import { Role } from '../../../prisma/mysql/generated/mysql'
 
 let mockCtx: MockContext
 let ctx: Context
 
-enum Role {
-  USER = 'USER',
-  ADMIN = 'ADMIN',
+const GOOGLE_ID = '000000000000000000000'
+const USER_ID = '123e4567-e89b-12d3-a456-426614174000'
+const PROFILE_IMAGE = 'https://avatars.githubusercontent.com/u/63793178?v=4'
+const EMAIL = 'psw7347@gmail.com'
+
+const getToday = (): Date => new Date()
+
+const getYesterday = (): Date => {
+  const date = new Date()
+  date.setDate(date.getDate() - 1)
+  return date
 }
 
 beforeEach(() => {
@@ -16,31 +25,56 @@ beforeEach(() => {
 })
 
 describe('User Unit Tests', () => {
-  test('should create a new user ', async () => {
-    const createUserPayload = {
-      google_id: '000000000000000000000',
+  const createUserData = () => ({
+    google_id: GOOGLE_ID,
+    name: 'Seiwon Park',
+    profileThumbnail: PROFILE_IMAGE,
+    profile: {
       family_name: 'Park',
       given_name: 'Seiwon',
-      name: 'Seiwon Park',
-    }
+      profileImage: PROFILE_IMAGE,
+      email: EMAIL,
+    },
+    id: USER_ID,
+    createdAt: getToday(),
+    modifiedAt: getToday(),
+    videoRoomId: null,
+    role: Role.USER,
+  })
 
-    const userData = {
-      ...createUserPayload,
-      id: '123e4567-e89b-12d3-a456-426614174000',
-      profileThumbnail: '',
-      createdAt: new Date(),
-      modifiedAt: new Date(),
-      videoRoomId: null,
-      profile: null,
-      role: Role.USER,
-    }
+  test('should create a new user', async () => {
+    const userData = createUserData()
 
-    if (!isCreateUserSchema(createUserPayload)) {
-      throw new Error('createUserPayload does not match the expected schema.')
+    if (!isCreateUserSchema(userData)) {
+      throw new Error('CreateUserPayload does not match the expected schema.')
     }
 
     mockCtx.prisma.user.create.mockResolvedValue(userData)
+    await expect(createUser(GOOGLE_ID, userData, ctx)).resolves.toEqual(userData)
+  })
 
-    await expect(createUser(userData, ctx)).resolves.toEqual(userData)
+  test('should update an existing user', async () => {
+    const userUpdatePayload = {
+      name: 'Updated Given Updated Family',
+      profileThumbnail: PROFILE_IMAGE,
+      profile: {
+        family_name: 'Updated Family',
+        given_name: 'Updated Given',
+        profileImage: PROFILE_IMAGE,
+      },
+    }
+
+    if (!isUpdateUserSchema(userUpdatePayload)) {
+      throw new Error('UpdateUserPayload does not match the expected schema.')
+    }
+
+    const updatedUserData = {
+      ...createUserData(),
+      ...userUpdatePayload,
+      createdAt: getYesterday(),
+    }
+
+    mockCtx.prisma.user.update.mockResolvedValue(updatedUserData)
+    await expect(updateUser(USER_ID, userUpdatePayload, ctx)).resolves.toEqual(updatedUserData)
   })
 })
