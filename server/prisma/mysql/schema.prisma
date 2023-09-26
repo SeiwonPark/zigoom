@@ -41,7 +41,7 @@ model Profile {
     family_name  String?
     given_name   String?
     profileImage String
-    email        String  @unique
+    email        String?
     userId       String  @unique
     user         User    @relation(fields: [userId], references: [id])
 }

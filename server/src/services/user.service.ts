@@ -21,7 +21,7 @@ export const createUserService = async (userId: string, payload: TokenPayload) =
           family_name: payload.family_name,
           given_name: payload.given_name,
           profileImage: payload.picture || '', // FIXME: bucket url
-          email: payload.email!,
+          email: payload.email,
         },
       },
     }
