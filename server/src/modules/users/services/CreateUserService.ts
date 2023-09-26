@@ -1,7 +1,7 @@
 import { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '../../../../prisma/mysql/generated/mysql'
-import { isCreateUserSchema } from '../../../validations/user.validation'
+import { isCreateUserSchema } from '../validations/user.validation'
 import UserRepository from '../repositories/UserRepository'
 
 @injectable()

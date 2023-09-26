@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { GetUserQuerySchema } from '../validations/user.validation'
-import { AuthTokenSchema } from '../validations/auth.validation'
-import { CreateSessionSchema } from '../validations/session.validation'
+import { GetUserQuerySchema } from '../modules/users/validations/user.validation'
+import { AuthTokenSchema } from '../modules/users/validations/auth.validation'
+import { CreateSessionSchema } from '../modules/sessions/validations/session.validation'
 
 export interface Dictionary<T> {
   [key: string]: T

@@ -1,6 +1,6 @@
 import { MockContext, Context, createMockContext } from '../context'
 import { createUser, updateUser } from './functions/user'
-import { isCreateUserSchema, isUpdateUserSchema } from '../../validations/user.validation'
+import { isCreateUserSchema, isUpdateUserSchema } from '../../modules/users/validations/user.validation'
 import { Role } from '../../../prisma/mysql/generated/mysql'
 
 let mockCtx: MockContext
