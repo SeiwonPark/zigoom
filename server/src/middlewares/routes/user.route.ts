@@ -1,7 +1,11 @@
 import { Router } from 'express'
-import { createUserController, updateUserController } from '../../controllers/user.controller'
+import UserController from '../../modules/users/controllers/UserController'
+
+const userController = new UserController()
 
 export const userRouter = Router()
 
-userRouter.post('/create', createUserController)
-userRouter.post('/update', updateUserController)
+// FIXME: router path
+userRouter.post('/create', userController.create)
+userRouter.get('/get', userController.get)
+userRouter.post('/update', userController.update)
