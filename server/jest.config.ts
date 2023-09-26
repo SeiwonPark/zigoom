@@ -7,7 +7,7 @@ const config: Config = {
   resetMocks: true,
   testEnvironment: 'node',
   coverageDirectory: 'coverage',
-  testMatch: ['**/?(*)+(test).ts'],
+  testMatch: ['**/*.test.ts'],
   transform: {
     '^.+\\.ts$': ['@swc/jest', { configFile: './.swcrc' }],
   },
