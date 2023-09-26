@@ -1,9 +1,9 @@
 import { injectable, inject } from 'tsyringe'
-import { Prisma, Session } from '../../../../prisma/mysql/generated/mysql'
+import { Prisma, Session } from '@prisma/mysql/generated/mysql'
 import { isCreateSessionSchema } from '../validations/session.validation'
 import { TokenPayload } from 'google-auth-library'
 import SessionRepository from '../repositories/SessionRepository'
-import UserRepository from '../../users/repositories/UserRepository'
+import UserRepository from '@modules/users/repositories/UserRepository'
 
 @injectable()
 export default class CreateSessionService {

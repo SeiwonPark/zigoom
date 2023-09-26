@@ -1,5 +1,5 @@
-import { CustomRequest, CustomResponse } from '../../../interfaces/common.interface'
-import { decodeToken } from '../../../utils/token'
+import { CustomRequest, CustomResponse } from '@interfaces/common.interface'
+import { decodeToken } from '@utils/token'
 
 export default class AuthController {
   public async verifyToken(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {

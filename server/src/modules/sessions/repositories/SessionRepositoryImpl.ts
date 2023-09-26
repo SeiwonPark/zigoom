@@ -1,5 +1,5 @@
-import { Prisma, Session } from '../../../../prisma/mysql/generated/mysql'
-import { mysql } from '../../../configs/prisma.config'
+import { Prisma, Session } from '@prisma/mysql/generated/mysql'
+import { mysql } from '@configs/prisma.config'
 import SessionRepository from './SessionRepository'
 
 export default class SessionRepositoryImpl implements SessionRepository {

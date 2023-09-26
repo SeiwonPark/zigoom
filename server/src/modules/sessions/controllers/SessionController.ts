@@ -1,7 +1,7 @@
 import { container } from 'tsyringe'
-import { CustomRequest, CustomResponse } from '../../../interfaces/common.interface'
+import { CustomRequest, CustomResponse } from '@interfaces/common.interface'
 import CreateSessionService from '../services/CreateSessionService'
-import { decodeToken } from '../../../utils/token'
+import { decodeToken } from '@utils/token'
 
 export default class SessionController {
   public async create(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {

@@ -1,6 +1,6 @@
 import { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
-import { Prisma, User } from '../../../../prisma/mysql/generated/mysql'
+import { Prisma, User } from '@prisma/mysql/generated/mysql'
 import { isCreateUserSchema } from '../validations/user.validation'
 import UserRepository from '../repositories/UserRepository'
 
@@ -37,8 +37,6 @@ export default class CreateUserService {
       if (!isCreateUserSchema(userData)) {
         throw new Error('Invalid payload type for CreateUserSchema.')
       }
-
-      console.log('success')
 
       return await this.userRepository.save(userData)
     } catch (e) {

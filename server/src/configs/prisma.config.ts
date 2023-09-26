@@ -1,5 +1,5 @@
-import { PrismaClient as MongoDBPrismaClient } from '../../prisma/mongodb/generated/mongodb'
-import { PrismaClient as MySQLPrismaClient } from '../../prisma/mysql/generated/mysql'
+import { PrismaClient as MongoDBPrismaClient } from '@prisma/mongodb/generated/mongodb'
+import { PrismaClient as MySQLPrismaClient } from '@prisma/mysql/generated/mysql'
 
 declare global {
   var mongodbPrisma: MongoDBPrismaClient | undefined

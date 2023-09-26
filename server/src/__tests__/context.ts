@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../prisma/mysql/generated/mysql'
+import { PrismaClient } from '@prisma/mysql/generated/mysql'
 import { OAuth2Client } from 'google-auth-library'
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended'
 

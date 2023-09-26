@@ -20,7 +20,16 @@
     "noUncheckedIndexedAccess": true,
     "allowUnreachableCode": false,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@modules/*": ["modules/*"],
+      "@configs/*": ["configs/*"],
+      "@shared/*": ["shared/*"],
+      "@prisma/*": ["../prisma/*"],
+      "@utils/*": ["utils/*"],
+      "@interfaces/*": ["interfaces/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules"],

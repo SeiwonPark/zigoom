@@ -1,9 +1,9 @@
 import { container } from 'tsyringe'
 import CreateUserService from '../services/CreateUserService'
 import UpdateUserService from '../services/UpdateUserService'
-import { CustomRequest, CustomResponse } from '../../../interfaces/common.interface'
+import { CustomRequest, CustomResponse } from '@interfaces/common.interface'
 import GetUserService from '../services/GetUserService'
-import { decodeToken } from '../../../utils/token'
+import { decodeToken } from '@utils/token'
 
 export default class UserController {
   public async create(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {

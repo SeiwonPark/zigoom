@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe'
 import UserRepository from '../repositories/UserRepository'
-import { User } from '../../../../prisma/mysql/generated/mysql'
+import { User } from '@prisma/mysql/generated/mysql'
 
 @injectable()
 export default class GetUserService {
