@@ -13,8 +13,8 @@ model User {
     google_id        String             @unique
     name             String
     profileThumbnail String
-    videoRoom        VideoRoom?         @relation(fields: [videoRoomId], references: [id])
-    videoRoomId      String?
+    session          Session?           @relation(fields: [sessionId], references: [id])
+    sessionId        String?
     profile          Profile?
     createdAt        DateTime           @default(now())
     modifiedAt       DateTime           @updatedAt
@@ -46,7 +46,7 @@ model Profile {
     user         User    @relation(fields: [userId], references: [id])
 }
 
-model VideoRoom {
+model Session {
     id         String    @unique @default(uuid())
     private    Boolean   @default(false)
     host       String

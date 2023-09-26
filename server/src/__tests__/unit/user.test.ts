@@ -29,17 +29,19 @@ describe('User Unit Tests', () => {
     google_id: GOOGLE_ID,
     name: 'Seiwon Park',
     profileThumbnail: PROFILE_IMAGE,
-    profile: {
-      family_name: 'Park',
-      given_name: 'Seiwon',
-      profileImage: PROFILE_IMAGE,
-      email: EMAIL,
-    },
     id: USER_ID,
     createdAt: getToday(),
     modifiedAt: getToday(),
-    videoRoomId: null,
+    sessionId: null,
     role: Role.USER,
+    profile: {
+      create: {
+        family_name: 'Park',
+        given_name: 'Seiwon',
+        profileImage: PROFILE_IMAGE,
+        email: EMAIL,
+      },
+    },
   })
 
   test('should create a new user', async () => {
@@ -58,9 +60,11 @@ describe('User Unit Tests', () => {
       name: 'Updated Given Updated Family',
       profileThumbnail: PROFILE_IMAGE,
       profile: {
-        family_name: 'Updated Family',
-        given_name: 'Updated Given',
-        profileImage: PROFILE_IMAGE,
+        update: {
+          family_name: 'Updated Family',
+          given_name: 'Updated Given',
+          profileImage: PROFILE_IMAGE,
+        },
       },
     }
 
