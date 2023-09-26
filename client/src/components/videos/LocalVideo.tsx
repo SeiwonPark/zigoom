@@ -49,7 +49,8 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
         height: 100%;
         align-items: center;
         justify-content: center;
-        background-color: ${numOfparticipants === 1 ? 'black' : 'rgb(32, 33, 36)'};
+        background-color: ${numOfparticipants === 1 ? 'black' : 'rgb(60, 64, 67)'};
+        border-radius: 8px;
 
         &:hover #options {
           -webkit-transition: opacity 0.1s ease-in;
@@ -95,7 +96,7 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
           left: 0;
           color: #fff;
           pointer-events: none;
-          background-color: rgba(0, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.3);
           font-size: 14px;
           border-radius: 0px 8px;
           padding: 2px 12px;

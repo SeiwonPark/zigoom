@@ -23,4 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment variables
 .env
+
+# Tests
+coverage
+
+# Outputs
+generated

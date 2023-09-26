@@ -1,12 +1,9 @@
 import { Router } from 'express'
-import {
-  checkAuthenticatedController,
-  logoutController,
-  verifyTokenController,
-} from '../../controllers/auth.controller'
+import AuthController from '../../modules/users/controllers/AuthController'
+
+const authController = new AuthController()
 
 export const authRouter = Router()
 
-authRouter.get('/check', checkAuthenticatedController)
-authRouter.post('/verify', verifyTokenController)
-authRouter.post('/logout', logoutController)
+authRouter.post('/verify', authController.verifyToken)
+authRouter.post('/logout', authController.logout)

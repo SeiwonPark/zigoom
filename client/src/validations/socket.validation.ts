@@ -58,55 +58,55 @@ export const VideoStatusPayload = z.object({
  * types
  * =========================================
  */
-export type RoomCreatedPayloadSchema = z.infer<typeof RoomCreatedPayload>
+export type RoomCreatedSchema = z.infer<typeof RoomCreatedPayload>
 
-export type RoomJoinedPayloadSchema = z.infer<typeof RoomJoinedPayload>
+export type RoomJoinedSchema = z.infer<typeof RoomJoinedPayload>
 
-export type CallPayloadSchema = z.infer<typeof CallPayload>
+export type CallSchema = z.infer<typeof CallPayload>
 
-export type PeerOfferPayloadSchema = z.infer<typeof PeerOfferPayload>
+export type PeerOfferSchema = z.infer<typeof PeerOfferPayload>
 
-export type PeerAnswerPayloadSchema = z.infer<typeof PeerAnswerPayload>
+export type PeerAnswerSchema = z.infer<typeof PeerAnswerPayload>
 
-export type PeerIceCandidatePayloadSchema = z.infer<typeof PeerIceCandidatePayload>
+export type PeerIceCandidateSchema = z.infer<typeof PeerIceCandidatePayload>
 
-export type ReceiveChatPayloadSchema = z.infer<typeof ReceiveChatPayload>
+export type ReceiveChatSchema = z.infer<typeof ReceiveChatPayload>
 
-export type VideoStatusPayloadSchema = z.infer<typeof VideoStatusPayload>
+export type VideoStatusSchema = z.infer<typeof VideoStatusPayload>
 
 /**
  * =========================================
  * validators
  * =========================================
  */
-export const isRoomCreatedPayloadSchema = (obj: any): obj is RoomCreatedPayloadSchema => {
+export const isRoomCreatedSchema = (obj: any): obj is RoomCreatedSchema => {
   return RoomCreatedPayload.safeParse(obj).success
 }
 
-export const isRoomJoinedPayloadSchema = (obj: any): obj is RoomJoinedPayloadSchema => {
+export const isRoomJoinedSchema = (obj: any): obj is RoomJoinedSchema => {
   return RoomJoinedPayload.safeParse(obj).success
 }
 
-export const isCallPayloadSchema = (obj: any): obj is CallPayloadSchema => {
+export const isCallSchema = (obj: any): obj is CallSchema => {
   return CallPayload.safeParse(obj).success
 }
 
-export const isPeerOfferPayloadSchema = (obj: any): obj is PeerOfferPayloadSchema => {
+export const isPeerOfferSchema = (obj: any): obj is PeerOfferSchema => {
   return PeerOfferPayload.safeParse(obj).success
 }
 
-export const isPeerAnswerPayloadSchema = (obj: any): obj is PeerAnswerPayloadSchema => {
+export const isPeerAnswerSchema = (obj: any): obj is PeerAnswerSchema => {
   return PeerAnswerPayload.safeParse(obj).success
 }
 
-export const isPeerIceCandidatePayloadSchema = (obj: any): obj is PeerIceCandidatePayloadSchema => {
+export const isPeerIceCandidateSchema = (obj: any): obj is PeerIceCandidateSchema => {
   return PeerIceCandidatePayload.safeParse(obj).success
 }
 
-export const isReceiveChatPayloadSchema = (obj: any): obj is ReceiveChatPayloadSchema => {
+export const isReceiveChatSchema = (obj: any): obj is ReceiveChatSchema => {
   return ReceiveChatPayload.safeParse(obj).success
 }
 
-export const isVideoStatusPayloadSchema = (obj: any): obj is VideoStatusPayloadSchema => {
+export const isVideoStatusSchema = (obj: any): obj is VideoStatusSchema => {
   return VideoStatusPayload.safeParse(obj).success
 }
