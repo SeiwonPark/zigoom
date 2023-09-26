@@ -1,8 +1,13 @@
-import { Request, Response } from 'express'
+import { CustomRequest, CustomResponse } from '../interfaces/common.interface'
 import { verifyTokenService } from '../services/auth.service'
 
-export const decodeTokenController = async (req: Request, res: Response) => {
+export const decodeTokenController = async (req: CustomRequest, res: CustomResponse) => {
   const { token } = req.body
+
+  if (!token) {
+    return res.sendStatus(401)
+  }
+
   const payload = await verifyTokenService(token)
 
   if (!payload) {
@@ -19,7 +24,7 @@ export const decodeTokenController = async (req: Request, res: Response) => {
   // TODO: add error handling routers
 }
 
-export const logoutController = async (req: Request, res: Response) => {
+export const logoutController = async (req: CustomRequest, res: CustomResponse) => {
   res.clearCookie('jwt')
   res.sendStatus(200)
 }

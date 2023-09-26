@@ -1,19 +1,18 @@
 import { TokenPayload } from 'google-auth-library'
 import { mysql } from '../configs/prisma.config'
-import { Prisma, Profile, User } from '../../prisma/mysql/generated/mysql'
+import { Prisma, User } from '../../prisma/mysql/generated/mysql'
 import { isCreateUserSchema, isUpdateUserSchema } from '../validations/user.validation'
 
-export const createUserService = async (userId: string, payload: TokenPayload) => {
+export const createUserService = async (googleId: string, payload: TokenPayload) => {
   try {
-    const existingUser = await getUserById(userId)
-    const existingProfile = await getProfileByUserId(userId)
+    const existingUser = await getUserByGoogleId(googleId)
 
-    if (existingUser || existingProfile) {
-      throw new Error(`User already exists by id '${userId}'`)
+    if (existingUser) {
+      throw new Error(`User already exists by google id '${googleId}'`)
     }
 
     const userData: Prisma.UserCreateInput = {
-      google_id: userId,
+      google_id: googleId,
       name: payload.name || 'Anonymous User',
       profileThumbnail: '', // FIXME: bucket url
       profile: {
@@ -39,12 +38,12 @@ export const createUserService = async (userId: string, payload: TokenPayload) =
   }
 }
 
-export const updateUserService = async (userId: string, payload: any) => {
+export const updateUserService = async (googleId: string, payload: any) => {
   try {
-    const user = await getUserById(userId)
+    const user = await getUserByGoogleId(googleId)
 
     if (!user) {
-      throw new Error(`User not exists by id '${userId}'`)
+      throw new Error(`User doesn't exist by id '${googleId}'`)
     }
 
     const userUpdateData: Prisma.UserUpdateInput = {
@@ -56,7 +55,7 @@ export const updateUserService = async (userId: string, payload: any) => {
     }
 
     return await mysql.user.update({
-      where: { id: userId },
+      where: { google_id: googleId },
       data: userUpdateData,
     })
   } catch (e) {
@@ -65,10 +64,19 @@ export const updateUserService = async (userId: string, payload: any) => {
   }
 }
 
-const getUserById = async (id: string): Promise<User | null> => {
-  return await mysql.user.findUnique({ where: { id: id } })
+export const getUserService = async (googleId: string, profile = false) => {
+  try {
+    const user = await getUserByGoogleId(googleId)
+
+    if (!user) {
+      throw new Error(`User doesn't exist by id '${googleId}'`)
+    }
+  } catch (e) {
+    console.error('[updateUserService] ERR: ', e)
+    throw e
+  }
 }
 
-const getProfileByUserId = async (id: string): Promise<Profile | null> => {
-  return await mysql.profile.findUnique({ where: { userId: id } })
+const getUserByGoogleId = async (googleId: string): Promise<User | null> => {
+  return await mysql.user.findUnique({ where: { google_id: googleId } })
 }

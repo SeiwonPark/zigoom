@@ -10,10 +10,12 @@ const CreateUserPayload = z.object({
   name: z.string(),
   profileThumbnail: z.string(),
   profile: z.object({
-    family_name: z.string(),
-    given_name: z.string(),
-    profileImage: z.string(),
-    email: z.string().email(),
+    create: z.object({
+      family_name: z.string(),
+      given_name: z.string(),
+      profileImage: z.string(),
+      email: z.string().email(),
+    }),
   }),
 })
 
@@ -21,10 +23,17 @@ const UpdateUserPayload = z.object({
   name: z.string().optional(),
   profileThumbnail: z.string().optional(),
   profile: z.object({
-    family_name: z.string().optional(),
-    given_name: z.string().optional(),
-    profileImage: z.string().optional(),
+    update: z.object({
+      family_name: z.string().optional(),
+      given_name: z.string().optional(),
+      profileImage: z.string().optional(),
+    }),
   }),
+})
+
+export const GetUserQuery = z.object({
+  googleId: z.string(),
+  profile: z.boolean(),
 })
 
 /**
@@ -35,6 +44,8 @@ const UpdateUserPayload = z.object({
 export type CreateUserSchema = z.infer<typeof CreateUserPayload>
 
 export type UpdateUserSchema = z.infer<typeof UpdateUserPayload>
+
+export type GetUserQuerySchema = z.infer<typeof GetUserQuery>
 
 /**
  * =========================================
