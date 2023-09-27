@@ -2,6 +2,14 @@ import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@prisma/mysql/generated/mysql'
 import { isUpdateUserSchema } from '../validations/user.validation'
 import UserRepository from '../repositories/UserRepository'
+import { CustomError } from '@shared/errors/CustomError'
+import { decodeToken } from '@utils/token'
+
+interface RequestPayload {
+  jwt: string
+  googleId: string
+  data: any
+}
 
 @injectable()
 export default class UpdateUserService {
@@ -10,27 +18,32 @@ export default class UpdateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute(googleId: string, payload: any): Promise<User> {
-    try {
-      const user = await this.getUserByGoogleId(googleId)
+  public async execute({ jwt, googleId, data }: RequestPayload): Promise<User> {
+    const payload = await decodeToken(jwt)
 
-      if (!user) {
-        throw new Error(`User doesn't exist by id '${googleId}'`)
-      }
-
-      const userUpdateData: Prisma.UserUpdateInput = {
-        ...payload,
-      }
-
-      if (!isUpdateUserSchema(userUpdateData)) {
-        throw new Error('Invalid payload type for UpdateUserSchema.')
-      }
-
-      return await this.userRepository.update(googleId, userUpdateData)
-    } catch (e) {
-      console.error('[updateUserService] ERR: ', e)
-      throw e
+    if (!payload) {
+      throw new CustomError('Failed to get payload from token', 401)
     }
+
+    if (Date.now() >= payload.exp * 1000) {
+      throw new CustomError('The token has been expired', 401)
+    }
+
+    const user = await this.getUserByGoogleId(googleId)
+
+    if (!user) {
+      throw new CustomError(`User doesn't exist by id '${googleId}'`, 409)
+    }
+
+    const userUpdateData: Prisma.UserUpdateInput = {
+      ...data,
+    }
+
+    if (!isUpdateUserSchema(userUpdateData)) {
+      throw new CustomError('Invalid payload type for UpdateUserSchema.', 400)
+    }
+
+    return await this.userRepository.update(googleId, userUpdateData)
   }
 
   async getUserByGoogleId(googleId: string): Promise<User | null> {

@@ -1,6 +1,6 @@
 import { Prisma, User } from '@prisma/mysql/generated/mysql'
 import { mysql } from '@configs/prisma.config'
-import UserRepository from './UserRepository'
+import UserRepository from '../UserRepository'
 
 export default class UserRepositoryImpl implements UserRepository {
   public async save(data: Prisma.UserCreateInput): Promise<User> {

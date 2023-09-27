@@ -27,8 +27,7 @@
       "@configs/*": ["configs/*"],
       "@shared/*": ["shared/*"],
       "@prisma/*": ["../prisma/*"],
-      "@utils/*": ["utils/*"],
-      "@interfaces/*": ["interfaces/*"]
+      "@utils/*": ["utils/*"]
     }
   },
   "include": ["src"],

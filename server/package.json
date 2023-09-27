@@ -1,7 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "dist/shared/infra/http/server.js",
   "private": true,
   "scripts": {
     "lint": "eslint --ext ./src/**/*.ts ./src/**/*.ts",
@@ -9,8 +9,8 @@
     "format": "prettier --write ./src/**/*.ts",
     "clear": "sh ./scripts/clear_db.sh",
     "build": "swc src -d dist",
-    "dev": "NODE_ENV=development nodemon --ext ts --exec node --inspect -r @swc/register src/index.ts",
-    "start": "node dist/index.js",
+    "dev": "NODE_ENV=development nodemon --ext ts --exec node --inspect -r @swc/register src/shared/infra/http/server.ts",
+    "start": "node dist/shared/infra/http/server.js",
     "migrate": "sh ./scripts/migrate_dev.sh",
     "generate": "sh ./scripts/generate.sh",
     "test": "jest"
@@ -21,6 +21,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
     "google-auth-library": "^9.0.0",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.7.2",

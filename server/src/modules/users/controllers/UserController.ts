@@ -1,94 +1,49 @@
+import { Request, Response } from 'express'
 import { container } from 'tsyringe'
+import { CustomError } from '@shared/errors/CustomError'
 import CreateUserService from '../services/CreateUserService'
 import UpdateUserService from '../services/UpdateUserService'
-import { CustomRequest, CustomResponse } from '@interfaces/common.interface'
 import GetUserService from '../services/GetUserService'
-import { decodeToken } from '@utils/token'
 
 export default class UserController {
-  public async create(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {
-    try {
-      if (!req.cookies || !req.cookies.jwt) {
-        return res.sendStatus(401)
-      }
+  public async create(req: Request, res: Response): Promise<Response> {
+    const { jwt } = req.cookies
 
-      const payload = await decodeToken(req.cookies.jwt)
+    const createUser = container.resolve(CreateUserService)
+    const createdUser = await createUser.execute({ jwt })
 
-      if (!payload) {
-        throw new Error('Failed to get payload from token')
-      }
-
-      const createUser = container.resolve(CreateUserService)
-
-      const googleId = payload.sub
-      const createdUser = await createUser.execute(googleId, payload)
-
-      console.log('Created a new user: ', createdUser)
-      res.sendStatus(200)
-    } catch (e) {
-      console.error('[createUserController] ERR: ', e)
-      // FIXME: error code
-      res.status(500).send('Internal Server Error')
-    }
+    console.log('Created a new user: ', createdUser)
+    return res.sendStatus(200)
   }
 
-  public async get(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {
-    try {
-      if (!req.cookies || !req.cookies.jwt) {
-        return res.sendStatus(401)
-      }
+  public async get(req: Request, res: Response): Promise<Response> {
+    const { jwt } = req.cookies
+    const { googleId, profile } = req.query
 
-      const payload = await decodeToken(req.cookies.jwt)
-
-      if (!payload) {
-        throw new Error('Failed to get payload from token')
-      }
-
-      if (!req.query || !req.query.googleId) {
-        return res.sendStatus(400)
-      }
-
-      const { googleId, profile } = req.query
-
-      const getUser = container.resolve(GetUserService)
-      const fetchedUser = await getUser.execute(googleId, profile)
-
-      console.log('Fetched a user: ', fetchedUser)
-      res.sendStatus(200)
-    } catch (e) {
-      console.error('[getUserController] ERR: ', e)
-      // FIXME: error code
-      res.status(500).send('Internal Server Error')
+    if (typeof googleId !== 'string' || typeof profile !== 'boolean') {
+      throw new CustomError('Parameter type not matching', 400)
     }
+
+    const getUser = container.resolve(GetUserService)
+    const fetchedUser = await getUser.execute({ jwt, googleId, profile })
+
+    console.log('Fetched a user: ', fetchedUser)
+    return res.sendStatus(200)
   }
 
-  public async update(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {
-    try {
-      if (!req.cookies || !req.cookies.jwt) {
-        return res.sendStatus(401)
-      }
+  public async update(req: Request, res: Response): Promise<Response> {
+    const { jwt } = req.cookies
+    const { googleId } = req.query
+    const data = req.body
 
-      const payload = await decodeToken(req.cookies.jwt)
-
-      if (!payload) {
-        throw new Error('Failed to get payload from token')
-      }
-
-      if (!req.query || !req.query.googleId || !req.body) {
-        return res.sendStatus(400)
-      }
-
-      const { googleId } = req.query
-
-      const updateUser = container.resolve(UpdateUserService)
-      const updatedUser = await updateUser.execute(googleId, req.body)
-
-      console.log('Updated a user: ', updatedUser)
-      res.sendStatus(200)
-    } catch (e) {
-      console.error('[createUserController] ERR: ', e)
-      // FIXME: error code
-      res.status(500).send('Internal Server Error')
+    if (typeof googleId !== 'string') {
+      throw new CustomError('Parameter type not matching', 400)
     }
+
+    const updateUser = container.resolve(UpdateUserService)
+    const updatedUser = await updateUser.execute({ jwt, googleId, data })
+
+    console.log('Updated a user: ', updatedUser)
+    return res.sendStatus(200)
   }
 }
