@@ -16,7 +16,6 @@ export default class CreateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  // FIXME: input interface
   public async execute({ jwt }: RequestPayload): Promise<User> {
     const payload = await decodeToken(jwt)
 
