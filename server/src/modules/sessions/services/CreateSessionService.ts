@@ -9,6 +9,7 @@ import { decodeToken } from '@utils/token'
 interface RequestPayload {
   id: string
   title: string
+  isPrivate?: boolean
   jwt: string
 }
 
@@ -21,7 +22,7 @@ export default class CreateSessionService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ id, title, jwt }: RequestPayload): Promise<Session> {
+  public async execute({ id, title, isPrivate = false, jwt }: RequestPayload): Promise<Session> {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
@@ -43,6 +44,7 @@ export default class CreateSessionService {
       id: id,
       host: googleId,
       title: title,
+      isPrivate: isPrivate,
       users: { connect: { google_id: googleId } },
     }
 

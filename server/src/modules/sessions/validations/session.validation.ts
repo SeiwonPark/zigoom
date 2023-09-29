@@ -7,7 +7,7 @@ import { z } from 'zod'
  */
 const CreateSessionPayload = z.object({
   id: z.string().uuid(),
-  private: z.boolean().optional(),
+  isPrivate: z.boolean().optional(),
   title: z.string(),
   users: z.object({
     connect: z.object({
