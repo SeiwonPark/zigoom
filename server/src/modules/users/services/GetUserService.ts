@@ -17,7 +17,7 @@ export default class GetUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt, googleId, profile }: RequestPayload): Promise<User | undefined> {
+  public async execute({ jwt, googleId, profile }: RequestPayload): Promise<User | null> {
     const payload = await decodeToken(jwt)
 
     if (!payload) {

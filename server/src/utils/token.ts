@@ -12,6 +12,6 @@ export const decodeToken = async (token: string): Promise<TokenPayload | undefin
     return ticket.getPayload()
   } catch (e) {
     console.log((e as Error).message)
-    return
+    return undefined
   }
 }

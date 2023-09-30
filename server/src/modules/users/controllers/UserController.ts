@@ -28,7 +28,7 @@ export default class UserController {
     const fetchedUser = await getUser.execute({ jwt, googleId, profile })
 
     console.log('Fetched a user: ', fetchedUser)
-    return res.sendStatus(200)
+    return res.status(200).send(fetchedUser)
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
