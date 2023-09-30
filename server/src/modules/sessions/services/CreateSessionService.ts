@@ -3,7 +3,7 @@ import { Prisma, Session } from '@prisma/mysql/generated/mysql'
 import { isCreateSessionSchema } from '../validations/session.validation'
 import SessionRepository from '../repositories/SessionRepository'
 import UserRepository from '@modules/users/repositories/UserRepository'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
 interface RequestPayload {
@@ -26,18 +26,18 @@ export default class CreateSessionService {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
-      throw new CustomError('Failed to get payload from token', 401)
+      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
     }
 
     if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', 401)
+      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
     }
 
     const googleId = payload.sub
     const existingUser = await this.userRepository.findUserByGoogleId(googleId)
 
     if (!existingUser) {
-      throw new CustomError(`No user has been found by google id '${googleId}'`, 404)
+      throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
     }
 
     const sessionData: Prisma.SessionCreateInput = {
@@ -49,7 +49,7 @@ export default class CreateSessionService {
     }
 
     if (!isCreateSessionSchema(sessionData)) {
-      throw new CustomError('Invalid payload type for CreateSessionSchema.', 400)
+      throw new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     }
 
     return await this.sessionRepository.save(sessionData)

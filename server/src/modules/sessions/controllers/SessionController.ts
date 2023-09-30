@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { container } from 'tsyringe'
 import CreateSessionService from '../services/CreateSessionService'
 import GetSessionService from '../services/GetSessionService'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 
 export default class SessionController {
   public async create(req: Request, res: Response): Promise<Response> {
@@ -21,7 +21,7 @@ export default class SessionController {
     const { sessionId } = req.query
 
     if (typeof sessionId !== 'string') {
-      throw new CustomError('Parameter type not matching', 400)
+      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
 
     const getSession = container.resolve(GetSessionService)

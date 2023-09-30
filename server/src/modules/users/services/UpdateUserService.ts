@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@prisma/mysql/generated/mysql'
 import { isUpdateUserSchema } from '../validations/user.validation'
 import UserRepository from '../repositories/UserRepository'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
 interface RequestPayload {
@@ -22,17 +22,17 @@ export default class UpdateUserService {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
-      throw new CustomError('Failed to get payload from token', 401)
+      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
     }
 
     if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', 401)
+      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
     }
 
     const user = await this.getUserByGoogleId(googleId)
 
     if (!user) {
-      throw new CustomError(`User doesn't exist by id '${googleId}'`, 409)
+      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
     }
 
     const userUpdateData: Prisma.UserUpdateInput = {
@@ -40,7 +40,7 @@ export default class UpdateUserService {
     }
 
     if (!isUpdateUserSchema(userUpdateData)) {
-      throw new CustomError('Invalid payload type for UpdateUserSchema.', 400)
+      throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     }
 
     return await this.userRepository.update(googleId, userUpdateData)

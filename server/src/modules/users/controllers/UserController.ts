@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { container } from 'tsyringe'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 import CreateUserService from '../services/CreateUserService'
 import UpdateUserService from '../services/UpdateUserService'
 import GetUserService from '../services/GetUserService'
@@ -21,7 +21,7 @@ export default class UserController {
     const { googleId, profile } = req.query
 
     if (typeof googleId !== 'string' || typeof profile !== 'boolean') {
-      throw new CustomError('Parameter type not matching', 400)
+      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
 
     const getUser = container.resolve(GetUserService)
@@ -37,7 +37,7 @@ export default class UserController {
     const data = req.body
 
     if (typeof googleId !== 'string') {
-      throw new CustomError('Parameter type not matching', 400)
+      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
 
     const updateUser = container.resolve(UpdateUserService)

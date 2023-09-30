@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@prisma/mysql/generated/mysql'
 import { isCreateUserSchema } from '../validations/user.validation'
 import UserRepository from '../repositories/UserRepository'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
 interface RequestPayload {
@@ -20,18 +20,18 @@ export default class CreateUserService {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
-      throw new CustomError('Failed to get payload from token', 401)
+      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
     }
 
     if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', 401)
+      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
     }
 
     const googleId = payload.sub
     const existingUser = await this.getUserByGoogleId(googleId)
 
     if (existingUser) {
-      throw new CustomError(`User already exists by google id '${googleId}'`, 409)
+      throw new CustomError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
     }
 
     const userData: Prisma.UserCreateInput = {
@@ -49,7 +49,7 @@ export default class CreateUserService {
     }
 
     if (!isCreateUserSchema(userData)) {
-      throw new CustomError('Invalid payload type for CreateUserSchema.', 400)
+      throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     }
 
     return await this.userRepository.save(userData)

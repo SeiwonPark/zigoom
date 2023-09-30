@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import UserRepository from '../repositories/UserRepository'
 import { User } from '@prisma/mysql/generated/mysql'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
 interface RequestPayload {
@@ -21,17 +21,17 @@ export default class GetUserService {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
-      throw new CustomError('Failed to get payload from token', 401)
+      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
     }
 
     if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', 401)
+      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
     }
 
     const user = await this.getUserByGoogleId(googleId, profile)
 
     if (!user) {
-      throw new CustomError(`User doesn't exist by id '${googleId}'`, 404)
+      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
     }
 
     return user

@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import SessionRepository from '../repositories/SessionRepository'
 import { decodeToken } from '@utils/token'
-import { CustomError } from '@shared/errors/CustomError'
+import { CustomError, ErrorCode } from '@shared/errors'
 import { Session } from '@prisma/mysql/generated/mysql'
 
 interface RequestPayload {
@@ -20,17 +20,17 @@ export default class GetSessionService {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
-      throw new CustomError('Failed to get payload from token', 401)
+      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
     }
 
     if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', 401)
+      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
     }
 
     const session = await this.getSessionById(sessionId)
 
     if (!session) {
-      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, 404)
+      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
 
     return await this.sessionRepository.findById(sessionId)
