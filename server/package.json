@@ -13,7 +13,8 @@
     "start": "node dist/shared/infra/http/server.js",
     "migrate": "sh ./scripts/migrate_dev.sh",
     "generate": "sh ./scripts/generate.sh",
-    "test": "jest"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "dependencies": {
     "@prisma/client": "5.3.1",
@@ -23,6 +24,7 @@
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
     "google-auth-library": "^9.0.0",
+    "jest-extended": "^4.0.1",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.7.2",
     "ts-node": "^10.9.1",
