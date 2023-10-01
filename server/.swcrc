@@ -12,7 +12,7 @@
       "@modules/*": ["./modules/*"],
       "@configs/*": ["./configs/*"],
       "@shared/*": ["./shared/*"],
-      "@prisma/*": ["../prisma/*"],
+      "@db/*": ["../prisma/*"],
       "@utils/*": ["./utils/*"]
     }
   },

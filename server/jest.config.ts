@@ -1,12 +1,20 @@
 import type { Config } from 'jest'
 
 const config: Config = {
-  verbose: true,
+  verbose: false,
   preset: 'ts-jest',
   clearMocks: true,
   resetMocks: true,
   testEnvironment: 'node',
   coverageDirectory: 'coverage',
+  coveragePathIgnorePatterns: [
+    'node_modules',
+    '__tests__',
+    'interfaces',
+    'generated',
+    'configs',
+    '<rootDir>/src/shared/infra/http/server.ts',
+  ],
   testMatch: ['**/*.test.ts'],
   transform: {
     '^.+\\.ts$': ['@swc/jest', { configFile: './.swcrc' }],
@@ -15,9 +23,10 @@ const config: Config = {
     '^@modules/(.*)$': '<rootDir>/src/modules/$1',
     '^@configs/(.*)$': '<rootDir>/src/configs/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
-    '^@prisma/(.*)$': '<rootDir>/prisma/$1',
+    '^@db/(.*)$': '<rootDir>/prisma/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
   },
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
 }
 
 export default config
