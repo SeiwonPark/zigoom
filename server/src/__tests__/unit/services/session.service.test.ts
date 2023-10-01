@@ -1,16 +1,20 @@
 import 'reflect-metadata'
 import CreateSessionService from '@modules/sessions/services/CreateSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
-import SessionRepository from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
-import UserRepository from '@modules/users/repositories/implementations/UserRepositoryImpl'
+import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
+import UserRepository from '@modules/users/repositories/UserRepository'
+import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
+import SessionRepository from '@modules/sessions/repositories/SessionRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { Role, Session, User } from '@prisma/mysql/generated/mysql'
+import { Role, Session, User } from '@db/mysql/generated/mysql'
 
 jest.mock('@utils/token')
 
 describe('Session Service Unit Tests', () => {
   let createSessionService: CreateSessionService
   let getSessionService: GetSessionService
+  let userRepository: UserRepository
+  let sessionRepository: SessionRepository
 
   const expiredToken = {
     name: 'Seiwon Park',
@@ -50,10 +54,9 @@ describe('Session Service Unit Tests', () => {
     role: Role.USER,
   }
 
-  const userRepository = new UserRepository() as jest.Mocked<UserRepository>
-  const sessionRepository = new SessionRepository() as jest.Mocked<SessionRepository>
-
   beforeEach(() => {
+    userRepository = new UserRepositoryImpl()
+    sessionRepository = new SessionRepositoryImpl()
     createSessionService = new CreateSessionService(sessionRepository, userRepository)
     getSessionService = new GetSessionService(sessionRepository)
   })

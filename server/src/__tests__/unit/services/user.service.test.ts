@@ -2,9 +2,10 @@ import 'reflect-metadata'
 import CreateUserService from '@modules/users/services/CreateUserService'
 import GetUserService from '@modules/users/services/GetUserService'
 import UpdateUserService from '@modules/users/services/UpdateUserService'
-import UserRepository from '@modules/users/repositories/implementations/UserRepositoryImpl'
+import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
+import UserRepository from '@modules/users/repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { Role, User } from '@prisma/mysql/generated/mysql'
+import { Role, User } from '@db/mysql/generated/mysql'
 
 jest.mock('@utils/token')
 
@@ -12,6 +13,7 @@ describe('User Service Unit Tests', () => {
   let createUserService: CreateUserService
   let getUserService: GetUserService
   let updateUserService: UpdateUserService
+  let userRepository: UserRepository
 
   const expiredToken = {
     name: 'Seiwon Park',
@@ -42,9 +44,8 @@ describe('User Service Unit Tests', () => {
     role: Role.USER,
   }
 
-  const userRepository = new UserRepository() as jest.Mocked<UserRepository>
-
   beforeEach(() => {
+    userRepository = new UserRepositoryImpl()
     createUserService = new CreateUserService(userRepository)
     getUserService = new GetUserService(userRepository)
     updateUserService = new UpdateUserService(userRepository)
