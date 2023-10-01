@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
 import CreateSessionService from '../services/CreateSessionService'
 import GetSessionService from '../services/GetSessionService'

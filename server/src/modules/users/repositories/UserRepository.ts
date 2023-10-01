@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/mysql/generated/mysql'
+import { Prisma, User } from '@db/mysql/generated/mysql'
 
 export default interface UserRepository {
   save(data: Prisma.UserCreateInput): Promise<User>

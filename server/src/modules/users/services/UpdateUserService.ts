@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe'
-import { Prisma, User } from '@prisma/mysql/generated/mysql'
+import { Prisma, User } from '@db/mysql/generated/mysql'
 import { isUpdateUserSchema } from '../validations/user.validation'
 import UserRepository from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'

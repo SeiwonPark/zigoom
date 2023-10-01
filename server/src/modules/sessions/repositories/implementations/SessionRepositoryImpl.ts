@@ -1,4 +1,4 @@
-import { Prisma, Session } from '@prisma/mysql/generated/mysql'
+import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { mysql } from '@configs/prisma.config'
 import SessionRepository from '../SessionRepository'
 

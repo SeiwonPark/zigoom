@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe'
 import SessionRepository from '../repositories/SessionRepository'
 import { decodeToken } from '@utils/token'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { Session } from '@prisma/mysql/generated/mysql'
+import { Session } from '@db/mysql/generated/mysql'
 
 interface RequestPayload {
   jwt: string

@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe'
 import UserRepository from '../repositories/UserRepository'
-import { User } from '@prisma/mysql/generated/mysql'
+import { User } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
