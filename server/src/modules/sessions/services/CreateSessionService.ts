@@ -16,13 +16,14 @@ interface RequestPayload {
 @injectable()
 export default class CreateSessionService {
   constructor(
-    @inject('SessionRepository')
-    private sessionRepository: SessionRepository,
     @inject('UserRepository')
     private userRepository: UserRepository,
+    @inject('SessionRepository')
+    private sessionRepository: SessionRepository,
   ) {}
 
   public async execute({ id, title, isPrivate = false, jwt }: RequestPayload): Promise<Session> {
+    // FIXME: authentication by middleware - consider GUEST
     const payload = await decodeToken(jwt)
 
     if (!payload) {
@@ -40,18 +41,33 @@ export default class CreateSessionService {
       throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
     }
 
+    const existingSession = await this.sessionRepository.findById(id, true)
+
+    // attempts to join the existing room
+    if (existingSession) {
+      const sessionUpdateData: Prisma.SessionUpdateInput = {
+        users: {
+          connect: [{ id: existingUser.id }],
+        },
+      }
+      return await this.sessionRepository.update(id, sessionUpdateData, true)
+    }
+
+    // attempts to create a new room
     const sessionData: Prisma.SessionCreateInput = {
       id: id,
       host: googleId,
       title: title,
       isPrivate: isPrivate,
-      users: { connect: { google_id: googleId } },
+      users: {
+        connect: { id: existingUser.id },
+      },
     }
 
     if (!isCreateSessionSchema(sessionData)) {
       throw new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     }
 
-    return await this.sessionRepository.save(sessionData)
+    return await this.sessionRepository.save(sessionData, true)
   }
 }

@@ -195,14 +195,8 @@ describe('User Service Unit Tests', () => {
       }
 
       const updatedUser: User = {
-        id: '123e4567-e89b-12d3-a456-426614174000',
-        google_id: '000000000000000000000',
-        name: 'Updated name',
-        profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=1',
-        sessionId: null,
-        createdAt: new Date(),
-        modifiedAt: new Date(),
-        role: Role.USER,
+        ...user,
+        ...updateUserData,
       }
 
       userRepository.findUserByGoogleId = jest.fn().mockResolvedValue(user)

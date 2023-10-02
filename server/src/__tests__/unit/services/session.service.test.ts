@@ -1,18 +1,20 @@
 import 'reflect-metadata'
 import CreateSessionService from '@modules/sessions/services/CreateSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
+import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
 import SessionRepository from '@modules/sessions/repositories/SessionRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { Role, Session, User } from '@db/mysql/generated/mysql'
+import { Role, User } from '@db/mysql/generated/mysql'
 
 jest.mock('@utils/token')
 
 describe('Session Service Unit Tests', () => {
   let createSessionService: CreateSessionService
   let getSessionService: GetSessionService
+  let updateSessionService: UpdateSessionService
   let userRepository: UserRepository
   let sessionRepository: SessionRepository
 
@@ -34,15 +36,6 @@ describe('Session Service Unit Tests', () => {
     email: 'psw7347@gmail.com',
     sub: '000000000000000000000',
   }
-  const session: Session = {
-    id: '123e4567-e89b-12d3-a456-111111111111',
-    isPrivate: false,
-    host: '000000000000000000000',
-    title: 'Session title',
-    createdAt: new Date(),
-    modifiedAt: new Date(),
-    endedAt: new Date(),
-  }
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
     google_id: '000000000000000000000',
@@ -53,11 +46,32 @@ describe('Session Service Unit Tests', () => {
     modifiedAt: new Date(),
     role: Role.USER,
   }
+  const anotherUser: User = {
+    id: 'fedcba98-7654-3210-fedc-ba9876543210',
+    google_id: '222222222222222222222',
+    name: 'Tony Park',
+    profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
+    sessionId: null,
+    createdAt: new Date(),
+    modifiedAt: new Date(),
+    role: Role.USER,
+  }
+  const session = {
+    id: '123e4567-e89b-12d3-a456-111111111111',
+    isPrivate: false,
+    host: '000000000000000000000',
+    title: 'Session title',
+    createdAt: new Date(),
+    modifiedAt: new Date(),
+    endedAt: new Date(),
+    users: [user],
+  }
 
   beforeEach(() => {
     userRepository = new UserRepositoryImpl()
     sessionRepository = new SessionRepositoryImpl()
-    createSessionService = new CreateSessionService(sessionRepository, userRepository)
+    createSessionService = new CreateSessionService(userRepository, sessionRepository)
+    updateSessionService = new UpdateSessionService(userRepository, sessionRepository)
     getSessionService = new GetSessionService(sessionRepository)
   })
 
@@ -157,6 +171,51 @@ describe('Session Service Unit Tests', () => {
       await expect(
         getSessionService.execute({ jwt: 'valid-token', sessionId: '123e4567-e89b-12d3-a456-111111111111' }),
       ).resolves.toEqual(session)
+    })
+  })
+
+  describe('UpdateSessionService Tests', () => {
+    test('should throw an error if jwt is invalid', async () => {
+      expect.assertions(1)
+
+      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
+
+      await expect(updateSessionService.execute({ jwt: 'invalid-token', sessionId: '123', data: {} })).rejects.toEqual(
+        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
+      )
+    })
+
+    test('should throw an error if token is expired', async () => {
+      expect.assertions(1)
+
+      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
+
+      await expect(updateSessionService.execute({ jwt: 'expired-token', sessionId: '123', data: {} })).rejects.toEqual(
+        new CustomError('The token has been expired', ErrorCode.Unauthorized),
+      )
+    })
+
+    test('should update an existing session if all payloads are valid', async () => {
+      expect.assertions(1)
+
+      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
+
+      const updateSessionData = {
+        title: 'Updated session title',
+        users: [anotherUser],
+      }
+
+      const updatedSession = {
+        ...session,
+        ...updateSessionData,
+      }
+
+      sessionRepository.findById = jest.fn().mockResolvedValue(session)
+      sessionRepository.update = jest.fn().mockReturnValue(updatedSession)
+
+      await expect(
+        updateSessionService.execute({ jwt: 'valid-token', sessionId: '123', data: updateSessionData }),
+      ).resolves.toEqual(updatedSession)
     })
   })
 })

@@ -6,14 +6,19 @@ import { z } from 'zod'
  * =========================================
  */
 const CreateSessionPayload = z.object({
-  id: z.string().uuid(),
+  id: z.string().uuid().nonempty(),
   isPrivate: z.boolean().optional(),
-  title: z.string(),
+  title: z.string().nonempty(),
   users: z.object({
     connect: z.object({
-      google_id: z.string(),
+      id: z.string().uuid().nonempty(),
     }),
   }),
+})
+
+const UpdateSessionPayload = z.object({
+  title: z.string().optional(),
+  users: z.array(z.object({})).optional(),
 })
 
 /**
@@ -23,6 +28,8 @@ const CreateSessionPayload = z.object({
  */
 export type CreateSessionSchema = z.infer<typeof CreateSessionPayload>
 
+export type UpdateSessionSchema = z.infer<typeof UpdateSessionPayload>
+
 /**
  * =========================================
  * validators
@@ -30,4 +37,8 @@ export type CreateSessionSchema = z.infer<typeof CreateSessionPayload>
  */
 export const isCreateSessionSchema = (obj: any): obj is CreateSessionSchema => {
   return CreateSessionPayload.safeParse(obj).success
+}
+
+export const isUpdateSessionSchema = (obj: any): obj is UpdateSessionSchema => {
+  return UpdateSessionPayload.safeParse(obj).success
 }

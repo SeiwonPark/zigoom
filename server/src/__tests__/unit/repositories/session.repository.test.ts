@@ -1,12 +1,32 @@
 import SessionRepository from '@modules/sessions/repositories/SessionRepository'
 import { mockMySQL } from '../../setup'
-import { Prisma, Session } from '@db/mysql/generated/mysql'
+import { Prisma, Session, User, Role } from '@db/mysql/generated/mysql'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
 
 describe('SessionRepositoryImpl', () => {
   let sessionRepository: SessionRepository
 
-  const session: Session = {
+  const user: User = {
+    id: '123e4567-e89b-12d3-a456-426614174000',
+    google_id: '000000000000000000000',
+    name: 'Seiwon Park',
+    profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
+    sessionId: null,
+    createdAt: new Date(),
+    modifiedAt: new Date(),
+    role: Role.USER,
+  }
+  const anotherUser: User = {
+    id: 'fedcba98-7654-3210-fedc-ba9876543210',
+    google_id: '222222222222222222222',
+    name: 'Tony Park',
+    profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
+    sessionId: null,
+    createdAt: new Date(),
+    modifiedAt: new Date(),
+    role: Role.USER,
+  }
+  const session = {
     id: '123e4567-e89b-12d3-a456-111111111111',
     isPrivate: false,
     host: '000000000000000000000',
@@ -14,6 +34,7 @@ describe('SessionRepositoryImpl', () => {
     createdAt: new Date(),
     modifiedAt: new Date(),
     endedAt: new Date(),
+    users: [user],
   }
 
   beforeEach(() => {
@@ -29,9 +50,12 @@ describe('SessionRepositoryImpl', () => {
       id: '123e4567-e89b-12d3-a456-111111111111',
       host: '000000000000000000000',
       title: 'Session title',
+      users: {
+        connect: { id: user.id },
+      },
     }
 
-    const result = await sessionRepository.save(createSessionData)
+    const result = await sessionRepository.save(createSessionData, true)
     expect(result).toEqual(session)
     expect(mockMySQL.session.create).toHaveBeenCalledWith({ data: createSessionData, include: { users: true } })
   })
@@ -40,10 +64,34 @@ describe('SessionRepositoryImpl', () => {
     expect.assertions(2)
 
     mockMySQL.session.findUnique.mockResolvedValue(session)
-    const sessionId = '123e4567-e89b-12d3-a456-111111111111'
 
-    const result = await sessionRepository.findById(sessionId)
+    const result = await sessionRepository.findById(session.id, true)
     expect(result).toEqual(session)
-    expect(mockMySQL.session.findUnique).toHaveBeenCalledWith({ where: { id: sessionId } })
+    expect(mockMySQL.session.findUnique).toHaveBeenCalledWith({ where: { id: session.id }, include: { users: true } })
+  })
+
+  test('should update an existing session with another user', async () => {
+    expect.assertions(2)
+
+    const updatedSession = {
+      ...session,
+      users: [user, anotherUser],
+    }
+    mockMySQL.session.update.mockResolvedValue(updatedSession)
+
+    const updateSessionInput: Prisma.SessionUpdateInput = {
+      title: 'Updated title',
+      users: {
+        connect: [user, anotherUser],
+      },
+    }
+
+    const result = await sessionRepository.update(session.id, updateSessionInput, true)
+    expect(result).toEqual(updatedSession)
+    expect(mockMySQL.session.update).toHaveBeenCalledWith({
+      where: { id: session.id },
+      data: updateSessionInput,
+      include: { users: true },
+    })
   })
 })
