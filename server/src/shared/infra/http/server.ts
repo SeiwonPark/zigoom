@@ -17,9 +17,6 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
-/**
- * This SHOULD be the last middleware to handle exceptions on requests.
- */
 app.use('/v1', router)
 app.use(errorHandler)
 
@@ -27,7 +24,7 @@ const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: ALLOWED_ORIGIN,
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT'],
   },
 })
 

@@ -8,4 +8,4 @@ export const userRouter = Router()
 // FIXME: router path
 userRouter.post('/create', userController.create)
 userRouter.get('/get', userController.get)
-userRouter.post('/update', userController.update)
+userRouter.put('/update', userController.update)

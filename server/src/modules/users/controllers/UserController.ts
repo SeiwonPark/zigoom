@@ -37,7 +37,7 @@ export default class UserController {
     const data = req.body
 
     if (typeof googleId !== 'string') {
-      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
+      throw new CustomError("Parameter type not matching for 'googleId'", ErrorCode.BadRequest)
     }
 
     const updateUser = container.resolve(UpdateUserService)
