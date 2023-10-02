@@ -1,6 +1,7 @@
 import SessionRepository from '@modules/sessions/repositories/SessionRepository'
 import { mockMySQL } from '../../setup'
-import { Prisma, Session, User, Role } from '@db/mysql/generated/mysql'
+import { Prisma, User, Role, Session } from '@db/mysql/generated/mysql'
+import { JoinedSession } from '@modules/sessions/repositories/SessionRepository'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
 
 describe('SessionRepositoryImpl', () => {
@@ -26,7 +27,7 @@ describe('SessionRepositoryImpl', () => {
     modifiedAt: new Date(),
     role: Role.USER,
   }
-  const session = {
+  const session: Session = {
     id: '123e4567-e89b-12d3-a456-111111111111',
     isPrivate: false,
     host: '000000000000000000000',
@@ -34,6 +35,9 @@ describe('SessionRepositoryImpl', () => {
     createdAt: new Date(),
     modifiedAt: new Date(),
     endedAt: new Date(),
+  }
+  const joinedSession: JoinedSession = {
+    ...session,
     users: [user],
   }
 
@@ -44,7 +48,7 @@ describe('SessionRepositoryImpl', () => {
   test('should save a new session', async () => {
     expect.assertions(2)
 
-    mockMySQL.session.create.mockResolvedValue(session)
+    mockMySQL.session.create.mockResolvedValue(joinedSession)
 
     const createSessionData: Prisma.SessionCreateInput = {
       id: '123e4567-e89b-12d3-a456-111111111111',
@@ -56,26 +60,29 @@ describe('SessionRepositoryImpl', () => {
     }
 
     const result = await sessionRepository.save(createSessionData, true)
-    expect(result).toEqual(session)
+    expect(result).toEqual(joinedSession)
     expect(mockMySQL.session.create).toHaveBeenCalledWith({ data: createSessionData, include: { users: true } })
   })
 
   test('should find an existing session by sessionId', async () => {
     expect.assertions(2)
 
-    mockMySQL.session.findUnique.mockResolvedValue(session)
+    mockMySQL.session.findUnique.mockResolvedValue(joinedSession)
 
-    const result = await sessionRepository.findById(session.id, true)
-    expect(result).toEqual(session)
-    expect(mockMySQL.session.findUnique).toHaveBeenCalledWith({ where: { id: session.id }, include: { users: true } })
+    const result = await sessionRepository.findById(joinedSession.id, true)
+    expect(result).toEqual(joinedSession)
+    expect(mockMySQL.session.findUnique).toHaveBeenCalledWith({
+      where: { id: joinedSession.id },
+      include: { users: true },
+    })
   })
 
   test('should update an existing session with another user', async () => {
     expect.assertions(2)
 
     const updatedSession = {
-      ...session,
-      users: [user, anotherUser],
+      ...joinedSession,
+      users: [...joinedSession.users, anotherUser],
     }
     mockMySQL.session.update.mockResolvedValue(updatedSession)
 
@@ -86,10 +93,10 @@ describe('SessionRepositoryImpl', () => {
       },
     }
 
-    const result = await sessionRepository.update(session.id, updateSessionInput, true)
+    const result = await sessionRepository.update(joinedSession.id, updateSessionInput, true)
     expect(result).toEqual(updatedSession)
     expect(mockMySQL.session.update).toHaveBeenCalledWith({
-      where: { id: session.id },
+      where: { id: joinedSession.id },
       data: updateSessionInput,
       include: { users: true },
     })
