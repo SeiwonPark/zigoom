@@ -1,6 +1,6 @@
 import { injectable, inject } from 'tsyringe'
 import UserRepository from '@modules/users/repositories/UserRepository'
-import SessionRepository from '../repositories/SessionRepository'
+import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { decodeToken } from '@utils/token'
 import { CustomError, ErrorCode } from '@shared/errors'
@@ -21,7 +21,7 @@ export default class UpdateSessionService {
     private sessionRepository: SessionRepository,
   ) {}
 
-  public async execute({ jwt, sessionId, data }: RequestPayload): Promise<Session> {
+  public async execute({ jwt, sessionId, data }: RequestPayload): Promise<Session | JoinedSession> {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
@@ -46,7 +46,7 @@ export default class UpdateSessionService {
       throw new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     }
 
-    return await this.sessionRepository.update(sessionId, sessionUpdateData)
+    return await this.sessionRepository.update(sessionId, sessionUpdateData, true)
   }
 
   async getSessionById(sessionId: string): Promise<Session | null> {

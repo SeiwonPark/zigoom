@@ -1,5 +1,5 @@
 import { injectable, inject } from 'tsyringe'
-import UserRepository from '../repositories/UserRepository'
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { User } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
@@ -7,7 +7,7 @@ import { decodeToken } from '@utils/token'
 interface RequestPayload {
   jwt: string
   googleId: string
-  profile: boolean
+  include: boolean
 }
 
 @injectable()
@@ -17,7 +17,7 @@ export default class GetUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt, googleId, profile }: RequestPayload): Promise<User | null> {
+  public async execute({ jwt, googleId, include }: RequestPayload): Promise<User | JoinedUser | null> {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
@@ -28,7 +28,7 @@ export default class GetUserService {
       throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
     }
 
-    const user = await this.getUserByGoogleId(googleId, profile)
+    const user = await this.getUserByGoogleId(googleId, include)
 
     if (!user) {
       throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
@@ -37,7 +37,7 @@ export default class GetUserService {
     return user
   }
 
-  async getUserByGoogleId(googleId: string, profile: boolean): Promise<User | null> {
-    return await this.userRepository.findUserByGoogleId(googleId, profile)
+  async getUserByGoogleId(googleId: string, include: boolean): Promise<User | null> {
+    return await this.userRepository.findUserByGoogleId(googleId, include)
   }
 }

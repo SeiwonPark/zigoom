@@ -90,7 +90,7 @@ describe('User Service Unit Tests', () => {
 
       require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
 
-      await expect(getUserService.execute({ jwt: 'invalid-token', googleId: '123', profile: true })).rejects.toEqual(
+      await expect(getUserService.execute({ jwt: 'invalid-token', googleId: '123', include: false })).rejects.toEqual(
         new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
       )
     })
@@ -100,7 +100,7 @@ describe('User Service Unit Tests', () => {
 
       require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
 
-      await expect(getUserService.execute({ jwt: 'expired-token', googleId: '123', profile: true })).rejects.toEqual(
+      await expect(getUserService.execute({ jwt: 'expired-token', googleId: '123', include: false })).rejects.toEqual(
         new CustomError('The token has been expired', ErrorCode.Unauthorized),
       )
     })
@@ -114,7 +114,7 @@ describe('User Service Unit Tests', () => {
       const wrongGoogleId = '999999999999999999999'
 
       await expect(
-        getUserService.execute({ jwt: 'valid-token', googleId: wrongGoogleId, profile: true }),
+        getUserService.execute({ jwt: 'valid-token', googleId: wrongGoogleId, include: false }),
       ).rejects.toEqual(new CustomError(`User doesn't exist by id '${wrongGoogleId}'`, ErrorCode.NotFound))
     })
 
@@ -125,7 +125,7 @@ describe('User Service Unit Tests', () => {
       userRepository.findUserByGoogleId = jest.fn().mockResolvedValue(user)
 
       await expect(
-        getUserService.execute({ jwt: 'valid-token', googleId: '000000000000000000000', profile: true }),
+        getUserService.execute({ jwt: 'valid-token', googleId: '000000000000000000000', include: false }),
       ).resolves.toEqual(user)
     })
   })

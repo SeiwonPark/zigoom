@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@db/mysql/generated/mysql'
 import { isUpdateUserSchema } from '../validations/user.validation'
-import UserRepository from '../repositories/UserRepository'
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
@@ -18,7 +18,7 @@ export default class UpdateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt, googleId, data }: RequestPayload): Promise<User> {
+  public async execute({ jwt, googleId, data }: RequestPayload): Promise<User | JoinedUser> {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
@@ -43,7 +43,7 @@ export default class UpdateUserService {
       throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     }
 
-    return await this.userRepository.update(googleId, userUpdateData)
+    return await this.userRepository.update(googleId, userUpdateData, true)
   }
 
   async getUserByGoogleId(googleId: string): Promise<User | null> {

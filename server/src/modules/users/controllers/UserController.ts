@@ -18,14 +18,14 @@ export default class UserController {
 
   public async get(req: Request, res: Response): Promise<Response> {
     const { jwt } = req.cookies
-    const { googleId, profile } = req.query
+    const { googleId, include } = req.query
 
-    if (typeof googleId !== 'string' || typeof profile !== 'boolean') {
+    if (typeof googleId !== 'string' || (include !== undefined && typeof include !== 'boolean')) {
       throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
 
     const getUser = container.resolve(GetUserService)
-    const fetchedUser = await getUser.execute({ jwt, googleId, profile })
+    const fetchedUser = await getUser.execute({ jwt, googleId, include: include ?? false })
 
     console.log('Fetched a user: ', fetchedUser)
     return res.status(200).send(fetchedUser)

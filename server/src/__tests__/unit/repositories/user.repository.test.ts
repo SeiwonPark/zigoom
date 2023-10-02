@@ -41,7 +41,7 @@ describe('UserRepositoryImpl', () => {
 
     const result = await userRepository.save(createUserData)
     expect(result).toEqual(user)
-    expect(mockMySQL.user.create).toHaveBeenCalledWith({ data: createUserData })
+    expect(mockMySQL.user.create).toHaveBeenCalledWith({ data: createUserData, include: { profile: false } })
   })
 
   test('should find an existing user by Google ID', async () => {
@@ -68,6 +68,10 @@ describe('UserRepositoryImpl', () => {
 
     const result = await userRepository.update(googleId, updateUserInput)
     expect(result).toEqual(user)
-    expect(mockMySQL.user.update).toHaveBeenCalledWith({ where: { google_id: googleId }, data: updateUserInput })
+    expect(mockMySQL.user.update).toHaveBeenCalledWith({
+      where: { google_id: googleId },
+      data: updateUserInput,
+      include: { profile: false },
+    })
   })
 })

@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@db/mysql/generated/mysql'
 import { isCreateUserSchema } from '../validations/user.validation'
-import UserRepository from '../repositories/UserRepository'
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
@@ -16,7 +16,7 @@ export default class CreateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt }: RequestPayload): Promise<User> {
+  public async execute({ jwt }: RequestPayload): Promise<User | JoinedUser> {
     const payload = await decodeToken(jwt)
 
     if (!payload) {
@@ -52,7 +52,7 @@ export default class CreateUserService {
       throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     }
 
-    return await this.userRepository.save(userData)
+    return await this.userRepository.save(userData, true)
   }
 
   async getUserByGoogleId(googleId: string): Promise<User | null> {

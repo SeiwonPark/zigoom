@@ -1,7 +1,7 @@
 import { injectable, inject } from 'tsyringe'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { isCreateSessionSchema } from '../validations/session.validation'
-import SessionRepository from '../repositories/SessionRepository'
+import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
@@ -22,7 +22,7 @@ export default class CreateSessionService {
     private sessionRepository: SessionRepository,
   ) {}
 
-  public async execute({ id, title, isPrivate = false, jwt }: RequestPayload): Promise<Session> {
+  public async execute({ id, title, isPrivate = false, jwt }: RequestPayload): Promise<Session | JoinedSession> {
     // FIXME: authentication by middleware - consider GUEST
     const payload = await decodeToken(jwt)
 
@@ -41,7 +41,7 @@ export default class CreateSessionService {
       throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
     }
 
-    const existingSession = await this.sessionRepository.findById(id, true)
+    const existingSession = await this.getSessionById(id)
 
     // attempts to join the existing room
     if (existingSession) {
@@ -69,5 +69,9 @@ export default class CreateSessionService {
     }
 
     return await this.sessionRepository.save(sessionData, true)
+  }
+
+  async getSessionById(sessionId: string): Promise<Session | null> {
+    return await this.sessionRepository.findById(sessionId)
   }
 }
