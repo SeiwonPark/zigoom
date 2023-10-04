@@ -19,23 +19,23 @@ export default class CreateUserService {
   ) {}
 
   public async execute({ payload }: RequestPayload): Promise<User | JoinedUser> {
-    const googleId = payload.sub
-    const existingUser = await this.getUserByGoogleId(googleId)
+    const userData = this.getValidatedData(payload)
+    await this.ensureUserNotExists(payload.sub)
 
-    if (existingUser) {
-      throw new CustomError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
-    }
+    return await this.userRepository.save(userData, true)
+  }
 
-    const userData: Prisma.UserCreateInput = {
-      google_id: googleId,
-      name: payload.name || 'Anonymous User',
+  private getValidatedData(data: any): Prisma.UserCreateInput {
+    const userData = {
+      google_id: data.sub,
+      name: data.name || 'Anonymous User',
       profileThumbnail: '', // FIXME: bucket url
       profile: {
         create: {
-          family_name: payload.family_name,
-          given_name: payload.given_name,
-          profileImage: payload.picture || '', // FIXME: bucket url
-          email: payload.email,
+          family_name: data.family_name,
+          given_name: data.given_name,
+          profileImage: data.picture || '', // FIXME: bucket url
+          email: data.email,
         },
       },
     }
@@ -44,10 +44,13 @@ export default class CreateUserService {
       throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     }
 
-    return await this.userRepository.save(userData, true)
+    return userData
   }
 
-  async getUserByGoogleId(googleId: string): Promise<User | null> {
-    return await this.userRepository.findUserByGoogleId(googleId)
+  private async ensureUserNotExists(googleId: string): Promise<void> {
+    const user = await this.userRepository.findUserByGoogleId(googleId)
+    if (user) {
+      throw new CustomError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
+    }
   }
 }

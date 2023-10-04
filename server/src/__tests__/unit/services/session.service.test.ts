@@ -64,7 +64,7 @@ describe('Session Service Unit Tests', () => {
     userRepository = new UserRepositoryImpl()
     sessionRepository = new SessionRepositoryImpl()
     createSessionService = new CreateSessionService(userRepository, sessionRepository)
-    updateSessionService = new UpdateSessionService(userRepository, sessionRepository)
+    updateSessionService = new UpdateSessionService(sessionRepository)
     getSessionService = new GetSessionService(sessionRepository)
   })
 

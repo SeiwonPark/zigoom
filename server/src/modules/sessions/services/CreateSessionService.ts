@@ -1,6 +1,6 @@
 import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
-import { Prisma, Session } from '@db/mysql/generated/mysql'
+import { Prisma, Session, User } from '@db/mysql/generated/mysql'
 import { isCreateSessionSchema } from '../validations/session.validation'
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import UserRepository from '@modules/users/repositories/UserRepository'
@@ -29,33 +29,50 @@ export default class CreateSessionService {
       // TODO: handle guest
     }
 
-    const googleId = payload.sub
-    const existingUser = await this.userRepository.findUserByGoogleId(googleId)
-
-    if (!existingUser) {
-      throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
-    }
-
+    const existingUser = await this.getUserByGoogleId(payload.sub)
     const existingSession = await this.getSessionById(id)
 
-    // attempts to join the existing room
     if (existingSession) {
-      const sessionUpdateData: Prisma.SessionUpdateInput = {
-        users: {
-          connect: [{ id: existingUser.id }],
-        },
-      }
-      return await this.sessionRepository.update(id, sessionUpdateData, true)
+      return await this.joinRoom(id, existingUser.id)
+    } else {
+      return await this.createRoom(id, title, existingUser, isPrivate)
     }
+  }
 
-    // attempts to create a new room
+  private async getUserByGoogleId(googleId: string): Promise<User> {
+    const user = await this.userRepository.findUserByGoogleId(googleId)
+    if (!user) {
+      throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
+    }
+    return user
+  }
+
+  private async getSessionById(sessionId: string): Promise<Session | null> {
+    return await this.sessionRepository.findById(sessionId)
+  }
+
+  private async joinRoom(id: string, userId: string): Promise<Session | JoinedSession> {
+    const sessionUpdateData: Prisma.SessionUpdateInput = {
+      users: {
+        connect: [{ id: userId }],
+      },
+    }
+    return await this.sessionRepository.update(id, sessionUpdateData, true)
+  }
+
+  private async createRoom(
+    id: string,
+    title: string,
+    user: User,
+    isPrivate: boolean,
+  ): Promise<Session | JoinedSession> {
     const sessionData: Prisma.SessionCreateInput = {
       id: id,
-      host: googleId,
+      host: user.google_id,
       title: title,
       isPrivate: isPrivate,
       users: {
-        connect: { id: existingUser.id },
+        connect: { id: user.id },
       },
     }
 
@@ -64,9 +81,5 @@ export default class CreateSessionService {
     }
 
     return await this.sessionRepository.save(sessionData, true)
-  }
-
-  async getSessionById(sessionId: string): Promise<Session | null> {
-    return await this.sessionRepository.findById(sessionId)
   }
 }

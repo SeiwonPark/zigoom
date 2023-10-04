@@ -1,6 +1,5 @@
 import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
-import UserRepository from '@modules/users/repositories/UserRepository'
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
@@ -17,8 +16,6 @@ interface RequestPayload {
 @injectable()
 export default class UpdateSessionService {
   constructor(
-    @inject('UserRepository')
-    private userRepository: UserRepository,
     @inject('SessionRepository')
     private sessionRepository: SessionRepository,
   ) {}
@@ -28,24 +25,33 @@ export default class UpdateSessionService {
       // TODO: handle guest
     }
 
-    const session = await this.getSessionById(sessionId)
+    const validatedData = this.getValidatedData(data)
+    await this.ensureSessionExists(sessionId)
 
-    if (!session) {
-      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
-    }
+    return await this.sessionRepository.update(sessionId, validatedData, true)
+  }
 
-    const sessionUpdateData: Prisma.SessionUpdateInput = {
-      ...data,
-    }
-
-    if (!isUpdateSessionSchema(sessionUpdateData)) {
+  private getValidatedData(data: any): Prisma.SessionUpdateInput {
+    if (!isUpdateSessionSchema(data)) {
       throw new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     }
 
-    return await this.sessionRepository.update(sessionId, sessionUpdateData, true)
+    const updatedUsersInSession = {
+      connect: data.users?.map((user: any) => ({ id: user.connect?.id })),
+      disconnect: data.users?.map((user: any) => ({ id: user.disconnect?.id })),
+    }
+    const sessionUpdateData = {
+      ...data,
+      users: updatedUsersInSession,
+    }
+
+    return sessionUpdateData
   }
 
-  async getSessionById(sessionId: string): Promise<Session | null> {
-    return await this.sessionRepository.findById(sessionId)
+  private async ensureSessionExists(sessionId: string): Promise<void> {
+    const session = await this.sessionRepository.findById(sessionId)
+    if (!session) {
+      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
+    }
   }
 }

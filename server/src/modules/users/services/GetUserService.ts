@@ -19,16 +19,10 @@ export default class GetUserService {
   ) {}
 
   public async execute({ payload, include }: RequestPayload): Promise<User | JoinedUser | null> {
-    const user = await this.getUserByGoogleId(payload.sub, include)
-
+    const user = await this.userRepository.findUserByGoogleId(payload.sub, include)
     if (!user) {
       throw new CustomError(`User doesn't exist by id '${payload.sub}'`, ErrorCode.NotFound)
     }
-
     return user
-  }
-
-  async getUserByGoogleId(googleId: string, include: boolean): Promise<User | null> {
-    return await this.userRepository.findUserByGoogleId(googleId, include)
   }
 }

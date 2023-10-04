@@ -21,24 +21,23 @@ export default class UpdateUserService {
   ) {}
 
   public async execute({ payload, include, data }: RequestPayload): Promise<User | JoinedUser> {
-    const user = await this.getUserByGoogleId(payload.sub)
+    const validatedData = this.getValidatedData(data)
+    await this.ensureUserExists(payload.sub)
 
-    if (!user) {
-      throw new CustomError(`User doesn't exist by id '${payload.sub}'`, ErrorCode.NotFound)
-    }
-
-    const userUpdateData: Prisma.UserUpdateInput = {
-      ...data,
-    }
-
-    if (!isUpdateUserSchema(userUpdateData)) {
-      throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
-    }
-
-    return await this.userRepository.update(payload.sub, userUpdateData, include)
+    return await this.userRepository.update(payload.sub, validatedData, include)
   }
 
-  async getUserByGoogleId(googleId: string): Promise<User | null> {
-    return await this.userRepository.findUserByGoogleId(googleId)
+  private getValidatedData(data: any): Prisma.UserUpdateInput {
+    if (!isUpdateUserSchema(data)) {
+      throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
+    }
+    return data
+  }
+
+  private async ensureUserExists(googleId: string): Promise<void> {
+    const user = await this.userRepository.findUserByGoogleId(googleId)
+    if (!user) {
+      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
+    }
   }
 }

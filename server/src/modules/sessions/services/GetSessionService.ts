@@ -19,20 +19,23 @@ export default class GetSessionService {
   ) {}
 
   public async execute({ payload, sessionId }: RequestPayload): Promise<Session | null> {
-    if (payload.isGuest) {
-      // TODO: handle guest
-    }
-
-    const session = await this.getSessionById(sessionId)
-
-    if (!session) {
-      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
-    }
+    const session = await this.ensureSessionExists(sessionId)
+    this.handlePrivateSession(payload.isGuest, session.isPrivate)
 
     return await this.sessionRepository.findById(sessionId)
   }
 
-  async getSessionById(sessionId: string): Promise<Session | null> {
-    return await this.sessionRepository.findById(sessionId)
+  private async ensureSessionExists(sessionId: string): Promise<Session> {
+    const session = await this.sessionRepository.findById(sessionId)
+    if (!session) {
+      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
+    }
+    return session
+  }
+
+  private handlePrivateSession(isGuest: boolean, isPrivate: boolean): void {
+    if (isGuest && isPrivate) {
+      throw new CustomError('Authentication is required to get private session', ErrorCode.Unauthorized)
+    }
   }
 }

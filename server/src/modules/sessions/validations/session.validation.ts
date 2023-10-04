@@ -17,8 +17,26 @@ const CreateSessionPayload = z.object({
 })
 
 const UpdateSessionPayload = z.object({
+  isPrivate: z.boolean().optional(),
+  host: z.string().optional(),
   title: z.string().optional(),
-  users: z.array(z.object({})).optional(),
+  endedAt: z.string().optional(),
+  users: z
+    .array(
+      z.object({
+        connect: z
+          .object({
+            id: z.string().uuid().nonempty(),
+          })
+          .optional(),
+        disconnect: z
+          .object({
+            id: z.string().uuid().nonempty(),
+          })
+          .optional(),
+      }),
+    )
+    .optional(),
 })
 
 /**
