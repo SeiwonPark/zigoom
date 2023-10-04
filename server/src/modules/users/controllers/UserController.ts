@@ -7,43 +7,39 @@ import GetUserService from '../services/GetUserService'
 
 export default class UserController {
   public async create(req: Request, res: Response): Promise<Response> {
-    const { jwt } = req.cookies
-
     const createUser = container.resolve(CreateUserService)
-    const createdUser = await createUser.execute({ jwt })
+    const createdUser = await createUser.execute({ payload: req.ctx.user })
 
     console.log('Created a new user: ', createdUser)
-    return res.sendStatus(200)
+    return res.send(createUser)
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
-    const { jwt } = req.cookies
-    const { googleId, include } = req.query
+    const { include } = req.query
 
-    if (typeof googleId !== 'string' || (include !== undefined && typeof include !== 'boolean')) {
+    if (include !== undefined && typeof include !== 'boolean') {
       throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
 
     const getUser = container.resolve(GetUserService)
-    const fetchedUser = await getUser.execute({ jwt, googleId, include: include ?? false })
+    const fetchedUser = await getUser.execute({ payload: req.ctx.user, include: include ?? false })
 
     console.log('Fetched a user: ', fetchedUser)
-    return res.status(200).send(fetchedUser)
+    return res.send(fetchedUser)
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
-    const { jwt } = req.cookies
-    const { googleId } = req.query
+    const { include } = req.query
     const data = req.body
 
-    if (typeof googleId !== 'string') {
-      throw new CustomError("Parameter type not matching for 'googleId'", ErrorCode.BadRequest)
+    if (include !== undefined && typeof include !== 'boolean') {
+      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
 
     const updateUser = container.resolve(UpdateUserService)
-    const updatedUser = await updateUser.execute({ jwt, googleId, data })
+    const updatedUser = await updateUser.execute({ payload: req.ctx.user, include: include ?? false, data: data })
 
     console.log('Updated a user: ', updatedUser)
-    return res.sendStatus(200)
+    return res.send(updateUser)
   }
 }

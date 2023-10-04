@@ -1,11 +1,13 @@
+import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import SessionRepository from '../repositories/SessionRepository'
-import { decodeToken } from '@utils/token'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Session } from '@db/mysql/generated/mysql'
 
+type Token = TokenPayload & { isGuest: boolean }
+
 interface RequestPayload {
-  jwt: string
+  payload: Token
   sessionId: string
 }
 
@@ -16,15 +18,9 @@ export default class GetSessionService {
     private sessionRepository: SessionRepository,
   ) {}
 
-  public async execute({ jwt, sessionId }: RequestPayload): Promise<Session | null> {
-    const payload = await decodeToken(jwt)
-
-    if (!payload) {
-      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
-    }
-
-    if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
+  public async execute({ payload, sessionId }: RequestPayload): Promise<Session | null> {
+    if (payload.isGuest) {
+      // TODO: handle guest
     }
 
     const session = await this.getSessionById(sessionId)

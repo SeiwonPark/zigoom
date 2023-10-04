@@ -1,12 +1,13 @@
+import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { User } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { decodeToken } from '@utils/token'
+
+type Token = TokenPayload & { isGuest: boolean }
 
 interface RequestPayload {
-  jwt: string
-  googleId: string
+  payload: Token
   include: boolean
 }
 
@@ -17,21 +18,11 @@ export default class GetUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt, googleId, include }: RequestPayload): Promise<User | JoinedUser | null> {
-    const payload = await decodeToken(jwt)
-
-    if (!payload) {
-      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
-    }
-
-    if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
-    }
-
-    const user = await this.getUserByGoogleId(googleId, include)
+  public async execute({ payload, include }: RequestPayload): Promise<User | JoinedUser | null> {
+    const user = await this.getUserByGoogleId(payload.sub, include)
 
     if (!user) {
-      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
+      throw new CustomError(`User doesn't exist by id '${payload.sub}'`, ErrorCode.NotFound)
     }
 
     return user

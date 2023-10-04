@@ -1,13 +1,15 @@
+import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@db/mysql/generated/mysql'
 import { isUpdateUserSchema } from '../validations/user.validation'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { decodeToken } from '@utils/token'
+
+type Token = TokenPayload & { isGuest: boolean }
 
 interface RequestPayload {
-  jwt: string
-  googleId: string
+  payload: Token
+  include: boolean
   data: any
 }
 
@@ -18,21 +20,11 @@ export default class UpdateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt, googleId, data }: RequestPayload): Promise<User | JoinedUser> {
-    const payload = await decodeToken(jwt)
-
-    if (!payload) {
-      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
-    }
-
-    if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
-    }
-
-    const user = await this.getUserByGoogleId(googleId)
+  public async execute({ payload, include, data }: RequestPayload): Promise<User | JoinedUser> {
+    const user = await this.getUserByGoogleId(payload.sub)
 
     if (!user) {
-      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
+      throw new CustomError(`User doesn't exist by id '${payload.sub}'`, ErrorCode.NotFound)
     }
 
     const userUpdateData: Prisma.UserUpdateInput = {
@@ -43,7 +35,7 @@ export default class UpdateUserService {
       throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     }
 
-    return await this.userRepository.update(googleId, userUpdateData, true)
+    return await this.userRepository.update(payload.sub, userUpdateData, include)
   }
 
   async getUserByGoogleId(googleId: string): Promise<User | null> {

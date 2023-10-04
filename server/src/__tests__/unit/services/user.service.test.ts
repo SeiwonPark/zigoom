@@ -7,23 +7,12 @@ import UserRepository from '@modules/users/repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Role, User } from '@db/mysql/generated/mysql'
 
-jest.mock('@utils/token')
-
 describe('User Service Unit Tests', () => {
   let createUserService: CreateUserService
   let getUserService: GetUserService
   let updateUserService: UpdateUserService
   let userRepository: UserRepository
 
-  const expiredToken = {
-    name: 'Seiwon Park',
-    family_name: 'Park',
-    given_name: 'Seiwon',
-    exp: ~~(Date.now() / 1000) - 60, // expired
-    picture: 'https://avatars.githubusercontent.com/u/63793178?v=4',
-    email: 'psw7347@gmail.com',
-    sub: '000000000000000000000',
-  }
   const validToken = {
     name: 'Seiwon Park',
     family_name: 'Park',
@@ -32,6 +21,10 @@ describe('User Service Unit Tests', () => {
     picture: 'https://avatars.githubusercontent.com/u/63793178?v=4',
     email: 'psw7347@gmail.com',
     sub: '000000000000000000000',
+    iss: 'https://accounts.google.com',
+    aud: 'client-id',
+    iat: 123,
+    isGuest: false,
   }
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -52,109 +45,40 @@ describe('User Service Unit Tests', () => {
   })
 
   describe('CreateUserService Tests', () => {
-    test('should throw an error if jwt is invalid', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
-
-      await expect(createUserService.execute({ jwt: 'invalid-token' })).rejects.toEqual(
-        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should throw an error if token is expired', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
-
-      await expect(createUserService.execute({ jwt: 'expired-token' })).rejects.toEqual(
-        new CustomError('The token has been expired', ErrorCode.Unauthorized),
-      )
-    })
-
     test('should create a new user if all payloads are valid', async () => {
       expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
 
       userRepository.findUserByGoogleId = jest.fn().mockReturnValue(null)
       userRepository.save = jest.fn().mockReturnValue(user)
 
-      await expect(createUserService.execute({ jwt: 'valid-token' })).resolves.toEqual(user)
+      await expect(createUserService.execute({ payload: validToken })).resolves.toEqual(user)
     })
   })
 
   describe('GetUserService Tests', () => {
-    test('should throw an error if jwt is invalid', async () => {
+    test('should fail to get a user if no user found with the googleId', async () => {
       expect.assertions(1)
 
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
-
-      await expect(getUserService.execute({ jwt: 'invalid-token', googleId: '123', include: false })).rejects.toEqual(
-        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should throw an error if token is expired', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
-
-      await expect(getUserService.execute({ jwt: 'expired-token', googleId: '123', include: false })).rejects.toEqual(
-        new CustomError('The token has been expired', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should fail to get an existing user if googleId is invalid', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
       userRepository.findUserByGoogleId = jest.fn().mockResolvedValue(null)
+      const invalidGoogleIdToken = { ...validToken, sub: '999999999999999999999' }
 
-      const wrongGoogleId = '999999999999999999999'
-
-      await expect(
-        getUserService.execute({ jwt: 'valid-token', googleId: wrongGoogleId, include: false }),
-      ).rejects.toEqual(new CustomError(`User doesn't exist by id '${wrongGoogleId}'`, ErrorCode.NotFound))
+      await expect(getUserService.execute({ payload: invalidGoogleIdToken, include: false })).rejects.toEqual(
+        new CustomError(`User doesn't exist by id '${invalidGoogleIdToken.sub}'`, ErrorCode.NotFound),
+      )
     })
 
     test('should get an existing user if all payloads are valid', async () => {
       expect.assertions(1)
 
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
       userRepository.findUserByGoogleId = jest.fn().mockResolvedValue(user)
 
-      await expect(
-        getUserService.execute({ jwt: 'valid-token', googleId: '000000000000000000000', include: false }),
-      ).resolves.toEqual(user)
+      await expect(getUserService.execute({ payload: validToken, include: false })).resolves.toEqual(user)
     })
   })
 
   describe('UpdateUserService Tests', () => {
-    test('should throw an error if jwt is invalid', async () => {
+    test('should fail to update a user if data is invalid type', async () => {
       expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
-
-      await expect(updateUserService.execute({ jwt: 'invalid-token', googleId: '123', data: {} })).rejects.toEqual(
-        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should throw an error if token is expired', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
-
-      await expect(updateUserService.execute({ jwt: 'expired-token', googleId: '123', data: {} })).rejects.toEqual(
-        new CustomError('The token has been expired', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should fail to update a user if some payloads are invalid', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
 
       const updateUserData = {
         name: 'Updated name',
@@ -164,7 +88,6 @@ describe('User Service Unit Tests', () => {
           given_name: 4567,
         },
       }
-
       const updatedUser: User = {
         id: '123e4567-e89b-12d3-a456-426614174000',
         google_id: '000000000000000000000',
@@ -180,30 +103,26 @@ describe('User Service Unit Tests', () => {
       userRepository.update = jest.fn().mockReturnValue(updatedUser)
 
       await expect(
-        updateUserService.execute({ jwt: 'valid-token', googleId: '000000000000000000000', data: updateUserData }),
+        updateUserService.execute({ payload: validToken, include: true, data: updateUserData }),
       ).rejects.toEqual(new CustomError('Invalid payload type for UpdateUserSchema.'))
     })
 
     test('should update a user if all payloads are valid', async () => {
       expect.assertions(1)
 
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
-
       const updateUserData = {
         name: 'Updated name',
         profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=1',
       }
-
       const updatedUser: User = {
         ...user,
         ...updateUserData,
       }
-
       userRepository.findUserByGoogleId = jest.fn().mockResolvedValue(user)
       userRepository.update = jest.fn().mockReturnValue(updatedUser)
 
       await expect(
-        updateUserService.execute({ jwt: 'valid-token', googleId: '000000000000000000000', data: updateUserData }),
+        updateUserService.execute({ payload: validToken, include: true, data: updateUserData }),
       ).resolves.toEqual(updatedUser)
     })
   })

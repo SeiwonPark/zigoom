@@ -1,12 +1,14 @@
+import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import { Prisma, User } from '@db/mysql/generated/mysql'
 import { isCreateUserSchema } from '../validations/user.validation'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { decodeToken } from '@utils/token'
+
+type Token = TokenPayload & { isGuest: boolean }
 
 interface RequestPayload {
-  jwt: string
+  payload: Token
 }
 
 @injectable()
@@ -16,17 +18,7 @@ export default class CreateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute({ jwt }: RequestPayload): Promise<User | JoinedUser> {
-    const payload = await decodeToken(jwt)
-
-    if (!payload) {
-      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
-    }
-
-    if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
-    }
-
+  public async execute({ payload }: RequestPayload): Promise<User | JoinedUser> {
     const googleId = payload.sub
     const existingUser = await this.getUserByGoogleId(googleId)
 

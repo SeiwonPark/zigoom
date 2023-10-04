@@ -1,13 +1,15 @@
+import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
-import { decodeToken } from '@utils/token'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { isUpdateSessionSchema } from '../validations/session.validation'
 
+type Token = TokenPayload & { isGuest: boolean }
+
 interface RequestPayload {
-  jwt: string
+  payload: Token
   sessionId: string
   data: any
 }
@@ -21,15 +23,9 @@ export default class UpdateSessionService {
     private sessionRepository: SessionRepository,
   ) {}
 
-  public async execute({ jwt, sessionId, data }: RequestPayload): Promise<Session | JoinedSession> {
-    const payload = await decodeToken(jwt)
-
-    if (!payload) {
-      throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
-    }
-
-    if (Date.now() >= payload.exp * 1000) {
-      throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
+  public async execute({ payload, sessionId, data }: RequestPayload): Promise<Session | JoinedSession> {
+    if (payload.isGuest) {
+      // TODO: handle guest
     }
 
     const session = await this.getSessionById(sessionId)

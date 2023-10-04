@@ -9,7 +9,7 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { setupSocketHandlers } from '../../../handlers/socket.handler'
 import { PORT, ALLOWED_ORIGIN } from '@configs/env.config'
-import { errorHandler } from './middlewares/handlers/errorHandler'
+import { authHandler, errorHandler } from './middlewares/handlers'
 
 const app = express()
 
@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+app.use(authHandler)
 app.use('/v1', router)
 app.use(errorHandler)
 

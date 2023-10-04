@@ -9,8 +9,6 @@ import SessionRepository from '@modules/sessions/repositories/SessionRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Role, User } from '@db/mysql/generated/mysql'
 
-jest.mock('@utils/token')
-
 describe('Session Service Unit Tests', () => {
   let createSessionService: CreateSessionService
   let getSessionService: GetSessionService
@@ -18,15 +16,6 @@ describe('Session Service Unit Tests', () => {
   let userRepository: UserRepository
   let sessionRepository: SessionRepository
 
-  const expiredToken = {
-    name: 'Seiwon Park',
-    family_name: 'Park',
-    given_name: 'Seiwon',
-    exp: ~~(Date.now() / 1000) - 60, // expired
-    picture: 'https://avatars.githubusercontent.com/u/63793178?v=4',
-    email: 'psw7347@gmail.com',
-    sub: '000000000000000000000',
-  }
   const validToken = {
     name: 'Seiwon Park',
     family_name: 'Park',
@@ -35,6 +24,10 @@ describe('Session Service Unit Tests', () => {
     picture: 'https://avatars.githubusercontent.com/u/63793178?v=4',
     email: 'psw7347@gmail.com',
     sub: '000000000000000000000',
+    iss: 'https://accounts.google.com',
+    aud: 'client-id',
+    iat: 123,
+    isGuest: false,
   }
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -76,86 +69,32 @@ describe('Session Service Unit Tests', () => {
   })
 
   describe('CreateSessionService Tests', () => {
-    test('should throw an error if jwt is invalid', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
-
-      await expect(
-        createSessionService.execute({
-          id: '123e4567-e89b-12d3-a456-111111111111',
-          title: 'Session title',
-          isPrivate: false,
-          jwt: 'invalid-token',
-        }),
-      ).rejects.toEqual(new CustomError('Failed to get payload from token', ErrorCode.Unauthorized))
-    })
-
-    test('should throw an error if token is expired', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
-
-      await expect(
-        createSessionService.execute({
-          id: '123e4567-e89b-12d3-a456-111111111111',
-          title: 'Session title',
-          isPrivate: false,
-          jwt: 'expired-token',
-        }),
-      ).rejects.toEqual(new CustomError('The token has been expired', ErrorCode.Unauthorized))
-    })
-
     test('should create a new session if all payloads are valid', async () => {
       expect.assertions(1)
 
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
       userRepository.findUserByGoogleId = jest.fn().mockReturnValue(user)
       sessionRepository.save = jest.fn().mockReturnValue(session)
 
       await expect(
         createSessionService.execute({
+          payload: validToken,
           id: '123e4567-e89b-12d3-a456-111111111111',
           title: 'Session title',
           isPrivate: false,
-          jwt: 'valid-token',
         }),
       ).resolves.toEqual(session)
     })
   })
 
   describe('GetSessionService Tests', () => {
-    test('should throw an error if jwt is invalid', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
-
-      await expect(getSessionService.execute({ jwt: 'invalid-token', sessionId: '123' })).rejects.toEqual(
-        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should throw an error if token is expired', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
-
-      await expect(getSessionService.execute({ jwt: 'expired-token', sessionId: '123' })).rejects.toEqual(
-        new CustomError('The token has been expired', ErrorCode.Unauthorized),
-      )
-    })
-
     test('should fail to get an existing session by invalid sessionId', async () => {
       expect.assertions(1)
 
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
-
       userRepository.findUserByGoogleId = jest.fn().mockReturnValue(user)
       sessionRepository.findById = jest.fn().mockReturnValue(null)
-
       const wrongSessionId = '123e4567-e89b-12d3-a456-999999999999'
 
-      await expect(getSessionService.execute({ jwt: 'valid-token', sessionId: wrongSessionId })).rejects.toEqual(
+      await expect(getSessionService.execute({ payload: validToken, sessionId: wrongSessionId })).rejects.toEqual(
         new CustomError(`Session doesn't exist by id '${wrongSessionId}'`, ErrorCode.NotFound),
       )
     })
@@ -163,58 +102,32 @@ describe('Session Service Unit Tests', () => {
     test('should get an existing session by sessionId', async () => {
       expect.assertions(1)
 
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
-
       userRepository.findUserByGoogleId = jest.fn().mockReturnValue(user)
       sessionRepository.findById = jest.fn().mockReturnValue(session)
 
       await expect(
-        getSessionService.execute({ jwt: 'valid-token', sessionId: '123e4567-e89b-12d3-a456-111111111111' }),
+        getSessionService.execute({ payload: validToken, sessionId: '123e4567-e89b-12d3-a456-111111111111' }),
       ).resolves.toEqual(session)
     })
   })
 
   describe('UpdateSessionService Tests', () => {
-    test('should throw an error if jwt is invalid', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(undefined)
-
-      await expect(updateSessionService.execute({ jwt: 'invalid-token', sessionId: '123', data: {} })).rejects.toEqual(
-        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
-      )
-    })
-
-    test('should throw an error if token is expired', async () => {
-      expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(expiredToken)
-
-      await expect(updateSessionService.execute({ jwt: 'expired-token', sessionId: '123', data: {} })).rejects.toEqual(
-        new CustomError('The token has been expired', ErrorCode.Unauthorized),
-      )
-    })
-
     test('should update an existing session if all payloads are valid', async () => {
       expect.assertions(1)
-
-      require('@utils/token').decodeToken = jest.fn().mockReturnValue(validToken)
 
       const updateSessionData = {
         title: 'Updated session title',
         users: [anotherUser],
       }
-
       const updatedSession = {
         ...session,
         ...updateSessionData,
       }
-
       sessionRepository.findById = jest.fn().mockResolvedValue(session)
       sessionRepository.update = jest.fn().mockReturnValue(updatedSession)
 
       await expect(
-        updateSessionService.execute({ jwt: 'valid-token', sessionId: '123', data: updateSessionData }),
+        updateSessionService.execute({ payload: validToken, sessionId: '123', data: updateSessionData }),
       ).resolves.toEqual(updatedSession)
     })
   })

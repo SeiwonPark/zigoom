@@ -3,7 +3,7 @@ import { Prisma, Role, User } from '@db/mysql/generated/mysql'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import UserRepository from '@modules/users/repositories/UserRepository'
 
-describe('UserRepositoryImpl', () => {
+describe('User Repository Unit Tests', () => {
   let userRepository: UserRepository
 
   const user: User = {

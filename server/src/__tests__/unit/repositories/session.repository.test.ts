@@ -4,7 +4,7 @@ import { Prisma, User, Role, Session } from '@db/mysql/generated/mysql'
 import { JoinedSession } from '@modules/sessions/repositories/SessionRepository'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
 
-describe('SessionRepositoryImpl', () => {
+describe('Session Repository Unit Tests', () => {
   let sessionRepository: SessionRepository
 
   const user: User = {
@@ -85,7 +85,6 @@ describe('SessionRepositoryImpl', () => {
       users: [...joinedSession.users, anotherUser],
     }
     mockMySQL.session.update.mockResolvedValue(updatedSession)
-
     const updateSessionInput: Prisma.SessionUpdateInput = {
       title: 'Updated title',
       users: {
