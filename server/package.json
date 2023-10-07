@@ -13,7 +13,7 @@
     "start": "node dist/shared/infra/http/server.js",
     "migrate": "sh ./scripts/migrate_dev.sh",
     "generate": "sh ./scripts/generate.sh",
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "coverage": "jest --coverage"
   },
   "dependencies": {
