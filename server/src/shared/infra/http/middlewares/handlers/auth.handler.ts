@@ -1,3 +1,4 @@
+import { redisClient } from '@configs/redis.config'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 import { Request, Response, NextFunction } from 'express'
@@ -9,16 +10,23 @@ import { Request, Response, NextFunction } from 'express'
 export const authHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { jwt } = req.cookies
 
+  // handle when it's a guest
   if (!jwt) {
-    req.ctx.user = {
-      id: randomId(),
-      name: randomId(),
+    const guestId = randomId()
+    const guest = {
+      id: guestId,
+      name: guestId,
       isGuest: true,
     }
+
+    req.ctx = { user: guest }
+    redisClient.set(guestId, JSON.stringify({ ...guest, connectedAt: Date.now() }), { EX: 3600 })
+
     next()
     return
   }
 
+  // handle when it's a user
   const payload = await decodeToken(jwt)
 
   if (!payload) {
@@ -29,7 +37,7 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
     throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
   }
 
-  req.ctx.user = { ...payload, isGuest: false }
+  req.ctx = { user: { ...payload, isGuest: false } }
   next()
 }
 

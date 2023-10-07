@@ -66,7 +66,7 @@ export default class CreateSessionService {
     user: User,
     isPrivate: boolean,
   ): Promise<Session | JoinedSession> {
-    const sessionData: Prisma.SessionCreateInput = {
+    const sessionData = {
       id: id,
       host: user.google_id,
       title: title,
