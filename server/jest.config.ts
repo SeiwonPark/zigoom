@@ -7,6 +7,7 @@ const config: Config = {
   resetMocks: true,
   testEnvironment: 'node',
   coverageDirectory: 'coverage',
+  detectOpenHandles: true,
   coveragePathIgnorePatterns: [
     'node_modules',
     '__tests__',
