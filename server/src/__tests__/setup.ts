@@ -13,6 +13,8 @@ jest.mock('@configs/redis.config', () => ({
   redisClient: {
     connect: jest.fn(),
     set: jest.fn(),
+    sAdd: jest.fn(),
+    sCard: jest.fn(),
   },
 }))
 
