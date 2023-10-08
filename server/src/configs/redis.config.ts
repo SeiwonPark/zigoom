@@ -10,3 +10,11 @@ redisClient.connect()
 redisClient.on('error', (e) => {
   console.log(`Error: ${e}`)
 })
+
+const cleanUp = async () => {
+  console.log('Cleaning up resources...')
+  await redisClient.quit()
+}
+
+// TODO: do I need other handlers?
+process.on('exit', cleanUp)
