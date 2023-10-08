@@ -1,10 +1,8 @@
-import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { User } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
-
-type Token = TokenPayload & { isGuest: boolean }
+import { Token } from '@shared/types/common'
 
 interface RequestPayload {
   payload: Token

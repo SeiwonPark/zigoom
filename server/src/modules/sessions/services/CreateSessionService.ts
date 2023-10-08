@@ -1,12 +1,11 @@
-import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import { Prisma, Session, User } from '@db/mysql/generated/mysql'
 import { isCreateSessionSchema } from '../validations/session.validation'
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-
-type Token = TokenPayload & { isGuest: boolean }
+import { redisClient } from '@configs/redis.config'
+import { Token } from '@shared/types/common'
 
 interface RequestPayload {
   payload: Token
@@ -27,6 +26,7 @@ export default class CreateSessionService {
   public async execute({ payload, id, title, isPrivate = false }: RequestPayload): Promise<Session | JoinedSession> {
     if (payload.isGuest) {
       // TODO: handle guest
+      await redisClient.sAdd(`session:${id}:participants`, payload.id)
     }
 
     const existingUser = await this.getUserByGoogleId(payload.sub)

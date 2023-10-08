@@ -1,11 +1,9 @@
-import type { TokenPayload } from 'google-auth-library'
 import { injectable, inject } from 'tsyringe'
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { isUpdateSessionSchema } from '../validations/session.validation'
-
-type Token = TokenPayload & { isGuest: boolean }
+import { Token } from '@shared/types/common'
 
 interface RequestPayload {
   payload: Token

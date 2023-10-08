@@ -1,10 +1,4 @@
-declare namespace Express {
-  export interface Request {
-    /**
-     * Custom context property to handle user's authentication as in-memory data.
-     */
-    ctx: {
-      user: any
-    }
-  }
-}
+import type { Guest } from '@shared/infra/http/middlewares/handlers'
+import type { TokenPayload } from 'google-auth-library'
+
+export type Token = TokenPayload & Guest
