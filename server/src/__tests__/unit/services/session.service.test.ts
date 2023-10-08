@@ -17,6 +17,7 @@ describe('Session Service Unit Tests', () => {
   let sessionRepository: SessionRepository
 
   const validToken = {
+    id: '',
     name: 'Seiwon Park',
     family_name: 'Park',
     given_name: 'Seiwon',

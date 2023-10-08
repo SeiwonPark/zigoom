@@ -4,12 +4,6 @@ import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
 jest.mock('@utils/token')
-jest.mock('@configs/redis.config', () => ({
-  redisClient: {
-    connect: jest.fn(),
-    set: jest.fn(),
-  },
-}))
 
 const validToken = {
   exp: Date.now() / 1000 + 60,

@@ -14,6 +14,7 @@ describe('User Service Unit Tests', () => {
   let userRepository: UserRepository
 
   const validToken = {
+    id: '',
     name: 'Seiwon Park',
     family_name: 'Park',
     given_name: 'Seiwon',

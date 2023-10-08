@@ -9,6 +9,13 @@ jest.mock('@configs/prisma.config', () => ({
   mongodb: mockDeep<MongoDBPrismaClient>(),
 }))
 
+jest.mock('@configs/redis.config', () => ({
+  redisClient: {
+    connect: jest.fn(),
+    set: jest.fn(),
+  },
+}))
+
 beforeEach(() => {
   mockReset(mockMySQL)
   mockReset(mockMongoDB)
