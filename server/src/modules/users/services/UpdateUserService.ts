@@ -1,7 +1,15 @@
 import { injectable, inject } from 'tsyringe'
-import { Prisma, User } from '../../../../prisma/mysql/generated/mysql'
-import { isUpdateUserSchema } from '../../../validations/user.validation'
-import UserRepository from '../repositories/UserRepository'
+import { Prisma, User } from '@db/mysql/generated/mysql'
+import { isUpdateUserSchema } from '../validations/user.validation'
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
+import { CustomError, ErrorCode } from '@shared/errors'
+import { Token } from '@shared/types/common'
+
+interface RequestPayload {
+  payload: Token
+  include: boolean
+  data: any
+}
 
 @injectable()
 export default class UpdateUserService {
@@ -10,30 +18,24 @@ export default class UpdateUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute(googleId: string, payload: any): Promise<User> {
-    try {
-      const user = await this.getUserByGoogleId(googleId)
+  public async execute({ payload, include, data }: RequestPayload): Promise<User | JoinedUser> {
+    const validatedData = this.getValidatedData(data)
+    await this.ensureUserExists(payload.sub)
 
-      if (!user) {
-        throw new Error(`User doesn't exist by id '${googleId}'`)
-      }
-
-      const userUpdateData: Prisma.UserUpdateInput = {
-        ...payload,
-      }
-
-      if (!isUpdateUserSchema(userUpdateData)) {
-        throw new Error('Invalid payload type for UpdateUserSchema.')
-      }
-
-      return await this.userRepository.update(googleId, userUpdateData)
-    } catch (e) {
-      console.error('[updateUserService] ERR: ', e)
-      throw e
-    }
+    return await this.userRepository.update(payload.sub, validatedData, include)
   }
 
-  async getUserByGoogleId(googleId: string): Promise<User | null> {
-    return await this.userRepository.findUserByGoogleId(googleId)
+  private getValidatedData(data: any): Prisma.UserUpdateInput {
+    if (!isUpdateUserSchema(data)) {
+      throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
+    }
+    return data
+  }
+
+  private async ensureUserExists(googleId: string): Promise<void> {
+    const user = await this.userRepository.findUserByGoogleId(googleId)
+    if (!user) {
+      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
+    }
   }
 }

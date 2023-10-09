@@ -7,7 +7,14 @@
     },
     "target": "es2022",
     "keepClassNames": true,
-    "loose": true
+    "baseUrl": "./src",
+    "paths": {
+      "@modules/*": ["./modules/*"],
+      "@configs/*": ["./configs/*"],
+      "@shared/*": ["./shared/*"],
+      "@db/*": ["../prisma/*"],
+      "@utils/*": ["./utils/*"]
+    }
   },
   "module": {
     "type": "commonjs",

@@ -1,6 +1,13 @@
 import { injectable, inject } from 'tsyringe'
-import UserRepository from '../repositories/UserRepository'
-import { User } from '../../../../prisma/mysql/generated/mysql'
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
+import { User } from '@db/mysql/generated/mysql'
+import { CustomError, ErrorCode } from '@shared/errors'
+import { Token } from '@shared/types/common'
+
+interface RequestPayload {
+  payload: Token
+  include: boolean
+}
 
 @injectable()
 export default class GetUserService {
@@ -9,22 +16,11 @@ export default class GetUserService {
     private userRepository: UserRepository,
   ) {}
 
-  public async execute(googleId: string, profile = false): Promise<User | undefined> {
-    try {
-      const user = await this.getUserByGoogleId(googleId, profile)
-
-      if (!user) {
-        throw new Error(`User doesn't exist by id '${googleId}'`)
-      }
-
-      return user
-    } catch (e) {
-      console.error('[updateUserService] ERR: ', e)
-      throw e
+  public async execute({ payload, include }: RequestPayload): Promise<User | JoinedUser | null> {
+    const user = await this.userRepository.findUserByGoogleId(payload.sub, include)
+    if (!user) {
+      throw new CustomError(`User doesn't exist by id '${payload.sub}'`, ErrorCode.NotFound)
     }
-  }
-
-  async getUserByGoogleId(googleId: string, profile: boolean): Promise<User | null> {
-    return await this.userRepository.findUserByGoogleId(googleId, profile)
+    return user
   }
 }

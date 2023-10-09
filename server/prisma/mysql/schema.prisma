@@ -48,7 +48,7 @@ model Profile {
 
 model Session {
     id         String    @unique @default(uuid())
-    private    Boolean   @default(false)
+    isPrivate  Boolean   @default(false)
     host       String
     title      String
     users      User[]
@@ -97,5 +97,4 @@ model UserChatRoom {
 
 enum Role {
     USER
-    ADMIN
 }

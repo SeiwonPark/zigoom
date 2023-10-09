@@ -1,32 +1,52 @@
+import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
-import { CustomRequest, CustomResponse } from '../../../interfaces/common.interface'
 import CreateSessionService from '../services/CreateSessionService'
-import { decodeToken } from '../../../utils/token'
+import GetSessionService from '../services/GetSessionService'
+import UpdateSessionService from '../services/UpdateSessionService'
+import { CustomError, ErrorCode } from '@shared/errors'
 
 export default class SessionController {
-  public async create(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {
-    try {
-      if (!req.cookies || !req.cookies.jwt) {
-        return res.sendStatus(401)
-      }
+  public async create(req: Request, res: Response): Promise<Response> {
+    const { sessionId, title, isPrivate } = req.body
 
-      const payload = await decodeToken(req.cookies.jwt)
+    const createSession = container.resolve(CreateSessionService)
+    const createdSession = await createSession.execute({
+      payload: req.ctx.user,
+      sessionId: sessionId,
+      title: title,
+      isPrivate: isPrivate,
+    })
 
-      if (!payload) {
-        throw new Error('Failed to get payload from token')
-      }
+    console.log('Created a new session: ', createdSession)
+    return res.status(200).send(createdSession)
+  }
 
-      const createSession = container.resolve(CreateSessionService)
+  public async get(req: Request, res: Response): Promise<Response> {
+    const { sessionId } = req.query
 
-      const { id, title } = req.body
-      const createdSession = await createSession.execute(id, title, payload)
-
-      console.log('Created a new session: ', createdSession)
-      res.sendStatus(200)
-    } catch (e) {
-      console.error('[createRoomController] ERR: ', e)
-      // FIXME: error code
-      res.status(500).send('Internal Server Error')
+    if (typeof sessionId !== 'string') {
+      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
     }
+
+    const getSession = container.resolve(GetSessionService)
+    const fetchedSession = await getSession.execute({ payload: req.ctx.user, sessionId })
+
+    console.log('Fetched a session: ', fetchedSession)
+    return res.status(200).send(fetchedSession)
+  }
+
+  public async update(req: Request, res: Response): Promise<Response> {
+    const { sessionId } = req.query
+    const data = req.body
+
+    if (typeof sessionId !== 'string') {
+      throw new CustomError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
+    }
+
+    const updateSession = container.resolve(UpdateSessionService)
+    const updatedSession = await updateSession.execute({ payload: req.ctx.user, sessionId, data })
+
+    console.log('Updated a session: ', updatedSession)
+    return res.sendStatus(200)
   }
 }

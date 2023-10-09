@@ -22,13 +22,15 @@ const CreateUserPayload = z.object({
 const UpdateUserPayload = z.object({
   name: z.string().optional(),
   profileThumbnail: z.string().optional(),
-  profile: z.object({
-    update: z.object({
-      family_name: z.string().optional(),
-      given_name: z.string().optional(),
-      profileImage: z.string().optional(),
-    }),
-  }),
+  profile: z
+    .object({
+      update: z.object({
+        family_name: z.string().optional(),
+        given_name: z.string().optional(),
+        profileImage: z.string().optional(),
+      }),
+    })
+    .optional(),
 })
 
 export const GetUserQuery = z.object({

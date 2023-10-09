@@ -1,8 +1,8 @@
-import { CustomRequest, CustomResponse } from '../../../interfaces/common.interface'
-import { decodeToken } from '../../../utils/token'
+import type { Request, Response } from 'express'
+import { decodeToken } from '@utils/token'
 
 export default class AuthController {
-  public async verifyToken(req: CustomRequest, res: CustomResponse): Promise<CustomResponse | undefined> {
+  public async verifyToken(req: Request, res: Response): Promise<Response | undefined> {
     const { token } = req.body
 
     if (!token) {
@@ -20,13 +20,11 @@ export default class AuthController {
       // secure: true,
       maxAge: 1 * 60 * 60 * 1000, // 1 hour
     })
-    return res.sendStatus(200)
-    // TODO: error handling for middlewares
-    // TODO: add error handling routers
+    res.sendStatus(200)
   }
 
-  public logout(req: CustomRequest, res: CustomResponse): CustomResponse {
+  public logout(req: Request, res: Response): void {
     res.clearCookie('jwt')
-    return res.sendStatus(200)
+    res.sendStatus(200)
   }
 }
