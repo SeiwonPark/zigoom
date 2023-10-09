@@ -14,4 +14,6 @@ export default interface SessionRepository {
   update(id: string, data: Prisma.SessionUpdateInput): Promise<Session>
   update(id: string, data: Prisma.SessionUpdateInput, include: true): Promise<JoinedSession>
   update(id: string, data: Prisma.SessionUpdateInput, include?: boolean): Promise<Session | JoinedSession>
+
+  deleteById(id: string): Promise<Session>
 }

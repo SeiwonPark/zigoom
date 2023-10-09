@@ -28,7 +28,10 @@ describe('Auth Middleware Unit Tests', () => {
         user: null,
       },
     } as Request
-    res = {} as Response
+    res = {
+      cookie: jest.fn().mockReturnThis(),
+    } as unknown as Response
+
     next = jest.fn()
   })
 

@@ -24,4 +24,8 @@ export default class SessionRepositoryImpl implements SessionRepository {
   ): Promise<Session | JoinedSession> {
     return await mysql.session.update({ where: { id: id }, data: data, include: { users: include ?? false } })
   }
+
+  public async deleteById(id: string): Promise<Session> {
+    return await mysql.session.delete({ where: { id: id } })
+  }
 }
