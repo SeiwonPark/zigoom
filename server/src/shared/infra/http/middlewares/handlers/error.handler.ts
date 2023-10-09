@@ -11,6 +11,8 @@ export const errorHandler = async (e: Error, req: Request, res: Response, next: 
 
   return res.status(500).send({
     error: 'Internal Server Error.',
+    trace: e.stack,
+    cause: e.cause,
     timestamp: new Date().toISOString(),
   })
 }
