@@ -9,11 +9,13 @@ const CreateSessionPayload = z.object({
   id: z.string().uuid().nonempty(),
   isPrivate: z.boolean().optional(),
   title: z.string().nonempty(),
-  users: z.object({
-    connect: z.object({
-      id: z.string().uuid().nonempty(),
-    }),
-  }),
+  users: z
+    .object({
+      connect: z.object({
+        id: z.string().uuid().nonempty(),
+      }),
+    })
+    .optional(),
 })
 
 const UpdateSessionPayload = z.object({

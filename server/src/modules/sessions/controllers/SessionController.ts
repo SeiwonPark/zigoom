@@ -7,13 +7,18 @@ import { CustomError, ErrorCode } from '@shared/errors'
 
 export default class SessionController {
   public async create(req: Request, res: Response): Promise<Response> {
-    const { id, title, isPrivate } = req.body
+    const { sessionId, title, isPrivate } = req.body
 
     const createSession = container.resolve(CreateSessionService)
-    const createdSession = await createSession.execute({ payload: req.ctx.user, id, title, isPrivate })
+    const createdSession = await createSession.execute({
+      payload: req.ctx.user,
+      sessionId: sessionId,
+      title: title,
+      isPrivate: isPrivate,
+    })
 
     console.log('Created a new session: ', createdSession)
-    return res.sendStatus(200)
+    return res.status(200).send(createdSession)
   }
 
   public async get(req: Request, res: Response): Promise<Response> {

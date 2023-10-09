@@ -79,7 +79,7 @@ describe('Session Service Unit Tests', () => {
       await expect(
         createSessionService.execute({
           payload: validToken,
-          id: '123e4567-e89b-12d3-a456-111111111111',
+          sessionId: '123e4567-e89b-12d3-a456-111111111111',
           title: 'Session title',
           isPrivate: false,
         }),

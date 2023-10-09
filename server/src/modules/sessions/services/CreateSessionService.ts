@@ -9,13 +9,16 @@ import { Token } from '@shared/types/common'
 
 interface RequestPayload {
   payload: Token
-  id: string
+  sessionId: string
   title: string
   isPrivate?: boolean
 }
 
 @injectable()
 export default class CreateSessionService {
+  // FIXME: limit to 9 users for now
+  private readonly MAX_USERS = 9
+
   constructor(
     @inject('UserRepository')
     private userRepository: UserRepository,
@@ -23,19 +26,63 @@ export default class CreateSessionService {
     private sessionRepository: SessionRepository,
   ) {}
 
-  public async execute({ payload, id, title, isPrivate = false }: RequestPayload): Promise<Session | JoinedSession> {
-    if (payload.isGuest) {
-      // TODO: handle guest
-      await redisClient.sAdd(`session:${id}:participants`, payload.id)
-    }
-
-    const existingUser = await this.getUserByGoogleId(payload.sub)
-    const existingSession = await this.getSessionById(id)
+  public async execute({
+    payload,
+    sessionId,
+    title,
+    isPrivate = false,
+  }: RequestPayload): Promise<Session | JoinedSession> {
+    const existingSession = await this.getSessionById(sessionId)
 
     if (existingSession) {
-      return await this.joinRoom(id, existingUser.id)
+      await this.ensureSessionAvailability(existingSession)
+    }
+
+    if (payload.isGuest) {
+      return await this.handleGuestUser(existingSession, payload, sessionId, title, isPrivate)
     } else {
-      return await this.createRoom(id, title, existingUser, isPrivate)
+      return await this.handleAuthenticatedUser(existingSession, payload.sub, sessionId, title, isPrivate)
+    }
+  }
+
+  private async handleGuestUser(
+    existingSession: JoinedSession | null,
+    payload: Token,
+    sessionId: string,
+    title: string,
+    isPrivate: boolean,
+  ): Promise<Session | JoinedSession> {
+    await redisClient.sAdd(`session:${sessionId}:participants`, payload.id)
+
+    if (!existingSession) {
+      return await this.createSession(sessionId, title, payload.id, isPrivate)
+    } else {
+      await this.joinSession(sessionId, payload.id, true)
+      return existingSession
+    }
+  }
+
+  private async handleAuthenticatedUser(
+    existingSession: JoinedSession | null,
+    googleId: string,
+    sessionId: string,
+    title: string,
+    isPrivate: boolean,
+  ): Promise<Session | JoinedSession> {
+    const existingUser = await this.getUserByGoogleId(googleId)
+
+    if (existingSession) {
+      const updatedSession = await this.joinSession(sessionId, existingUser.id, false)
+      return updatedSession || existingSession
+    } else {
+      return await this.createSession(sessionId, title, existingUser, isPrivate)
+    }
+  }
+
+  private async ensureSessionAvailability(session: JoinedSession): Promise<void> {
+    const numOfGuests = await this.countParticipantsInSession(session.id)
+    if (session && session.users.length + numOfGuests === this.MAX_USERS) {
+      throw new CustomError(`Session '${session.id}' is now full`, ErrorCode.Forbidden)
     }
   }
 
@@ -47,33 +94,53 @@ export default class CreateSessionService {
     return user
   }
 
-  private async getSessionById(sessionId: string): Promise<Session | null> {
-    return await this.sessionRepository.findById(sessionId)
+  private async getSessionById(sessionId: string): Promise<JoinedSession | null> {
+    return await this.sessionRepository.findById(sessionId, true)
   }
 
-  private async joinRoom(id: string, userId: string): Promise<Session | JoinedSession> {
-    const sessionUpdateData: Prisma.SessionUpdateInput = {
-      users: {
-        connect: [{ id: userId }],
-      },
+  private async joinSession(
+    sessionId: string,
+    userId: string,
+    isGuest: boolean,
+  ): Promise<Session | JoinedSession | undefined> {
+    if (!isGuest) {
+      const sessionUpdateData: Prisma.SessionUpdateInput = {
+        users: {
+          connect: [{ id: userId }],
+        },
+      }
+      return await this.sessionRepository.update(sessionId, sessionUpdateData, true)
     }
-    return await this.sessionRepository.update(id, sessionUpdateData, true)
   }
 
-  private async createRoom(
-    id: string,
+  private async createSession(
+    sessionId: string,
     title: string,
-    user: User,
+    user: User | string,
     isPrivate: boolean,
   ): Promise<Session | JoinedSession> {
-    const sessionData = {
-      id: id,
-      host: user.google_id,
-      title: title,
-      isPrivate: isPrivate,
-      users: {
-        connect: { id: user.id },
-      },
+    let sessionData
+
+    // when it's a guest
+    if (typeof user === 'string') {
+      sessionData = {
+        id: sessionId,
+        host: user,
+        title: title,
+        isPrivate: isPrivate,
+      }
+    }
+    // when it's a user
+    else {
+      sessionData = {
+        id: sessionId,
+        host: user.google_id,
+        title: title,
+        isPrivate: isPrivate,
+        users: {
+          connect: { id: user.id },
+        },
+      }
     }
 
     if (!isCreateSessionSchema(sessionData)) {
@@ -81,5 +148,9 @@ export default class CreateSessionService {
     }
 
     return await this.sessionRepository.save(sessionData, true)
+  }
+
+  private async countParticipantsInSession(sessionId: string): Promise<number> {
+    return await redisClient.sCard(`session:${sessionId}:participants`)
   }
 }
