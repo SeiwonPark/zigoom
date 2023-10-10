@@ -53,12 +53,16 @@ export default class CreateSessionService {
     isPrivate: boolean,
   ): Promise<Session | JoinedSession> {
     if (!existingSession) {
-      const createdSession = await this.createSession(sessionId, title, payload.id, isPrivate)
-      await redisClient.sAdd(`session:${sessionId}:participants`, payload.id)
+      const [createdSession, _] = await Promise.all([
+        this.createSession(sessionId, title, payload.id, isPrivate),
+        redisClient.sAdd(`session:${sessionId}:participants`, payload.id),
+      ])
       return createdSession
     } else {
-      await this.joinSession(sessionId, payload.id, true)
-      await redisClient.sAdd(`session:${sessionId}:participants`, payload.id)
+      await Promise.all([
+        this.joinSession(sessionId, payload.id, true),
+        redisClient.sAdd(`session:${sessionId}:participants`, payload.id),
+      ])
       return existingSession
     }
   }

@@ -21,9 +21,11 @@ export default class UpdateSessionService {
 
   public async execute({ payload, sessionId, data }: RequestPayload): Promise<Session | JoinedSession> {
     const validatedData = this.getValidatedData(data)
-    const existingSession = await this.ensureSessionExists(sessionId)
+    const [existingSession, numOfGuests] = await Promise.all([
+      this.ensureSessionExists(sessionId),
+      this.countParticipantsInSession(sessionId),
+    ])
     this.ensureSessionOwner(payload.sub || payload.id, existingSession)
-    const numOfGuests = await this.countParticipantsInSession(sessionId)
 
     if (payload.isGuest) {
       return await this.handleGuestUser(existingSession, numOfGuests)
@@ -34,9 +36,10 @@ export default class UpdateSessionService {
 
   private async handleGuestUser(session: JoinedSession, numOfGuests: number): Promise<Session | JoinedSession> {
     if (session.users.length === 0 && numOfGuests === 1) {
-      await redisClient.del(`session:${session.id}:participants`)
-      const deletedSession = await this.sessionRepository.deleteById(session.id)
-      console.log('Successful deletion!: ', deletedSession)
+      const [_, deletedSession] = await Promise.all([
+        redisClient.del(`session:${session.id}:participants`),
+        this.sessionRepository.deleteById(session.id),
+      ])
       return deletedSession
     }
 
@@ -51,7 +54,6 @@ export default class UpdateSessionService {
   ): Promise<Session | JoinedSession> {
     if (session?.users.length === 1 && numOfGuests === 0) {
       const deletedSession = await this.sessionRepository.deleteById(session.id)
-      console.log('Successful deletion!: ', deletedSession)
       return deletedSession
     }
 
