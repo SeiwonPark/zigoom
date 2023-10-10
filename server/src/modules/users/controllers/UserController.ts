@@ -11,7 +11,7 @@ export default class UserController {
     const createdUser = await createUser.execute({ payload: req.ctx.user })
 
     console.log('Created a new user: ', createdUser)
-    return res.send(createUser)
+    return res.send(createdUser)
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
