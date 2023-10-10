@@ -65,8 +65,9 @@ export default class UpdateSessionService {
 
     const updatedUsersInSession = {
       // FIXME: do I need connect?
-      connect: data.users?.map((user: any) => ({ id: user.connect?.id })),
-      disconnect: data.users?.map((user: any) => ({ id: user.disconnect?.id })),
+      connect: data.users?.filter((user: any) => user.connect).map((user: any) => ({ id: user.connect.id })) || [],
+      disconnect:
+        data.users?.filter((user: any) => user.disconnect).map((user: any) => ({ id: user.disconnect.id })) || [],
     }
 
     const sessionUpdateData = {
