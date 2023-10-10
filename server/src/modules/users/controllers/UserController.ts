@@ -11,7 +11,7 @@ export default class UserController {
     const createdUser = await createUser.execute({ payload: req.ctx.user })
 
     console.log('Created a new user: ', createdUser)
-    return res.send(createdUser)
+    return res.status(200).send(createdUser)
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
@@ -25,7 +25,7 @@ export default class UserController {
     const fetchedUser = await getUser.execute({ payload: req.ctx.user, include: include ?? false })
 
     console.log('Fetched a user: ', fetchedUser)
-    return res.send(fetchedUser)
+    return res.status(200).send(fetchedUser)
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
@@ -40,6 +40,6 @@ export default class UserController {
     const updatedUser = await updateUser.execute({ payload: req.ctx.user, include: include ?? false, data: data })
 
     console.log('Updated a user: ', updatedUser)
-    return res.send(updatedUser)
+    return res.status(200).send(updatedUser)
   }
 }

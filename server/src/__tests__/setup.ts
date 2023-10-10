@@ -1,3 +1,4 @@
+import 'reflect-metadata'
 import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
 import { PrismaClient as MongoDBPrismaClient } from '@db/mongodb/generated/mongodb'
 import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended'
@@ -17,6 +18,8 @@ jest.mock('@configs/redis.config', () => ({
     sCard: jest.fn(),
   },
 }))
+
+jest.spyOn(global.console, 'log').mockImplementation(() => jest.fn())
 
 beforeEach(() => {
   mockReset(mockMySQL)
