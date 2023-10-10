@@ -40,6 +40,6 @@ export default class UserController {
     const updatedUser = await updateUser.execute({ payload: req.ctx.user, include: include ?? false, data: data })
 
     console.log('Updated a user: ', updatedUser)
-    return res.send(updateUser)
+    return res.send(updatedUser)
   }
 }
