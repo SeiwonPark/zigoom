@@ -47,6 +47,6 @@ export default class SessionController {
     const updatedSession = await updateSession.execute({ payload: req.ctx.user, sessionId, data })
 
     console.log('Updated a session: ', updatedSession)
-    return res.sendStatus(200)
+    return res.status(200).send(updatedSession)
   }
 }

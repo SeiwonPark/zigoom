@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import CreateSessionService from '@modules/sessions/services/CreateSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'

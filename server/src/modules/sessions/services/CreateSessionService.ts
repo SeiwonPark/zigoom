@@ -52,12 +52,17 @@ export default class CreateSessionService {
     title: string,
     isPrivate: boolean,
   ): Promise<Session | JoinedSession> {
-    await redisClient.sAdd(`session:${sessionId}:participants`, payload.id)
-
     if (!existingSession) {
-      return await this.createSession(sessionId, title, payload.id, isPrivate)
+      const [createdSession, _] = await Promise.all([
+        this.createSession(sessionId, title, payload.id, isPrivate),
+        redisClient.sAdd(`session:${sessionId}:participants`, payload.id),
+      ])
+      return createdSession
     } else {
-      await this.joinSession(sessionId, payload.id, true)
+      await Promise.all([
+        this.joinSession(sessionId, payload.id, true),
+        redisClient.sAdd(`session:${sessionId}:participants`, payload.id),
+      ])
       return existingSession
     }
   }
@@ -79,6 +84,7 @@ export default class CreateSessionService {
     }
   }
 
+  // FIXME: handle when the host is guest
   private async ensureSessionAvailability(session: JoinedSession): Promise<void> {
     const numOfGuests = await this.countParticipantsInSession(session.id)
     if (session && session.users.length + numOfGuests === this.MAX_USERS) {

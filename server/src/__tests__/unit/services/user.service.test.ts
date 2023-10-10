@@ -1,4 +1,3 @@
-import 'reflect-metadata'
 import CreateUserService from '@modules/users/services/CreateUserService'
 import GetUserService from '@modules/users/services/GetUserService'
 import UpdateUserService from '@modules/users/services/UpdateUserService'
