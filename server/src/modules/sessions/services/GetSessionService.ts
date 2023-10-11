@@ -3,6 +3,7 @@ import SessionRepository from '../repositories/SessionRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Session } from '@db/mysql/generated/mysql'
 import { Token } from '@shared/types/common'
+import { logger } from '@configs/logger.config'
 
 interface RequestPayload {
   payload: Token
@@ -26,6 +27,7 @@ export default class GetSessionService {
   private async ensureSessionExists(sessionId: string): Promise<Session> {
     const session = await this.sessionRepository.findById(sessionId)
     if (!session) {
+      logger.error(`Session doesn't exist by id '${sessionId}'`)
       throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
     return session
@@ -33,6 +35,7 @@ export default class GetSessionService {
 
   private handlePrivateSession(isGuest: boolean, isPrivate: boolean): void {
     if (isGuest && isPrivate) {
+      logger.error('Authentication is required to get private session')
       throw new CustomError('Authentication is required to get private session', ErrorCode.Unauthorized)
     }
   }

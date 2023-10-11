@@ -1,7 +1,7 @@
 import { User, Role } from '@db/mysql/generated/mysql'
 import SessionController from '@modules/sessions/controllers/SessionController'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
-import CreateSessionService from '@modules/sessions/services/CreateSessionService'
+import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
@@ -49,11 +49,11 @@ describe('Session Controller Unit Tests', () => {
     users: [user],
   }
 
-  const createSessionService = new CreateSessionService(userRepository, sessionRepository)
+  const joinSessionService = new JoinSessionService(userRepository, sessionRepository)
   const getSessionService = new GetSessionService(sessionRepository)
   const updateSessionService = new UpdateSessionService(sessionRepository)
 
-  const mockCreateSession = jest.spyOn(createSessionService, 'execute')
+  const mockCreateSession = jest.spyOn(joinSessionService, 'execute')
   const mockGetSession = jest.spyOn(getSessionService, 'execute')
   const mockUpdateSession = jest.spyOn(updateSessionService, 'execute')
 
@@ -72,8 +72,8 @@ describe('Session Controller Unit Tests', () => {
 
     jest.spyOn(container, 'resolve').mockImplementation((service: any) => {
       switch (service) {
-        case CreateSessionService:
-          return createSessionService
+        case JoinSessionService:
+          return joinSessionService
         case GetSessionService:
           return getSessionService
         case UpdateSessionService:

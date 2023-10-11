@@ -5,6 +5,7 @@ import { CustomError, ErrorCode } from '@shared/errors'
 import { isUpdateSessionSchema } from '../validations/session.validation'
 import { Token } from '@shared/types/common'
 import { redisClient } from '@configs/redis.config'
+import { logger } from '@configs/logger.config'
 
 interface RequestPayload {
   payload: Token
@@ -25,35 +26,45 @@ export default class UpdateSessionService {
       this.ensureSessionExists(sessionId),
       this.countParticipantsInSession(sessionId),
     ])
-    this.ensureSessionOwner(payload.sub || payload.id, existingSession)
+
+    const requestedUserId = payload.sub || payload.id
+    this.ensureSessionOwner(requestedUserId, existingSession)
 
     if (payload.isGuest) {
-      return await this.handleGuestUser(existingSession, numOfGuests)
+      return await this.handleGuestUser(requestedUserId, existingSession, numOfGuests)
     } else {
-      return await this.handleAuthenticatedUser(existingSession, validatedData, numOfGuests)
+      return await this.handleAuthenticatedUser(requestedUserId, existingSession, validatedData, numOfGuests)
     }
   }
 
-  private async handleGuestUser(session: JoinedSession, numOfGuests: number): Promise<Session | JoinedSession> {
+  private async handleGuestUser(
+    guestId: string,
+    session: JoinedSession,
+    numOfGuests: number,
+  ): Promise<Session | JoinedSession> {
     if (session.users.length === 0 && numOfGuests === 1) {
       const [_, deletedSession] = await Promise.all([
         redisClient.del(`session:${session.id}:participants`),
         this.sessionRepository.deleteById(session.id),
       ])
+      logger.info(`Guest '${guestId}' has deleted the session '${session.id}'`)
       return deletedSession
     }
 
     await redisClient.del(`session:${session.id}:participants`)
+    logger.info(`Deleted a redis key 'session:${session.id}:participants'`)
     return session
   }
 
   private async handleAuthenticatedUser(
+    userId: string,
     session: JoinedSession,
     data: any,
     numOfGuests: number,
   ): Promise<Session | JoinedSession> {
     if (session?.users.length === 1 && numOfGuests === 0) {
       const deletedSession = await this.sessionRepository.deleteById(session.id)
+      logger.info(`User '${userId}' has deleted the session '${session.id}'`)
       return deletedSession
     }
 
@@ -62,6 +73,7 @@ export default class UpdateSessionService {
 
   private getValidatedData(data: any): Prisma.SessionUpdateInput {
     if (!isUpdateSessionSchema(data)) {
+      logger.error('Invalid payload type for UpdateSessionSchema')
       throw new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     }
 
@@ -83,6 +95,7 @@ export default class UpdateSessionService {
   private async ensureSessionExists(sessionId: string): Promise<JoinedSession> {
     const session = await this.sessionRepository.findById(sessionId, true)
     if (!session) {
+      logger.error(`Session doesn't exist by id '${sessionId}'`)
       throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
     return session
@@ -90,6 +103,7 @@ export default class UpdateSessionService {
 
   private ensureSessionOwner(userId: string, existingSession: Session): void {
     if (userId !== existingSession.host) {
+      logger.error('Only the session host can perform this action')
       throw new CustomError('Only the session host can perform this action', ErrorCode.Unauthorized)
     }
   }

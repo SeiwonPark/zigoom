@@ -4,6 +4,7 @@ import { isUpdateUserSchema } from '../validations/user.validation'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Token } from '@shared/types/common'
+import { logger } from '@configs/logger.config'
 
 interface RequestPayload {
   payload: Token
@@ -27,6 +28,7 @@ export default class UpdateUserService {
 
   private getValidatedData(data: any): Prisma.UserUpdateInput {
     if (!isUpdateUserSchema(data)) {
+      logger.error('Invalid payload type for UpdateUserSchema.')
       throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     }
     return data
@@ -35,6 +37,7 @@ export default class UpdateUserService {
   private async ensureUserExists(googleId: string): Promise<void> {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (!user) {
+      logger.error(`User doesn't exist by id '${googleId}'`)
       throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
     }
   }

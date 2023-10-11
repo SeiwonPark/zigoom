@@ -15,7 +15,7 @@ export interface Guest {
  * Proceed to next middleware with user's token payload if authenticated or else guest token payload.
  */
 export const authHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  logger.info('authHandler invoked')
+  logger.debug('authHandler invoked')
   const { jwt, guestId } = req.cookies
 
   // handle when it's a guest or not signed in

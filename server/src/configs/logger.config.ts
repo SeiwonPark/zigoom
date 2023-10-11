@@ -17,7 +17,7 @@ const configs = {
 
 winston.addColors(configs.colors)
 
-const logger = winston.createLogger({
+export const logger = winston.createLogger({
   levels: configs.levels,
   format: process.env.NODE_ENV === 'production' ? winston.format.json() : winston.format.simple(),
   transports: [
@@ -31,5 +31,3 @@ const logger = winston.createLogger({
     }),
   ],
 })
-
-export { logger }

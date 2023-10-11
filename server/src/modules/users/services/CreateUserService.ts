@@ -4,6 +4,7 @@ import { isCreateUserSchema } from '../validations/user.validation'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Token } from '@shared/types/common'
+import { logger } from '@configs/logger.config'
 
 interface RequestPayload {
   payload: Token
@@ -39,6 +40,7 @@ export default class CreateUserService {
     }
 
     if (!isCreateUserSchema(userData)) {
+      logger.error('Invalid payload type for CreateUserSchema.')
       throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     }
 
@@ -48,6 +50,7 @@ export default class CreateUserService {
   private async ensureUserNotExists(googleId: string): Promise<void> {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (user) {
+      logger.error(`User already exists by google id '${googleId}'`)
       throw new CustomError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
     }
   }

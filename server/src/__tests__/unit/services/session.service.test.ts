@@ -1,4 +1,4 @@
-import CreateSessionService from '@modules/sessions/services/CreateSessionService'
+import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
@@ -9,7 +9,7 @@ import { CustomError, ErrorCode } from '@shared/errors'
 import { Role, User } from '@db/mysql/generated/mysql'
 
 describe('Session Service Unit Tests', () => {
-  let createSessionService: CreateSessionService
+  let joinSessionService: JoinSessionService
   let getSessionService: GetSessionService
   let updateSessionService: UpdateSessionService
   let userRepository: UserRepository
@@ -63,12 +63,12 @@ describe('Session Service Unit Tests', () => {
   beforeEach(() => {
     userRepository = new UserRepositoryImpl()
     sessionRepository = new SessionRepositoryImpl()
-    createSessionService = new CreateSessionService(userRepository, sessionRepository)
+    joinSessionService = new JoinSessionService(userRepository, sessionRepository)
     updateSessionService = new UpdateSessionService(sessionRepository)
     getSessionService = new GetSessionService(sessionRepository)
   })
 
-  describe('CreateSessionService Tests', () => {
+  describe('JoinSessionService Tests', () => {
     test('should create a new session if all payloads are valid', async () => {
       expect.assertions(1)
 
@@ -76,7 +76,7 @@ describe('Session Service Unit Tests', () => {
       sessionRepository.save = jest.fn().mockReturnValue(session)
 
       await expect(
-        createSessionService.execute({
+        joinSessionService.execute({
           payload: validToken,
           sessionId: '123e4567-e89b-12d3-a456-111111111111',
           title: 'Session title',
