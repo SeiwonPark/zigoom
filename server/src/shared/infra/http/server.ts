@@ -10,6 +10,7 @@ import { Server } from 'socket.io'
 import { setupSocketHandlers } from '../../../handlers/socket.handler'
 import { PORT, ALLOWED_ORIGIN } from '@configs/env.config'
 import { authHandler, errorHandler } from './middlewares/handlers'
+import { logger } from '@configs/logger.config'
 
 const app = express()
 
@@ -33,5 +34,5 @@ const io = new Server(server, {
 setupSocketHandlers(io)
 
 server.listen(PORT, () => {
-  console.log(`Server is listening on PORT ${PORT}...`)
+  logger.info(`Server is listening on PORT ${PORT}...`)
 })

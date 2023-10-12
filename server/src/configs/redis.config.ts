@@ -1,4 +1,5 @@
 import { createClient } from 'redis'
+import { logger } from './logger.config'
 
 export const redisClient = createClient({
   url: 'redis://localhost:6379',
@@ -7,11 +8,11 @@ export const redisClient = createClient({
 redisClient.connect()
 
 redisClient.on('error', (e) => {
-  console.log(`Redis Error: ${e}`)
+  logger.error(`Redis Error: ${e}`)
 })
 
 const cleanUp = async () => {
-  console.log('Cleaning up resources...')
+  logger.info('Cleaning up resources...')
   await redisClient.quit()
 }
 

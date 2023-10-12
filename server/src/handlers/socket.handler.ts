@@ -9,11 +9,13 @@ import {
   isToggleVideoSchema,
 } from '../validations/socket.validation'
 import { CustomError, ErrorCode } from '@shared/errors'
+import { logger } from '@configs/logger.config'
 
 export const setupSocketHandlers = (io: Server) => {
   io.on('connection', (socket: Socket) => {
     const onJoin = (payload: any) => {
       if (!isJoinSchema(payload)) {
+        logger.error('Invalid payload type for JoinSchema.')
         throw new CustomError('Invalid payload type for JoinSchema.', ErrorCode.BadRequest)
       }
 
@@ -38,6 +40,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onCall = (payload: any) => {
       if (!isCallSchema(payload)) {
+        logger.error('Invalid payload type for CallSchema.')
         throw new CustomError('Invalid payload type for CallSchema.', ErrorCode.BadRequest)
       }
 
@@ -48,6 +51,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onPeerOffer = (payload: any) => {
       if (!isPeerOfferSchema(payload)) {
+        logger.error('Invalid payload type for PeerOfferSchema.')
         throw new CustomError('Invalid payload type for PeerOfferSchema.', ErrorCode.BadRequest)
       }
 
@@ -60,6 +64,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onPeerAnswer = (payload: any) => {
       if (!isPeerAnswerSchema(payload)) {
+        logger.error('Invalid payload type for PeerAnswerSchema.')
         throw new CustomError('Invalid payload type for PeerAnswerSchema.', ErrorCode.BadRequest)
       }
 
@@ -72,6 +77,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onPeerIceCandidate = (payload: any) => {
       if (!isPeerIceCandidateSchema(payload)) {
+        logger.error('Invalid payload type for PeerIceCandidateSchema.')
         throw new CustomError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
       }
 
@@ -80,6 +86,7 @@ export const setupSocketHandlers = (io: Server) => {
 
     const onSendChat = (payload: any) => {
       if (!isSendChatSchema(payload)) {
+        logger.error('Invalid payload type for SendChatSchema.')
         throw new CustomError('Invalid payload type for SendChatSchema.', ErrorCode.BadRequest)
       }
 
@@ -90,17 +97,18 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onDisconnect = () => {
-      console.log(`Peer ${socket.id} has been disconnected`)
+      logger.info(`Peer ${socket.id} has been disconnected`)
       socket.broadcast.emit('peer_disconnected', { peerId: socket.id })
     }
 
     const onCancel = () => {
-      console.log(`Peer ${socket.id} has cancelled the call`)
+      logger.info(`Peer ${socket.id} has cancelled the call`)
       socket.disconnect()
     }
 
     const onToggleVideo = (payload: any) => {
       if (!isToggleVideoSchema(payload)) {
+        logger.error('Invalid payload type for ToggleVideoSchema.')
         throw new CustomError('Invalid payload type for ToggleVideoSchema.', ErrorCode.BadRequest)
       }
 

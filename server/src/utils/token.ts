@@ -1,3 +1,4 @@
+import { logger } from '@configs/logger.config'
 import { OAuth2Client, TokenPayload } from 'google-auth-library'
 
 export const decodeToken = async (token: string): Promise<TokenPayload | undefined> => {
@@ -11,7 +12,7 @@ export const decodeToken = async (token: string): Promise<TokenPayload | undefin
     })
     return ticket.getPayload()
   } catch (e) {
-    console.log((e as Error).message)
+    logger.error((e as Error).message)
     return undefined
   }
 }
