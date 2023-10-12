@@ -17,10 +17,24 @@
     "typeRoots": ["./node_modules/@types", "./src/typings"],
 
     /* Linting */
-    "strict": true, /* SHOULD be enabled to use 'zod' */
+    "strict": true /* SHOULD be enabled to use 'zod' */,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path alias */
+    "baseUrl": "./src",
+    "paths": {
+      "@/components/*": ["components/*"],
+      "@/pages/*": ["pages/*"],
+      "@/configs/*": ["configs/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/assets/*": ["assets/*"],
+      "@/utils/*": ["utils/*"],
+      "@/typings/*": ["typings/*"],
+      "@/validations/*": ["validations/*"],
+      "@/contexts/*": ["contexts/*"]
+    }
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
