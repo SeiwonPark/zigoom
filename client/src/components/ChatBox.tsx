@@ -1,7 +1,8 @@
 import { css } from '@emotion/react'
-import { Chat } from './Chat'
-import { IconButton } from './buttons/IconButton'
-import CloseIcon from '../assets/icons/close.svg'
+
+import { CloseIcon } from '@/assets/icons'
+import { Chat } from '@/components/Chat'
+import { IconButton } from '@/components/buttons'
 
 interface ChatBoxProps {
   isChatOpen: boolean

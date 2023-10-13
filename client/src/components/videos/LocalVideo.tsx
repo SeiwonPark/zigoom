@@ -1,13 +1,13 @@
-import type { GoogleJWTPayload } from '../../validations/auth.validation'
-import { css } from '@emotion/react'
 import { useEffect, useRef, useState } from 'react'
-import PinIconDisabled from '../../assets/icons/pin_disabled.svg'
-import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
-import MoreIcon from '../../assets/icons/more.svg'
-import { SVGIcon } from '../buttons/SVGIcon'
-import { getLocalStorageItem } from '../../utils'
-import Unnamed from '../../assets/images/unnamed.png'
-import { useLocalOption } from '../../hooks/useStore'
+
+import { css } from '@emotion/react'
+
+import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
+import { Unnamed } from '@/assets/images'
+import { SVGIcon } from '@/components/buttons'
+import { useLocalOption } from '@/hooks/useStore'
+import { getLocalStorageItem } from '@/utils/localStorage'
+import { GoogleJWTPayload } from '@/validations/auth.validation'
 
 interface VideoProps {
   stream: MediaStream | null

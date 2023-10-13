@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { LocalOptions } from '../typings/types'
+
+import { LocalOptions } from '@/typings/index'
 
 interface LocalOptionState extends LocalOptions {
   setIsVideoOn: () => void

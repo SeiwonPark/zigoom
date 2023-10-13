@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import Home from './pages/Home'
-import Room from './pages/Room'
-import NotFound from './pages/NotFound'
-import { VITE_GOOGLE_CLIENT_ID } from './configs/env'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+
+import { VITE_GOOGLE_CLIENT_ID } from '@/configs/env'
+import Home from '@/pages/Home'
+import NotFound from '@/pages/NotFound'
+import Room from '@/pages/Room'
 
 function App() {
   return (

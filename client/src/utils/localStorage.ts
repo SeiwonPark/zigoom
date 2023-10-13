@@ -4,10 +4,9 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API#api.window.localstorage}
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage}
  */
-
-import { toDataURL } from './string'
-import Unnamed from '../assets/images/unnamed.png'
-import { GoogleJWTPayload } from '../validations/auth.validation'
+import { Unnamed } from '@/assets/images'
+import { toDataURL } from '@/utils/string'
+import { GoogleJWTPayload } from '@/validations/auth.validation'
 
 /**
  * Stores the given payload in the browser's localStorage.

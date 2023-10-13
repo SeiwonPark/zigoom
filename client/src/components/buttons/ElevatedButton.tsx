@@ -1,6 +1,8 @@
-import type { SVGProps } from '../../typings/types'
-import { css } from '@emotion/react'
 import { MouseEventHandler } from 'react'
+
+import { css } from '@emotion/react'
+
+import type { SVGProps } from '@/typings/index'
 
 interface ElevatedButtonProps {
   Icon?: string | SVGProps // FIXME: why it doesn't work?

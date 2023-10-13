@@ -1,4 +1,4 @@
-import type { GoogleJWTHeader, GoogleJWTPayload, GoolgeJWT } from '../validations/auth.validation'
+import { GoogleJWTHeader, GoogleJWTPayload, GoolgeJWT } from '@/validations/auth.validation'
 
 /**
  * Decodes JWT from Google API and return header and payload.

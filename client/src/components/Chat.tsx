@@ -1,11 +1,12 @@
-import type { ReceiveChatSchema } from '../validations/socket.validation'
-import { isReceiveChatSchema } from '../validations/socket.validation'
 import { useCallback, useContext, useEffect, useState } from 'react'
+
 import { css } from '@emotion/react'
-import { handleKeyUp } from '../utils'
-import { SocketContext } from '../contexts/SocketContext'
-import SendIcon from '../assets/icons/send.svg'
-import { IconButton } from './buttons/IconButton'
+
+import { SendIcon } from '@/assets/icons'
+import { IconButton } from '@/components/buttons'
+import { SocketContext } from '@/contexts/SocketContext'
+import { handleKeyUp } from '@/utils/keys'
+import { ReceiveChatSchema, isReceiveChatSchema } from '@/validations/socket.validation'
 
 interface ChatProps {
   roomId?: string

@@ -1,7 +1,15 @@
-import type { PeerData, PeerInfo, VideoElement } from '../typings/types'
-import { PeerDisconnectionType } from '../typings/enums'
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
+
 import { css } from '@emotion/react'
+
+import { ChatBox, ControlBar } from '@/components/index'
+import { LocalVideo } from '@/components/videos/LocalVideo'
+import { RemoteVideo } from '@/components/videos/RemoteVideo'
+import { VIDEO_GRIDS, iceServers, mediaConstraints, offerOptions } from '@/configs/webrtc'
+import { SocketContext } from '@/contexts/SocketContext'
+import { useLocalOption } from '@/hooks/useStore'
+import { PeerData, PeerDisconnectionType, PeerInfo, VideoElement } from '@/typings/index'
+import { getProfileImage } from '@/utils/localStorage'
 import {
   isCallSchema,
   isPeerAnswerSchema,
@@ -9,15 +17,7 @@ import {
   isPeerOfferSchema,
   isRoomCreatedSchema,
   isRoomJoinedSchema,
-} from '../validations/socket.validation'
-import { VIDEO_GRIDS, iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
-import { SocketContext } from '../contexts/SocketContext'
-import { ControlBar } from './ControlBar'
-import { ChatBox } from './ChatBox'
-import { LocalVideo } from './videos/LocalVideo'
-import { RemoteVideo } from './videos/RemoteVideo'
-import { getProfileImage } from '../utils'
-import { useLocalOption } from '../hooks/useStore'
+} from '@/validations/socket.validation'
 
 interface SessionProps {
   roomId?: string

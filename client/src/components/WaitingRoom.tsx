@@ -1,5 +1,7 @@
-interface WaitingRoomProps {}
+interface WaitingRoomProps {
+  roomId: string
+}
 
-export const WaitingRoom = ({}: WaitingRoomProps) => {
-  return <div></div>
+export const WaitingRoom = ({ roomId }: WaitingRoomProps) => {
+  return <div>{roomId}</div>
 }
