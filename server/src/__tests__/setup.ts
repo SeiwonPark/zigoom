@@ -1,8 +1,9 @@
-import 'reflect-metadata'
-import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
+import { mongodb, mysql } from '@configs/prisma.config'
 import { PrismaClient as MongoDBPrismaClient } from '@db/mongodb/generated/mongodb'
-import { mockDeep, mockReset, DeepMockProxy } from 'jest-mock-extended'
-import { mysql, mongodb } from '@configs/prisma.config'
+import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
+
+import { DeepMockProxy, mockDeep, mockReset } from 'jest-mock-extended'
+import 'reflect-metadata'
 
 jest.mock('@configs/logger.config')
 jest.mock('@configs/prisma.config', () => ({

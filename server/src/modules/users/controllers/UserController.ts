@@ -1,10 +1,12 @@
+import { logger } from '@configs/logger.config'
+import { CustomError, ErrorCode } from '@shared/errors'
+
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
-import { CustomError, ErrorCode } from '@shared/errors'
+
 import CreateUserService from '../services/CreateUserService'
-import UpdateUserService from '../services/UpdateUserService'
 import GetUserService from '../services/GetUserService'
-import { logger } from '@configs/logger.config'
+import UpdateUserService from '../services/UpdateUserService'
 
 export default class UserController {
   public async create(req: Request, res: Response): Promise<Response> {

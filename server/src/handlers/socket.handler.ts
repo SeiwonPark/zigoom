@@ -1,15 +1,17 @@
+import { logger } from '@configs/logger.config'
+import { CustomError, ErrorCode } from '@shared/errors'
+
 import type { Server, Socket } from 'socket.io'
+
 import {
-  isJoinSchema,
   isCallSchema,
-  isPeerOfferSchema,
+  isJoinSchema,
   isPeerAnswerSchema,
   isPeerIceCandidateSchema,
+  isPeerOfferSchema,
   isSendChatSchema,
   isToggleVideoSchema,
 } from '../validations/socket.validation'
-import { CustomError, ErrorCode } from '@shared/errors'
-import { logger } from '@configs/logger.config'
 
 export const setupSocketHandlers = (io: Server) => {
   io.on('connection', (socket: Socket) => {

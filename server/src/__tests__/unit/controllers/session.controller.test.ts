@@ -1,11 +1,12 @@
-import { User, Role } from '@db/mysql/generated/mysql'
+import { Role, User } from '@db/mysql/generated/mysql'
 import SessionController from '@modules/sessions/controllers/SessionController'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
-import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
+import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import { CustomError, ErrorCode } from '@shared/errors'
+
 import { Request, Response } from 'express'
 import { container } from 'tsyringe'
 
@@ -98,13 +99,13 @@ describe('Session Controller Unit Tests', () => {
     })
 
     await expect(sessionController.create(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest),
+      new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     )
     await expect(sessionController.get(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError("Session doesn't exist by id 'undefined'", ErrorCode.NotFound),
+      new CustomError("Session doesn't exist by id 'undefined'", ErrorCode.NotFound)
     )
     await expect(sessionController.update(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest),
+      new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     )
   })
 

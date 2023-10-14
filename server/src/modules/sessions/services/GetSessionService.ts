@@ -1,9 +1,11 @@
-import { injectable, inject } from 'tsyringe'
-import SessionRepository from '../repositories/SessionRepository'
-import { CustomError, ErrorCode } from '@shared/errors'
-import { Session } from '@db/mysql/generated/mysql'
-import { Token } from '@shared/types/common'
 import { logger } from '@configs/logger.config'
+import { Session } from '@db/mysql/generated/mysql'
+import { CustomError, ErrorCode } from '@shared/errors'
+import { Token } from '@shared/types/common'
+
+import { inject, injectable } from 'tsyringe'
+
+import SessionRepository from '../repositories/SessionRepository'
 
 interface RequestPayload {
   payload: Token
@@ -14,7 +16,7 @@ interface RequestPayload {
 export default class GetSessionService {
   constructor(
     @inject('SessionRepository')
-    private sessionRepository: SessionRepository,
+    private sessionRepository: SessionRepository
   ) {}
 
   public async execute({ payload, sessionId }: RequestPayload): Promise<Session | null> {

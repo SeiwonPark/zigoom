@@ -1,5 +1,6 @@
-import { Prisma, User } from '@db/mysql/generated/mysql'
 import { mysql } from '@configs/prisma.config'
+import { Prisma, User } from '@db/mysql/generated/mysql'
+
 import UserRepository, { JoinedUser } from '../UserRepository'
 
 export default class UserRepositoryImpl implements UserRepository {

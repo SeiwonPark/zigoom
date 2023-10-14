@@ -2,7 +2,8 @@ import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { decodeToken } from '@utils/token'
-import { Request, Response, NextFunction } from 'express'
+
+import { NextFunction, Request, Response } from 'express'
 
 export interface Guest {
   id: string

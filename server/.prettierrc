@@ -4,5 +4,19 @@
   "useTabs": false,
   "tabWidth": 2,
   "printWidth": 120,
-  "arrowParens": "always"
+  "arrowParens": "always",
+  "importOrder": [
+    "^@(.*)$",
+    "<THIRD_PARTY_MODULES>",
+    "^[./]"
+  ],
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "plugins": [
+    "@trivago/prettier-plugin-sort-imports"
+  ],
+  "importOrderParserPlugins": [
+    "typescript",
+    "decorators-legacy"
+  ]
 }

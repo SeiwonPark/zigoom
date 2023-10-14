@@ -36,7 +36,7 @@ const UpdateSessionPayload = z.object({
             id: z.string().uuid().nonempty(),
           })
           .optional(),
-      }),
+      })
     )
     .optional(),
 })

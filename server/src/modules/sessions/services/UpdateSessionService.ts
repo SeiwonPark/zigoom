@@ -1,11 +1,13 @@
-import { injectable, inject } from 'tsyringe'
-import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
+import { logger } from '@configs/logger.config'
+import { redisClient } from '@configs/redis.config'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { isUpdateSessionSchema } from '../validations/session.validation'
 import { Token } from '@shared/types/common'
-import { redisClient } from '@configs/redis.config'
-import { logger } from '@configs/logger.config'
+
+import { inject, injectable } from 'tsyringe'
+
+import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
+import { isUpdateSessionSchema } from '../validations/session.validation'
 
 interface RequestPayload {
   payload: Token
@@ -17,7 +19,7 @@ interface RequestPayload {
 export default class UpdateSessionService {
   constructor(
     @inject('SessionRepository')
-    private sessionRepository: SessionRepository,
+    private sessionRepository: SessionRepository
   ) {}
 
   public async execute({ payload, sessionId, data }: RequestPayload): Promise<Session | JoinedSession> {
@@ -40,7 +42,7 @@ export default class UpdateSessionService {
   private async handleGuestUser(
     guestId: string,
     session: JoinedSession,
-    numOfGuests: number,
+    numOfGuests: number
   ): Promise<Session | JoinedSession> {
     if (session.users.length === 0 && numOfGuests === 1) {
       const [_, deletedSession] = await Promise.all([
@@ -60,7 +62,7 @@ export default class UpdateSessionService {
     userId: string,
     session: JoinedSession,
     data: any,
-    numOfGuests: number,
+    numOfGuests: number
   ): Promise<Session | JoinedSession> {
     if (session?.users.length === 1 && numOfGuests === 0) {
       const deletedSession = await this.sessionRepository.deleteById(session.id)

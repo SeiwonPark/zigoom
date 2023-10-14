@@ -1,5 +1,7 @@
 import UserController from '@modules/users/controllers/UserController'
+
 import { Router } from 'express'
+
 import { requireAuthentication } from '../handlers'
 
 const userController = new UserController()

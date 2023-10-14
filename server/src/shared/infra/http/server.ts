@@ -1,16 +1,18 @@
-import 'reflect-metadata'
-import 'express-async-errors'
-import '@shared/container'
-import express from 'express'
-import cors from 'cors'
-import { router } from './middlewares/routes'
-import cookieParser from 'cookie-parser'
-import { createServer } from 'http'
-import { Server } from 'socket.io'
-import { setupSocketHandlers } from '../../../handlers/socket.handler'
-import { PORT, ALLOWED_ORIGIN } from '@configs/env.config'
-import { authHandler, errorHandler } from './middlewares/handlers'
+import { ALLOWED_ORIGIN, PORT } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
+import '@shared/container'
+
+import cookieParser from 'cookie-parser'
+import cors from 'cors'
+import express from 'express'
+import 'express-async-errors'
+import { createServer } from 'http'
+import 'reflect-metadata'
+import { Server } from 'socket.io'
+
+import { setupSocketHandlers } from '../../../handlers/socket.handler'
+import { authHandler, errorHandler } from './middlewares/handlers'
+import { router } from './middlewares/routes'
 
 const app = express()
 

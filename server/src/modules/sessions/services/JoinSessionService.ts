@@ -1,12 +1,14 @@
-import { injectable, inject } from 'tsyringe'
+import { logger } from '@configs/logger.config'
+import { redisClient } from '@configs/redis.config'
 import { Prisma, Session, User } from '@db/mysql/generated/mysql'
-import { isCreateSessionSchema } from '../validations/session.validation'
-import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
-import { redisClient } from '@configs/redis.config'
 import { Token } from '@shared/types/common'
-import { logger } from '@configs/logger.config'
+
+import { inject, injectable } from 'tsyringe'
+
+import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
+import { isCreateSessionSchema } from '../validations/session.validation'
 
 interface RequestPayload {
   payload: Token
@@ -24,7 +26,7 @@ export default class JoinSessionService {
     @inject('UserRepository')
     private userRepository: UserRepository,
     @inject('SessionRepository')
-    private sessionRepository: SessionRepository,
+    private sessionRepository: SessionRepository
   ) {}
 
   public async execute({
@@ -51,7 +53,7 @@ export default class JoinSessionService {
     payload: Token,
     sessionId: string,
     title: string,
-    isPrivate: boolean,
+    isPrivate: boolean
   ): Promise<Session | JoinedSession> {
     if (!existingSession) {
       const [createdSession, _] = await Promise.all([
@@ -74,7 +76,7 @@ export default class JoinSessionService {
     googleId: string,
     sessionId: string,
     title: string,
-    isPrivate: boolean,
+    isPrivate: boolean
   ): Promise<Session | JoinedSession> {
     const existingUser = await this.getUserByGoogleId(googleId)
 
@@ -124,7 +126,7 @@ export default class JoinSessionService {
     sessionId: string,
     title: string,
     user: User | string,
-    isPrivate: boolean,
+    isPrivate: boolean
   ): Promise<Session | JoinedSession> {
     let sessionData
 

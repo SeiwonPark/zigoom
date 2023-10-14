@@ -1,7 +1,8 @@
-import { mockMySQL } from '../../setup'
 import { Prisma, Role, User } from '@db/mysql/generated/mysql'
-import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import UserRepository from '@modules/users/repositories/UserRepository'
+import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
+
+import { mockMySQL } from '../../setup'
 
 describe('User Repository Unit Tests', () => {
   let userRepository: UserRepository

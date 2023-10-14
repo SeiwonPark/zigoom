@@ -1,10 +1,12 @@
-import { injectable, inject } from 'tsyringe'
+import { logger } from '@configs/logger.config'
 import { Prisma, User } from '@db/mysql/generated/mysql'
-import { isUpdateUserSchema } from '../validations/user.validation'
-import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { CustomError, ErrorCode } from '@shared/errors'
 import { Token } from '@shared/types/common'
-import { logger } from '@configs/logger.config'
+
+import { inject, injectable } from 'tsyringe'
+
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
+import { isUpdateUserSchema } from '../validations/user.validation'
 
 interface RequestPayload {
   payload: Token
@@ -16,7 +18,7 @@ interface RequestPayload {
 export default class UpdateUserService {
   constructor(
     @inject('UserRepository')
-    private userRepository: UserRepository,
+    private userRepository: UserRepository
   ) {}
 
   public async execute({ payload, include, data }: RequestPayload): Promise<User | JoinedUser> {

@@ -1,10 +1,12 @@
+import { logger } from '@configs/logger.config'
+import { CustomError, ErrorCode } from '@shared/errors'
+
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
-import CreateSessionService from '../services/JoinSessionService'
+
 import GetSessionService from '../services/GetSessionService'
+import CreateSessionService from '../services/JoinSessionService'
 import UpdateSessionService from '../services/UpdateSessionService'
-import { CustomError, ErrorCode } from '@shared/errors'
-import { logger } from '@configs/logger.config'
 
 export default class SessionController {
   public async create(req: Request, res: Response): Promise<Response> {
@@ -33,9 +35,9 @@ export default class SessionController {
     const fetchedSession = await getSession.execute({ payload: req.ctx.user, sessionId })
 
     logger.info(
-      `${
-        req.ctx.user.id ? `guest '${req.ctx.user.id}'` : `user '${req.ctx.user.sub}'`
-      } fetched a session '${fetchedSession?.id}'`,
+      `${req.ctx.user.id ? `guest '${req.ctx.user.id}'` : `user '${req.ctx.user.sub}'`} fetched a session '${
+        fetchedSession?.id
+      }'`
     )
     return res.status(200).send(fetchedSession)
   }

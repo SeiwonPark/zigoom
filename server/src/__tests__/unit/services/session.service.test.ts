@@ -1,12 +1,12 @@
-import JoinSessionService from '@modules/sessions/services/JoinSessionService'
-import GetSessionService from '@modules/sessions/services/GetSessionService'
-import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
-import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
-import UserRepository from '@modules/users/repositories/UserRepository'
-import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
-import SessionRepository from '@modules/sessions/repositories/SessionRepository'
-import { CustomError, ErrorCode } from '@shared/errors'
 import { Role, User } from '@db/mysql/generated/mysql'
+import SessionRepository from '@modules/sessions/repositories/SessionRepository'
+import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
+import GetSessionService from '@modules/sessions/services/GetSessionService'
+import JoinSessionService from '@modules/sessions/services/JoinSessionService'
+import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
+import UserRepository from '@modules/users/repositories/UserRepository'
+import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
+import { CustomError, ErrorCode } from '@shared/errors'
 
 describe('Session Service Unit Tests', () => {
   let joinSessionService: JoinSessionService
@@ -81,7 +81,7 @@ describe('Session Service Unit Tests', () => {
           sessionId: '123e4567-e89b-12d3-a456-111111111111',
           title: 'Session title',
           isPrivate: false,
-        }),
+        })
       ).resolves.toEqual(session)
     })
   })
@@ -95,7 +95,7 @@ describe('Session Service Unit Tests', () => {
       const wrongSessionId = '123e4567-e89b-12d3-a456-999999999999'
 
       await expect(getSessionService.execute({ payload: validToken, sessionId: wrongSessionId })).rejects.toEqual(
-        new CustomError(`Session doesn't exist by id '${wrongSessionId}'`, ErrorCode.NotFound),
+        new CustomError(`Session doesn't exist by id '${wrongSessionId}'`, ErrorCode.NotFound)
       )
     })
 
@@ -106,7 +106,7 @@ describe('Session Service Unit Tests', () => {
       sessionRepository.findById = jest.fn().mockReturnValue(session)
 
       await expect(
-        getSessionService.execute({ payload: validToken, sessionId: '123e4567-e89b-12d3-a456-111111111111' }),
+        getSessionService.execute({ payload: validToken, sessionId: '123e4567-e89b-12d3-a456-111111111111' })
       ).resolves.toEqual(session)
     })
   })
@@ -127,7 +127,7 @@ describe('Session Service Unit Tests', () => {
       sessionRepository.update = jest.fn().mockReturnValue(updatedSession)
 
       await expect(
-        updateSessionService.execute({ payload: validToken, sessionId: '123', data: updateSessionData }),
+        updateSessionService.execute({ payload: validToken, sessionId: '123', data: updateSessionData })
       ).resolves.toEqual(updatedSession)
     })
   })

@@ -1,6 +1,7 @@
 import { logger } from '@configs/logger.config'
-import { Request, Response, NextFunction } from 'express'
 import { CustomError } from '@shared/errors/CustomError'
+
+import { NextFunction, Request, Response } from 'express'
 
 export const errorHandler = async (e: Error, req: Request, res: Response, next: NextFunction): Promise<Response> => {
   logger.error(`Error on ${req.method} request to ${req.url}. Error: ${e.message}`)
