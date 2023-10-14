@@ -2,7 +2,7 @@ import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { Prisma, Session, User } from '@db/mysql/generated/mysql'
 import UserRepository from '@modules/users/repositories/UserRepository'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
 
 import { inject, injectable } from 'tsyringe'
@@ -96,7 +96,7 @@ export default class JoinSessionService {
     const numOfGuests = await this.countParticipantsInSession(session.id)
     if (session && session.users.length + numOfGuests === this.MAX_USERS) {
       logger.error(`Session '${session.id}' is now full`)
-      throw new CustomError(`Session '${session.id}' is now full`, ErrorCode.Forbidden)
+      throw new RequestError(`Session '${session.id}' is now full`, ErrorCode.Forbidden)
     }
   }
 
@@ -104,7 +104,7 @@ export default class JoinSessionService {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (!user) {
       logger.error(`No user has been found by google id '${googleId}'`)
-      throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
+      throw new RequestError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
     }
     return user
   }
@@ -154,7 +154,7 @@ export default class JoinSessionService {
 
     if (!isCreateSessionSchema(sessionData)) {
       logger.error('Invalid payload type for CreateSessionSchema.')
-      throw new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     }
 
     return await this.sessionRepository.save(sessionData, true)

@@ -1,5 +1,5 @@
 import { logger } from '@configs/logger.config'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
@@ -22,7 +22,7 @@ export default class UserController {
 
     if (include !== undefined && typeof include !== 'boolean') {
       logger.error("Parameter type not matching for 'include'")
-      throw new CustomError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
+      throw new RequestError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
     }
 
     const getUser = container.resolve(GetUserService)
@@ -38,7 +38,7 @@ export default class UserController {
 
     if (include !== undefined && typeof include !== 'boolean') {
       logger.error("Parameter type not matching for 'include'")
-      throw new CustomError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
+      throw new RequestError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
     }
 
     const updateUser = container.resolve(UpdateUserService)

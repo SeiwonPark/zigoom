@@ -4,7 +4,7 @@ import UserRepositoryImpl from '@modules/users/repositories/implementations/User
 import CreateUserService from '@modules/users/services/CreateUserService'
 import GetUserService from '@modules/users/services/GetUserService'
 import UpdateUserService from '@modules/users/services/UpdateUserService'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 describe('User Service Unit Tests', () => {
   let createUserService: CreateUserService
@@ -63,7 +63,7 @@ describe('User Service Unit Tests', () => {
       const invalidGoogleIdToken = { ...validToken, sub: '999999999999999999999' }
 
       await expect(getUserService.execute({ payload: invalidGoogleIdToken, include: false })).rejects.toEqual(
-        new CustomError(`User doesn't exist by id '${invalidGoogleIdToken.sub}'`, ErrorCode.NotFound)
+        new RequestError(`User doesn't exist by id '${invalidGoogleIdToken.sub}'`, ErrorCode.NotFound)
       )
     })
 
@@ -104,7 +104,7 @@ describe('User Service Unit Tests', () => {
 
       await expect(
         updateUserService.execute({ payload: validToken, include: true, data: updateUserData })
-      ).rejects.toEqual(new CustomError('Invalid payload type for UpdateUserSchema.'))
+      ).rejects.toEqual(new RequestError('Invalid payload type for UpdateUserSchema.'))
     })
 
     test('should update a user if all payloads are valid', async () => {

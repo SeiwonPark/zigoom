@@ -1,6 +1,6 @@
 import { logger } from '@configs/logger.config'
 import { Session } from '@db/mysql/generated/mysql'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
 
 import { inject, injectable } from 'tsyringe'
@@ -30,7 +30,7 @@ export default class GetSessionService {
     const session = await this.sessionRepository.findById(sessionId)
     if (!session) {
       logger.error(`Session doesn't exist by id '${sessionId}'`)
-      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
+      throw new RequestError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
     return session
   }
@@ -38,7 +38,7 @@ export default class GetSessionService {
   private handlePrivateSession(isGuest: boolean, isPrivate: boolean): void {
     if (isGuest && isPrivate) {
       logger.error('Authentication is required to get private session')
-      throw new CustomError('Authentication is required to get private session', ErrorCode.Unauthorized)
+      throw new RequestError('Authentication is required to get private session', ErrorCode.Unauthorized)
     }
   }
 }

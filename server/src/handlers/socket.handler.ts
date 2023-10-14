@@ -1,5 +1,5 @@
 import { logger } from '@configs/logger.config'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 import type { Server, Socket } from 'socket.io'
 
@@ -18,7 +18,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onJoin = (payload: any) => {
       if (!isJoinSchema(payload)) {
         logger.error('Invalid payload type for JoinSchema.')
-        throw new CustomError('Invalid payload type for JoinSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for JoinSchema.', ErrorCode.BadRequest)
       }
 
       const { roomId } = payload
@@ -43,7 +43,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onCall = (payload: any) => {
       if (!isCallSchema(payload)) {
         logger.error('Invalid payload type for CallSchema.')
-        throw new CustomError('Invalid payload type for CallSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for CallSchema.', ErrorCode.BadRequest)
       }
 
       socket.broadcast.to(payload.roomId).emit('call', {
@@ -54,7 +54,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onPeerOffer = (payload: any) => {
       if (!isPeerOfferSchema(payload)) {
         logger.error('Invalid payload type for PeerOfferSchema.')
-        throw new CustomError('Invalid payload type for PeerOfferSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for PeerOfferSchema.', ErrorCode.BadRequest)
       }
 
       socket.broadcast.to(payload.receiverId).emit('peer_offer', {
@@ -67,7 +67,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onPeerAnswer = (payload: any) => {
       if (!isPeerAnswerSchema(payload)) {
         logger.error('Invalid payload type for PeerAnswerSchema.')
-        throw new CustomError('Invalid payload type for PeerAnswerSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for PeerAnswerSchema.', ErrorCode.BadRequest)
       }
 
       socket.broadcast.to(payload.receiverId).emit('peer_answer', {
@@ -80,7 +80,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onPeerIceCandidate = (payload: any) => {
       if (!isPeerIceCandidateSchema(payload)) {
         logger.error('Invalid payload type for PeerIceCandidateSchema.')
-        throw new CustomError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
       }
 
       socket.broadcast.to(payload.receiverId).emit('peer_ice_candidate', payload)
@@ -89,7 +89,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onSendChat = (payload: any) => {
       if (!isSendChatSchema(payload)) {
         logger.error('Invalid payload type for SendChatSchema.')
-        throw new CustomError('Invalid payload type for SendChatSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for SendChatSchema.', ErrorCode.BadRequest)
       }
 
       socket.to(payload.roomId).emit('receive_chat', {
@@ -111,7 +111,7 @@ export const setupSocketHandlers = (io: Server) => {
     const onToggleVideo = (payload: any) => {
       if (!isToggleVideoSchema(payload)) {
         logger.error('Invalid payload type for ToggleVideoSchema.')
-        throw new CustomError('Invalid payload type for ToggleVideoSchema.', ErrorCode.BadRequest)
+        throw new RequestError('Invalid payload type for ToggleVideoSchema.', ErrorCode.BadRequest)
       }
 
       socket.to(payload.roomId).emit('videoStatus', {

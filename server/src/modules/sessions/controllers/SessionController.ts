@@ -1,5 +1,5 @@
 import { logger } from '@configs/logger.config'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
@@ -28,7 +28,7 @@ export default class SessionController {
 
     if (typeof sessionId !== 'string') {
       logger.error("Parameter type not matching for 'sessionId'")
-      throw new CustomError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
+      throw new RequestError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
     }
 
     const getSession = container.resolve(GetSessionService)
@@ -48,7 +48,7 @@ export default class SessionController {
 
     if (typeof sessionId !== 'string') {
       logger.error("Parameter type not matching for 'sessionId'")
-      throw new CustomError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
+      throw new RequestError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
     }
 
     const updateSession = container.resolve(UpdateSessionService)

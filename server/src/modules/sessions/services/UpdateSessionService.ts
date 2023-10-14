@@ -1,7 +1,7 @@
 import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
 
 import { inject, injectable } from 'tsyringe'
@@ -76,7 +76,7 @@ export default class UpdateSessionService {
   private getValidatedData(data: any): Prisma.SessionUpdateInput {
     if (!isUpdateSessionSchema(data)) {
       logger.error('Invalid payload type for UpdateSessionSchema')
-      throw new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     }
 
     const updatedUsersInSession = {
@@ -98,7 +98,7 @@ export default class UpdateSessionService {
     const session = await this.sessionRepository.findById(sessionId, true)
     if (!session) {
       logger.error(`Session doesn't exist by id '${sessionId}'`)
-      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
+      throw new RequestError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
     return session
   }
@@ -106,7 +106,7 @@ export default class UpdateSessionService {
   private ensureSessionOwner(userId: string, existingSession: Session): void {
     if (userId !== existingSession.host) {
       logger.error('Only the session host can perform this action')
-      throw new CustomError('Only the session host can perform this action', ErrorCode.Unauthorized)
+      throw new RequestError('Only the session host can perform this action', ErrorCode.Unauthorized)
     }
   }
 

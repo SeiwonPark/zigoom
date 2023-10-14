@@ -1,16 +1,18 @@
 import { ALLOWED_ORIGIN, PORT } from '@configs/env.config'
-import { logger } from '@configs/logger.config'
+import { format, logger, stream } from '@configs/logger.config'
 import '@shared/container'
 
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import 'express-async-errors'
+import helmet from 'helmet'
 import { createServer } from 'http'
+import morgan from 'morgan'
 import { Server } from 'socket.io'
 
 import { setupSocketHandlers } from '../../../handlers/socket.handler'
-import { authHandler, errorHandler } from './middlewares/handlers'
+import { authHandler, errorHandler, limiter } from './middlewares/handlers'
 import { router } from './middlewares/routes'
 
 const app = express()
@@ -18,10 +20,13 @@ const app = express()
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
+app.use(helmet())
+app.use(morgan(format, { stream: stream }))
+app.set('trust proxy', 1)
 // FIXME: origin domain
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+app.use('/v1', limiter, router)
 app.use(authHandler)
-app.use('/v1', router)
 app.use(errorHandler)
 
 const server = createServer(app)

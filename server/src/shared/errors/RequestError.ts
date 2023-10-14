@@ -1,6 +1,6 @@
 import { ErrorCode } from './ErrorCode'
 
-export class CustomError {
+export class RequestError {
   public readonly message: string
   public readonly code: ErrorCode
 

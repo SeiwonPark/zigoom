@@ -6,7 +6,7 @@ import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 describe('Session Service Unit Tests', () => {
   let joinSessionService: JoinSessionService
@@ -95,7 +95,7 @@ describe('Session Service Unit Tests', () => {
       const wrongSessionId = '123e4567-e89b-12d3-a456-999999999999'
 
       await expect(getSessionService.execute({ payload: validToken, sessionId: wrongSessionId })).rejects.toEqual(
-        new CustomError(`Session doesn't exist by id '${wrongSessionId}'`, ErrorCode.NotFound)
+        new RequestError(`Session doesn't exist by id '${wrongSessionId}'`, ErrorCode.NotFound)
       )
     })
 

@@ -1,2 +1,2 @@
-export * from './CustomError'
+export * from './RequestError'
 export * from './ErrorCode'

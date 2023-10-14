@@ -1,6 +1,6 @@
 import { logger } from '@configs/logger.config'
 import { Prisma, User } from '@db/mysql/generated/mysql'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
 
 import { inject, injectable } from 'tsyringe'
@@ -43,7 +43,7 @@ export default class CreateUserService {
 
     if (!isCreateUserSchema(userData)) {
       logger.error('Invalid payload type for CreateUserSchema.')
-      throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     }
 
     return userData
@@ -53,7 +53,7 @@ export default class CreateUserService {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (user) {
       logger.error(`User already exists by google id '${googleId}'`)
-      throw new CustomError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
+      throw new RequestError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
     }
   }
 }

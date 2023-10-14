@@ -1,6 +1,6 @@
 import { logger } from '@configs/logger.config'
 import { Prisma, User } from '@db/mysql/generated/mysql'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
 
 import { inject, injectable } from 'tsyringe'
@@ -31,7 +31,7 @@ export default class UpdateUserService {
   private getValidatedData(data: any): Prisma.UserUpdateInput {
     if (!isUpdateUserSchema(data)) {
       logger.error('Invalid payload type for UpdateUserSchema.')
-      throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     }
     return data
   }
@@ -40,7 +40,7 @@ export default class UpdateUserService {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (!user) {
       logger.error(`User doesn't exist by id '${googleId}'`)
-      throw new CustomError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
+      throw new RequestError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)
     }
   }
 }

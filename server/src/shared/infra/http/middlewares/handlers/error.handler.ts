@@ -1,12 +1,12 @@
 import { logger } from '@configs/logger.config'
-import { CustomError } from '@shared/errors/CustomError'
+import { RequestError } from '@shared/errors/RequestError'
 
 import { NextFunction, Request, Response } from 'express'
 
 export const errorHandler = async (e: Error, req: Request, res: Response, next: NextFunction): Promise<Response> => {
   logger.error(`Error on ${req.method} request to ${req.url}. Error: ${e.message}`)
 
-  if (e instanceof CustomError) {
+  if (e instanceof RequestError) {
     return res.status(e.code).send({
       error: e.message,
       timestamp: new Date().toISOString(),

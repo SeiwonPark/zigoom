@@ -1,6 +1,6 @@
 import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { decodeToken } from '@utils/token'
 
 import { NextFunction, Request, Response } from 'express'
@@ -56,12 +56,12 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
 
   if (!payload) {
     logger.error('Failed to get payload from token')
-    throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
+    throw new RequestError('Failed to get payload from token', ErrorCode.Unauthorized)
   }
 
   if (Date.now() >= payload.exp * 1000) {
     logger.error('The token has been expired')
-    throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
+    throw new RequestError('The token has been expired', ErrorCode.Unauthorized)
   }
 
   req.ctx = { user: { ...payload, isGuest: false } }
@@ -75,7 +75,7 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
 export const requireAuthentication = (req: Request, res: Response, next: NextFunction): void => {
   if (req.ctx.user.isGuest) {
     logger.warn('Authentication required - guest user attempting to access protected resource')
-    throw new CustomError('Authentication required', ErrorCode.Unauthorized)
+    throw new RequestError('Authentication required', ErrorCode.Unauthorized)
   }
   next()
 }
