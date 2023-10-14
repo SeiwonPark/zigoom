@@ -28,7 +28,7 @@ const config: Config = {
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
   },
   modulePathIgnorePatterns: ['<rootDir>/prisma/mongodb/generated', '<rootDir>/prisma/mysql/generated'],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/pre-setup.ts', '<rootDir>/src/__tests__/setup.ts'],
 }
 
 export default config
