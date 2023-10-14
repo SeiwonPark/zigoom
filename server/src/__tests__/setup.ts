@@ -3,7 +3,6 @@ import { PrismaClient as MongoDBPrismaClient } from '@db/mongodb/generated/mongo
 import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
 
 import { DeepMockProxy, mockReset } from 'jest-mock-extended'
-import 'reflect-metadata'
 
 jest.mock('@configs/logger.config')
 jest.mock('@configs/redis.config', () => ({

@@ -3,6 +3,7 @@ import SessionRepositoryImpl from '@modules/sessions/repositories/implementation
 import UserRepository from '@modules/users/repositories/UserRepository'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 
+import 'reflect-metadata'
 import { container } from 'tsyringe'
 
 container.registerSingleton<UserRepository>('UserRepository', UserRepositoryImpl)

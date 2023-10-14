@@ -7,7 +7,6 @@ import cors from 'cors'
 import express from 'express'
 import 'express-async-errors'
 import { createServer } from 'http'
-import 'reflect-metadata'
 import { Server } from 'socket.io'
 
 import { setupSocketHandlers } from '../../../handlers/socket.handler'
