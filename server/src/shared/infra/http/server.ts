@@ -31,8 +31,8 @@ app.set('trust proxy', 1)
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
 // FIXME: host domain
 app.use('/metrics', metricRouter)
-app.use('/v1', limiter, router)
 app.use(authHandler)
+app.use('/v1', limiter, router)
 app.use(errorHandler)
 
 const server = createServer(app)
