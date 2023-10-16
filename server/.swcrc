@@ -7,13 +7,13 @@
     },
     "target": "es2022",
     "keepClassNames": true,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@modules/*": ["./modules/*"],
-      "@configs/*": ["./configs/*"],
-      "@shared/*": ["./shared/*"],
-      "@db/*": ["../prisma/*"],
-      "@utils/*": ["./utils/*"]
+      "@modules/*": ["src/modules/*"],
+      "@configs/*": ["src/configs/*"],
+      "@shared/*": ["src/shared/*"],
+      "@db/*": ["prisma/*"],
+      "@utils/*": ["src/utils/*"]
     }
   },
   "module": {

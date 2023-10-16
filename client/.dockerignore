@@ -1,0 +1,8 @@
+# Local
+**/.DS_Store
+**/.git/
+
+# Build output
+.swc/
+dist/
+node_modules/

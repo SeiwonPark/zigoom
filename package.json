@@ -9,10 +9,15 @@
     "lint": "pnpm --prefix ./client run lint && pnpm --prefix ./server run lint",
     "lint:fix": "pnpm --prefix ./client run lint:fix && pnpm --prefix ./server run lint:fix",
     "format": "pnpm --prefix ./client run format && pnpm --prefix ./server run format",
+    "check": "cd ./server && pnpm run check",
     "build": "concurrently -n server,client -c auto \"cd ./server && pnpm run build\" \"cd ./client && pnpm run build\"",
     "dev": "concurrently -n server,client -c auto \"cd ./server && pnpm run dev\" \"cd ./client && pnpm run dev\"",
+    "up:dev": "cross-env NODE_ENV=development docker-compose up --build",
+    "up:prod": "cross-env NODE_ENV=production docker-compose up --build",
+    "down": "docker-compose down",
     "start": "concurrently -n server,client -c auto \"cd ./server && pnpm run start\" \"cd ./client && pnpm run dev\"",
-    "clear": "cd ./server && pnpm run clear"
+    "clear": "cd ./server && pnpm run clear",
+    "clear:docker": "cd ./server && pnpm run clear:docker"
   },
   "packageManager": "pnpm@8.7.4",
   "bugs": {
@@ -23,5 +28,8 @@
     "concurrently": "^8.2.0",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-prettier": "^5.0.0"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3"
   }
 }

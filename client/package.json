@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "MODE=development vite --host",
-    "build": "tsc && vite build",
+    "dev": "cross-env MODE=development vite --host",
+    "build": "cross-env MODE=production tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
-    "format": "prettier --write './src/**/*.{ts,tsx}'",
+    "format": "prettier --check --write './src/**/*.{ts,tsx}'",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,9 +17,11 @@
     "@sentry/integrations": "^7.73.0",
     "@sentry/react": "^7.73.0",
     "axios": "^1.5.1",
+    "cross-env": "^7.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.15.0",
+    "serve": "^14.2.1",
     "socket.io-client": "^4.7.2",
     "uuid": "^9.0.0",
     "zod": "^3.22.2",
