@@ -1,12 +1,13 @@
-import { container } from 'tsyringe'
-import { Request, Response } from 'express'
-import UserController from '@modules/users/controllers/UserController'
-import { CustomError, ErrorCode } from '@shared/errors'
-import CreateUserService from '@modules/users/services/CreateUserService'
-import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import { Role, User } from '@db/mysql/generated/mysql'
-import UpdateUserService from '@modules/users/services/UpdateUserService'
+import UserController from '@modules/users/controllers/UserController'
+import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
+import CreateUserService from '@modules/users/services/CreateUserService'
 import GetUserService from '@modules/users/services/GetUserService'
+import UpdateUserService from '@modules/users/services/UpdateUserService'
+import { ErrorCode, RequestError } from '@shared/errors'
+
+import { Request, Response } from 'express'
+import { container } from 'tsyringe'
 
 describe('User Controller Unit Tests', () => {
   const userRepository = new UserRepositoryImpl()
@@ -71,23 +72,23 @@ describe('User Controller Unit Tests', () => {
     expect.assertions(3)
 
     mockCreateUser.mockImplementationOnce(() => {
-      throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     })
     mockGetUser.mockImplementationOnce(() => {
-      throw new CustomError("User doesn't exist by id 'undefined'", ErrorCode.NotFound)
+      throw new RequestError("User doesn't exist by id 'undefined'", ErrorCode.NotFound)
     })
     mockUpdateUser.mockImplementationOnce(() => {
-      throw new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     })
 
     await expect(userController.create(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest),
+      new RequestError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     )
     await expect(userController.get(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError("User doesn't exist by id 'undefined'", ErrorCode.NotFound),
+      new RequestError("User doesn't exist by id 'undefined'", ErrorCode.NotFound)
     )
     await expect(userController.update(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest),
+      new RequestError('Invalid payload type for UpdateUserSchema.', ErrorCode.BadRequest)
     )
   })
 

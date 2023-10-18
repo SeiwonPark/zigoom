@@ -1,7 +1,8 @@
-import type { Request, Response, NextFunction } from 'express'
-import { authHandler, requireAuthentication } from '../../../shared/infra/http/middlewares/handlers'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
+import { authHandler, requireAuthentication } from '@shared/infra/http/middlewares/handlers'
 import { decodeToken } from '@utils/token'
+
+import type { NextFunction, Request, Response } from 'express'
 
 jest.mock('@utils/token')
 
@@ -51,7 +52,7 @@ describe('Auth Middleware Unit Tests', () => {
 
       mockDecodeToken(null)
       await expect(authHandler(req, res, next)).rejects.toEqual(
-        new CustomError('Failed to get payload from token', ErrorCode.Unauthorized),
+        new RequestError('Failed to get payload from token', ErrorCode.Unauthorized)
       )
       expect(next).not.toHaveBeenCalled()
     })
@@ -61,7 +62,7 @@ describe('Auth Middleware Unit Tests', () => {
 
       mockDecodeToken(expiredToken)
       await expect(authHandler(req, res, next)).rejects.toEqual(
-        new CustomError('The token has been expired', ErrorCode.Unauthorized),
+        new RequestError('The token has been expired', ErrorCode.Unauthorized)
       )
       expect(next).not.toHaveBeenCalled()
     })

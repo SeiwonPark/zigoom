@@ -1,27 +1,32 @@
 import { useContext, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+
 import { css } from '@emotion/react'
-import { ControlButton } from './buttons/ControlButton'
-import VideoIcon from '../assets/icons/video.svg'
-import VideoOffIcon from '../assets/icons/video_off.svg'
-import MicIcon from '../assets/icons/mic.svg'
-import MicOffIcon from '../assets/icons/mic_off.svg'
-import ChatIconEnabled from '../assets/icons/chat_enabled.svg'
-import ChatIconDisabled from '../assets/icons/chat_disabled.svg'
-import CallEndIcon from '../assets/icons/call_end.svg'
-import { HostOptionButton } from './buttons/HostOptionButton'
-import { SocketContext } from '../contexts/SocketContext'
-import { useLocalOption } from '../hooks/useStore'
+import { useNavigate } from 'react-router-dom'
+
+import {
+  CallEndIcon,
+  ChatIconDisabled,
+  ChatIconEnabled,
+  MicIcon,
+  MicOffIcon,
+  VideoIcon,
+  VideoOffIcon,
+} from '@/assets/icons'
+import { ControlButton, HostOptionButton } from '@/components/buttons'
+import { VITE_BASE_URL } from '@/configs/env'
+import axios from '@/configs/http'
+import { SocketContext } from '@/contexts/SocketContext'
+import { useLocalOption } from '@/hooks/useStore'
 
 interface ControlBarProps {
-  roomId?: string
-  localPeerId: string
-  isChatOpen: boolean
   localStream: MediaStream | null
-  toggleChat: () => void
+  roomId?: string
+  localPeerId?: string
+  isChatOpen?: boolean
+  toggleChat?: () => void
 }
 
-export const ControlBar = ({ roomId, localPeerId, isChatOpen, localStream, toggleChat }: ControlBarProps) => {
+export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggleChat }: ControlBarProps) => {
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
   const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
@@ -61,6 +66,27 @@ export const ControlBar = ({ roomId, localPeerId, isChatOpen, localStream, toggl
 
   const handleCancelCall = () => {
     socket.emit('cancel')
+    handleLeaveSession()
+  }
+
+  const handleLeaveSession = async () => {
+    const payload = {
+      sessionId: roomId,
+    }
+
+    const res = await axios.patch(`${VITE_BASE_URL}/v1/session`, payload, {
+      params: { sessionId: roomId },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (res.status === 200) {
+      console.log(res.data)
+      navigate('/')
+    } else {
+      console.log('handleLeaveSession failed')
+    }
   }
 
   return (

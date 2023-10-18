@@ -1,26 +1,29 @@
 import { MouseEvent } from 'react'
+
 import { css } from '@emotion/react'
 import { googleLogout } from '@react-oauth/google'
-import { GoogleJWTPayload } from '../validations/auth.validation'
-import { VITE_BASE_URL } from '../configs/env'
-import { IconButton } from './buttons/IconButton'
-import CloseIcon from '../assets/icons/close.svg'
-import { OutlinedButton } from './buttons/OutlinedButton'
+
+import { CloseIcon } from '@/assets/icons'
+import { IconButton } from '@/components/buttons/IconButton'
+import { OutlinedButton } from '@/components/buttons/OutlinedButton'
+import { VITE_BASE_URL } from '@/configs/env'
+import axios from '@/configs/http'
+import { GoogleJWTPayload } from '@/validations/auth.validation'
 
 interface ProfileModalProps {
   userData: GoogleJWTPayload | null
   onClose: (event: MouseEvent) => void
-  setAuthenticated: React.Dispatch<React.SetStateAction<boolean>>
+  setIsAuthenticated: (value: boolean) => void
   setToggleProfile: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const ProfileModal = ({ userData, onClose, setAuthenticated, setToggleProfile }: ProfileModalProps) => {
+export const ProfileModal = ({ userData, onClose, setIsAuthenticated, setToggleProfile }: ProfileModalProps) => {
   const handleLogout = async () => {
-    const res = await fetch(`${VITE_BASE_URL}/v1/auth/logout`, { method: 'POST', credentials: 'include' })
-
-    if (res.ok) {
+    const res = await axios.post(`${VITE_BASE_URL}/v1/auth/logout`, { method: 'POST', credentials: 'include' })
+    
+    if (res.status === 200) {
       googleLogout()
-      setAuthenticated(false)
+      setIsAuthenticated(false)
       setToggleProfile(false)
       localStorage.clear()
       console.log('Successfully logged out.')

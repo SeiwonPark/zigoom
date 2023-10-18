@@ -1,11 +1,12 @@
-import { User, Role } from '@db/mysql/generated/mysql'
+import { Role, User } from '@db/mysql/generated/mysql'
 import SessionController from '@modules/sessions/controllers/SessionController'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
-import CreateSessionService from '@modules/sessions/services/CreateSessionService'
 import GetSessionService from '@modules/sessions/services/GetSessionService'
+import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
+
 import { Request, Response } from 'express'
 import { container } from 'tsyringe'
 
@@ -49,11 +50,11 @@ describe('Session Controller Unit Tests', () => {
     users: [user],
   }
 
-  const createSessionService = new CreateSessionService(userRepository, sessionRepository)
+  const joinSessionService = new JoinSessionService(userRepository, sessionRepository)
   const getSessionService = new GetSessionService(sessionRepository)
   const updateSessionService = new UpdateSessionService(sessionRepository)
 
-  const mockCreateSession = jest.spyOn(createSessionService, 'execute')
+  const mockCreateSession = jest.spyOn(joinSessionService, 'execute')
   const mockGetSession = jest.spyOn(getSessionService, 'execute')
   const mockUpdateSession = jest.spyOn(updateSessionService, 'execute')
 
@@ -72,8 +73,8 @@ describe('Session Controller Unit Tests', () => {
 
     jest.spyOn(container, 'resolve').mockImplementation((service: any) => {
       switch (service) {
-        case CreateSessionService:
-          return createSessionService
+        case JoinSessionService:
+          return joinSessionService
         case GetSessionService:
           return getSessionService
         case UpdateSessionService:
@@ -88,23 +89,23 @@ describe('Session Controller Unit Tests', () => {
     expect.assertions(3)
 
     mockCreateSession.mockImplementationOnce(() => {
-      throw new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     })
     mockGetSession.mockImplementationOnce(() => {
-      throw new CustomError("Session doesn't exist by id 'undefined'", ErrorCode.NotFound)
+      throw new RequestError("Session doesn't exist by id 'undefined'", ErrorCode.NotFound)
     })
     mockUpdateSession.mockImplementationOnce(() => {
-      throw new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
+      throw new RequestError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     })
 
     await expect(sessionController.create(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest),
+      new RequestError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     )
     await expect(sessionController.get(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError("Session doesn't exist by id 'undefined'", ErrorCode.NotFound),
+      new RequestError("Session doesn't exist by id 'undefined'", ErrorCode.NotFound)
     )
     await expect(sessionController.update(req as Request, res as unknown as Response)).rejects.toEqual(
-      new CustomError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest),
+      new RequestError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     )
   })
 

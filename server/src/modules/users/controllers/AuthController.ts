@@ -1,5 +1,6 @@
-import type { Request, Response } from 'express'
 import { decodeToken } from '@utils/token'
+
+import type { Request, Response } from 'express'
 
 export default class AuthController {
   public async verifyToken(req: Request, res: Response): Promise<Response | undefined> {

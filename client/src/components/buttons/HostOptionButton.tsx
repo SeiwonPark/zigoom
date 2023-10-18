@@ -1,11 +1,13 @@
-import type { SVGProps } from '../../typings/types'
-import { css } from '@emotion/react'
 import { MouseEventHandler } from 'react'
+
+import { css } from '@emotion/react'
+
+import type { SVGProps } from '@/typings/index'
 
 interface HostOptionButtonProps {
   Icon: string | SVGProps
   fill?: string
-  onClick: MouseEventHandler
+  onClick?: MouseEventHandler
 }
 
 export const HostOptionButton = ({ Icon, fill, onClick }: HostOptionButtonProps) => {

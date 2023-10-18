@@ -1,7 +1,17 @@
-import type { PeerData, PeerInfo, VideoElement } from '../typings/types'
-import { PeerDisconnectionType } from '../typings/enums'
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
+
 import { css } from '@emotion/react'
+import { useLocation, useNavigate } from 'react-router-dom'
+
+import { ChatBox, ControlBar } from '@/components/index'
+import { LocalVideo } from '@/components/videos/LocalVideo'
+import { RemoteVideo } from '@/components/videos/RemoteVideo'
+import { VIDEO_GRIDS, defaultMediaConstraints, iceServers, offerOptions } from '@/configs/webrtc'
+import { SocketContext } from '@/contexts/SocketContext'
+import { useLocalOption } from '@/hooks/useStore'
+import { PeerData, PeerDisconnectionType, PeerInfo, VideoElement } from '@/typings/index'
+import { verifySession } from '@/utils/check'
+import { getProfileImage } from '@/utils/localStorage'
 import {
   isCallSchema,
   isPeerAnswerSchema,
@@ -9,15 +19,7 @@ import {
   isPeerOfferSchema,
   isRoomCreatedSchema,
   isRoomJoinedSchema,
-} from '../validations/socket.validation'
-import { VIDEO_GRIDS, iceServers, mediaConstraints, offerOptions } from '../configs/webrtc'
-import { SocketContext } from '../contexts/SocketContext'
-import { ControlBar } from './ControlBar'
-import { ChatBox } from './ChatBox'
-import { LocalVideo } from './videos/LocalVideo'
-import { RemoteVideo } from './videos/RemoteVideo'
-import { getProfileImage } from '../utils'
-import { useLocalOption } from '../hooks/useStore'
+} from '@/validations/socket.validation'
 
 interface SessionProps {
   roomId?: string
@@ -33,6 +35,9 @@ export const Session = ({ roomId }: SessionProps) => {
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
   const [remoteProfiles, setRemoteProfiles] = useState<Map<string, PeerInfo>>(new Map())
+  // const location = useLocation()
+  // const navigate = useNavigate()
+  // const params = new URLSearchParams(location.search)
   const { isVideoOn } = useLocalOption()
 
   useEffect(() => {
@@ -41,6 +46,17 @@ export const Session = ({ roomId }: SessionProps) => {
 
     return () => removeSocketListeners()
   }, [])
+
+  // useEffect(() => {
+  //   const verifyAndNavigate = async () => {
+  //     const isVerified = await verifySession({ params }, roomId)
+  //     if (isVerified) {
+  //       navigate(`/room/${roomId}`, { replace: true })
+  //     }
+  //   }
+
+  //   verifyAndNavigate()
+  // }, [roomId])
 
   const setSocketListeners = useCallback(() => {
     socket.on('room_created', onRoomCreated)
@@ -64,7 +80,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const onRoomCreated = async (event: any) => {
     if (!isRoomCreatedSchema(event)) {
-      throw Error('Invalid payload type for RoomCreatedSchema.')
+      throw new Error('Invalid payload type for RoomCreatedSchema.')
     }
 
     localPeerId.current = event.peerId
@@ -73,7 +89,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const onRoomJoined = async (event: any) => {
     if (!isRoomJoinedSchema(event)) {
-      throw Error('Invalid payload type for RoomJoinedSchema.')
+      throw new Error('Invalid payload type for RoomJoinedSchema.')
     }
 
     localPeerId.current = event.peerId
@@ -129,7 +145,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const onCall = async (event: any) => {
     if (!isCallSchema(event)) {
-      throw Error('Invalid payload type for CallSchema.')
+      throw new Error('Invalid payload type for CallSchema.')
     }
 
     const remotePeerId = event.senderId
@@ -143,7 +159,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const onPeerOffer = async (event: any) => {
     if (!isPeerOfferSchema(event)) {
-      throw Error('Invalid payload type for PeerOfferSchema.')
+      throw new Error('Invalid payload type for PeerOfferSchema.')
     }
 
     const remotePeerId = event.senderId
@@ -158,7 +174,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const onPeerAnswer = async (event: any) => {
     if (!isPeerAnswerSchema(event)) {
-      throw Error('Invalid payload type for PeerAnswerSchema.')
+      throw new Error('Invalid payload type for PeerAnswerSchema.')
     }
 
     const peerConnection = peerConnectionRefs.current[event.senderId]
@@ -210,7 +226,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const onPeerIceCandidate = (event: any) => {
     if (!isPeerIceCandidateSchema(event)) {
-      throw Error('Invalid payload type for PeerIceCandidateSchema.')
+      throw new Error('Invalid payload type for PeerIceCandidateSchema.')
     }
 
     const senderPeerId = event.senderId
@@ -273,7 +289,7 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const initializeLocalStream = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(mediaConstraints)
+      const stream = await navigator.mediaDevices.getUserMedia(defaultMediaConstraints)
       setLocalStream(stream)
       localStreamRef.current = stream
     } catch (error) {
@@ -326,7 +342,13 @@ export const Session = ({ roomId }: SessionProps) => {
             grid-column-end: ${VIDEO_GRIDS[1 + remoteStreams.size][0].colEnd};
           `}
         >
-          <LocalVideo stream={localStream} peerId="You" numOfparticipants={1 + remoteStreams.size} />
+          <LocalVideo
+            stream={localStream}
+            peerId="You"
+            peerIdPosition="bottom-left"
+            numOfparticipants={1 + remoteStreams.size}
+            showHover={true}
+          />
         </div>
         {Array.from(remoteStreams.entries()).map(([peerId, stream]: [string, MediaStream], index: number) => {
           if (!remoteVideoRefs.current.has(peerId)) {

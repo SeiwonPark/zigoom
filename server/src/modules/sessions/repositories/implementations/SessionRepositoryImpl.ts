@@ -1,5 +1,6 @@
-import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { mysql } from '@configs/prisma.config'
+import { Prisma, Session } from '@db/mysql/generated/mysql'
+
 import SessionRepository, { JoinedSession } from '../SessionRepository'
 
 export default class SessionRepositoryImpl implements SessionRepository {
@@ -20,7 +21,7 @@ export default class SessionRepositoryImpl implements SessionRepository {
   public async update(
     id: string,
     data: Prisma.SessionUpdateInput,
-    include?: boolean,
+    include?: boolean
   ): Promise<Session | JoinedSession> {
     return await mysql.session.update({ where: { id: id }, data: data, include: { users: include ?? false } })
   }

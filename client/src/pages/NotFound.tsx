@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom'
 import { css } from '@emotion/react'
-import { ElevatedButton } from '../components/buttons/ElevatedButton'
-import { Header } from '../components/Header'
+import { useNavigate } from 'react-router-dom'
+
+import { Header } from '@/components/Header'
+import { ElevatedButton } from '@/components/buttons'
 
 export default function NotFound() {
   const navigate = useNavigate()

@@ -1,7 +1,9 @@
+import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { decodeToken } from '@utils/token'
-import { Request, Response, NextFunction } from 'express'
+
+import { NextFunction, Request, Response } from 'express'
 
 export interface Guest {
   id: string
@@ -14,6 +16,7 @@ export interface Guest {
  * Proceed to next middleware with user's token payload if authenticated or else guest token payload.
  */
 export const authHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  logger.debug('authHandler invoked')
   const { jwt, guestId } = req.cookies
 
   // handle when it's a guest or not signed in
@@ -26,6 +29,7 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
       if (guestData) {
         guest = JSON.parse(guestData)
         req.ctx = { user: guest }
+        logger.info(`Request from guest '${guestId}'`)
         next()
         return
       }
@@ -41,6 +45,7 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
 
     req.ctx = { user: guest }
     redisClient.set(newGuestId, JSON.stringify({ ...guest, connectedAt: Date.now() }), { EX: 3600 })
+    logger.info(`Request from guest '${newGuestId}'`)
     res.cookie('guestId', newGuestId)
     next()
     return
@@ -50,14 +55,17 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
   const payload = await decodeToken(jwt)
 
   if (!payload) {
-    throw new CustomError('Failed to get payload from token', ErrorCode.Unauthorized)
+    logger.error('Failed to get payload from token')
+    throw new RequestError('Failed to get payload from token', ErrorCode.Unauthorized)
   }
 
   if (Date.now() >= payload.exp * 1000) {
-    throw new CustomError('The token has been expired', ErrorCode.Unauthorized)
+    logger.error('The token has been expired')
+    throw new RequestError('The token has been expired', ErrorCode.Unauthorized)
   }
 
   req.ctx = { user: { ...payload, isGuest: false } }
+  logger.info(`Request from user '${payload.sub}'`)
   next()
 }
 
@@ -66,7 +74,8 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
  */
 export const requireAuthentication = (req: Request, res: Response, next: NextFunction): void => {
   if (req.ctx.user.isGuest) {
-    throw new CustomError('Authentication required', ErrorCode.Unauthorized)
+    logger.warn('Authentication required - guest user attempting to access protected resource')
+    throw new RequestError('Authentication required', ErrorCode.Unauthorized)
   }
   next()
 }

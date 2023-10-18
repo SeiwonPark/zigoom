@@ -1,16 +1,19 @@
+import { logger } from '@configs/logger.config'
+import { ErrorCode, RequestError } from '@shared/errors'
+
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
-import { CustomError, ErrorCode } from '@shared/errors'
+
 import CreateUserService from '../services/CreateUserService'
-import UpdateUserService from '../services/UpdateUserService'
 import GetUserService from '../services/GetUserService'
+import UpdateUserService from '../services/UpdateUserService'
 
 export default class UserController {
   public async create(req: Request, res: Response): Promise<Response> {
     const createUser = container.resolve(CreateUserService)
     const createdUser = await createUser.execute({ payload: req.ctx.user })
 
-    console.log('Created a new user: ', createdUser)
+    logger.info(`New user '${createdUser.id}' has been created.`)
     return res.status(200).send(createdUser)
   }
 
@@ -18,13 +21,14 @@ export default class UserController {
     const { include } = req.query
 
     if (include !== undefined && typeof include !== 'boolean') {
-      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
+      logger.error("Parameter type not matching for 'include'")
+      throw new RequestError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
     }
 
     const getUser = container.resolve(GetUserService)
     const fetchedUser = await getUser.execute({ payload: req.ctx.user, include: include ?? false })
 
-    console.log('Fetched a user: ', fetchedUser)
+    logger.info(`Fetched a user '${fetchedUser?.id}'`)
     return res.status(200).send(fetchedUser)
   }
 
@@ -33,13 +37,14 @@ export default class UserController {
     const data = req.body
 
     if (include !== undefined && typeof include !== 'boolean') {
-      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
+      logger.error("Parameter type not matching for 'include'")
+      throw new RequestError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
     }
 
     const updateUser = container.resolve(UpdateUserService)
     const updatedUser = await updateUser.execute({ payload: req.ctx.user, include: include ?? false, data: data })
 
-    console.log('Updated a user: ', updatedUser)
+    logger.info(`User '${updatedUser.id}' has been updated.`)
     return res.status(200).send(updatedUser)
   }
 }

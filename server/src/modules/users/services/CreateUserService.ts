@@ -1,9 +1,12 @@
-import { injectable, inject } from 'tsyringe'
+import { logger } from '@configs/logger.config'
 import { Prisma, User } from '@db/mysql/generated/mysql'
-import { isCreateUserSchema } from '../validations/user.validation'
-import UserRepository, { JoinedUser } from '../repositories/UserRepository'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
+
+import { inject, injectable } from 'tsyringe'
+
+import UserRepository, { JoinedUser } from '../repositories/UserRepository'
+import { isCreateUserSchema } from '../validations/user.validation'
 
 interface RequestPayload {
   payload: Token
@@ -13,7 +16,7 @@ interface RequestPayload {
 export default class CreateUserService {
   constructor(
     @inject('UserRepository')
-    private userRepository: UserRepository,
+    private userRepository: UserRepository
   ) {}
 
   public async execute({ payload }: RequestPayload): Promise<User | JoinedUser> {
@@ -39,7 +42,8 @@ export default class CreateUserService {
     }
 
     if (!isCreateUserSchema(userData)) {
-      throw new CustomError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
+      logger.error('Invalid payload type for CreateUserSchema.')
+      throw new RequestError('Invalid payload type for CreateUserSchema.', ErrorCode.BadRequest)
     }
 
     return userData
@@ -48,7 +52,8 @@ export default class CreateUserService {
   private async ensureUserNotExists(googleId: string): Promise<void> {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (user) {
-      throw new CustomError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
+      logger.error(`User already exists by google id '${googleId}'`)
+      throw new RequestError(`User already exists by google id '${googleId}'`, ErrorCode.Conflict)
     }
   }
 }

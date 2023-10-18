@@ -1,12 +1,12 @@
-import { css } from '@emotion/react'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { SocketContext } from '../../contexts/SocketContext'
-import PinIconDisabled from '../../assets/icons/pin_disabled.svg'
-import PinIconEnabled from '../../assets/icons/pin_enabled.svg'
-import MoreIcon from '../../assets/icons/more.svg'
-import { SVGIcon } from '../buttons/SVGIcon'
-import { isVideoStatusSchema } from '../../validations/socket.validation'
-import { PeerInfo } from '../../typings/types'
+
+import { css } from '@emotion/react'
+
+import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
+import { SVGIcon } from '@/components/buttons'
+import { SocketContext } from '@/contexts/SocketContext'
+import { PeerInfo } from '@/typings/index'
+import { isVideoStatusSchema } from '@/validations/socket.validation'
 
 interface VideoProps {
   stream: MediaStream

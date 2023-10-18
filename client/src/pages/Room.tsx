@@ -1,9 +1,72 @@
-import { useParams } from 'react-router-dom'
-import { Session } from '../components/Session'
+import { ReactNode, useEffect, useState } from 'react'
+
 import { css } from '@emotion/react'
+import { useLocation, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { validate } from 'uuid'
+
+import { EmptyLoader } from '@/components/EmptyLoader'
+import { Header } from '@/components/Header'
+import { Session } from '@/components/Session'
+import { WaitingRoom } from '@/components/WaitingRoom'
+import { VITE_BASE_URL } from '@/configs/env'
+import axios from '@/configs/http'
+import { verifySession } from '@/utils/check'
+
+import NotFound from './NotFound'
 
 export default function Room() {
-  const { roomId } = useParams<{ roomId: string }>()
+  const { roomId = '' } = useParams<{ roomId: string }>()
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const adhoc = params.get('adhoc')
+  const navigate = useNavigate()
+
+  const [loading, setLoading] = useState(true)
+  const [roomComponent, setRoomComponent] = useState<ReactNode>(<EmptyLoader />)
+
+  useEffect(() => {
+    setLoading(true)
+
+    const loadingTimeout = setTimeout(async () => {
+      await checkAndSetRoomComponent()
+      setLoading(false)
+    }, 500)
+
+    return () => {
+      clearTimeout(loadingTimeout)
+    }
+  }, [roomId])
+
+  const checkAndSetRoomComponent = async () => {
+    if (roomId !== '' && !validate(roomId)) {
+      setRoomComponent(<NotFound />)
+    }
+
+    // const verified = await verifySession({ params }, roomId)
+
+    const payload = {
+      sessionId: roomId,
+      title: `${roomId}'s room`,
+      isPrivate: false,
+    }
+    const res = await axios.post(`${VITE_BASE_URL}/v1/session`, payload)
+
+    if (res.data.isHost) {
+      setRoomComponent(
+        <HeaderWrapper>
+          <Session roomId={roomId} />
+        </HeaderWrapper>
+      )
+      navigate(`/room/${roomId}`)
+    } else {
+      setRoomComponent(
+        <HeaderWrapper>
+          <WaitingRoom roomId={roomId} />
+        </HeaderWrapper>
+      )
+    }
+  }
 
   return (
     <div
@@ -14,7 +77,16 @@ export default function Room() {
         width: 100vw;
       `}
     >
-      <Session roomId={roomId} />
+      {loading ? <EmptyLoader /> : roomComponent}
     </div>
+  )
+}
+
+const HeaderWrapper = ({ children }: { children?: ReactNode }) => {
+  return (
+    <>
+      <Header />
+      {children}
+    </>
   )
 }

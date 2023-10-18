@@ -1,11 +1,14 @@
-import { injectable, inject } from 'tsyringe'
-import { Prisma, Session, User } from '@db/mysql/generated/mysql'
-import { isCreateSessionSchema } from '../validations/session.validation'
-import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
-import UserRepository from '@modules/users/repositories/UserRepository'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
+import { Prisma, Session, User } from '@db/mysql/generated/mysql'
+import UserRepository from '@modules/users/repositories/UserRepository'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
+
+import { inject, injectable } from 'tsyringe'
+
+import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
+import { isCreateSessionSchema } from '../validations/session.validation'
 
 interface RequestPayload {
   payload: Token
@@ -15,7 +18,7 @@ interface RequestPayload {
 }
 
 @injectable()
-export default class CreateSessionService {
+export default class JoinSessionService {
   // FIXME: limit to 9 users for now
   private readonly MAX_USERS = 9
 
@@ -23,7 +26,7 @@ export default class CreateSessionService {
     @inject('UserRepository')
     private userRepository: UserRepository,
     @inject('SessionRepository')
-    private sessionRepository: SessionRepository,
+    private sessionRepository: SessionRepository
   ) {}
 
   public async execute({
@@ -50,19 +53,20 @@ export default class CreateSessionService {
     payload: Token,
     sessionId: string,
     title: string,
-    isPrivate: boolean,
+    isPrivate: boolean
   ): Promise<Session | JoinedSession> {
     if (!existingSession) {
       const [createdSession, _] = await Promise.all([
         this.createSession(sessionId, title, payload.id, isPrivate),
         redisClient.sAdd(`session:${sessionId}:participants`, payload.id),
       ])
+      logger.info(`Guest '${payload.id}' has created a new session '${sessionId}'`)
+      logger.info(`Added redis key session:${sessionId}:participants`)
       return createdSession
     } else {
-      await Promise.all([
-        this.joinSession(sessionId, payload.id, true),
-        redisClient.sAdd(`session:${sessionId}:participants`, payload.id),
-      ])
+      await redisClient.sAdd(`session:${sessionId}:participants`, payload.id)
+      logger.info(`Guest '${payload.id}' has joined the session '${sessionId}'`)
+      logger.info(`Added redis key session:${sessionId}:participants`)
       return existingSession
     }
   }
@@ -72,15 +76,18 @@ export default class CreateSessionService {
     googleId: string,
     sessionId: string,
     title: string,
-    isPrivate: boolean,
+    isPrivate: boolean
   ): Promise<Session | JoinedSession> {
     const existingUser = await this.getUserByGoogleId(googleId)
 
     if (existingSession) {
-      const updatedSession = await this.joinSession(sessionId, existingUser.id, false)
+      const updatedSession = await this.joinSession(sessionId, existingUser.id)
+      logger.info(`User '${existingUser.google_id}' has joined the session '${sessionId}'`)
       return updatedSession || existingSession
     } else {
-      return await this.createSession(sessionId, title, existingUser, isPrivate)
+      const createdSession = await this.createSession(sessionId, title, existingUser, isPrivate)
+      logger.info(`User '${existingUser.google_id}' has created a new session '${sessionId}'`)
+      return createdSession
     }
   }
 
@@ -88,14 +95,16 @@ export default class CreateSessionService {
   private async ensureSessionAvailability(session: JoinedSession): Promise<void> {
     const numOfGuests = await this.countParticipantsInSession(session.id)
     if (session && session.users.length + numOfGuests === this.MAX_USERS) {
-      throw new CustomError(`Session '${session.id}' is now full`, ErrorCode.Forbidden)
+      logger.error(`Session '${session.id}' is now full`)
+      throw new RequestError(`Session '${session.id}' is now full`, ErrorCode.Forbidden)
     }
   }
 
   private async getUserByGoogleId(googleId: string): Promise<User> {
     const user = await this.userRepository.findUserByGoogleId(googleId)
     if (!user) {
-      throw new CustomError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
+      logger.error(`No user has been found by google id '${googleId}'`)
+      throw new RequestError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
     }
     return user
   }
@@ -104,26 +113,20 @@ export default class CreateSessionService {
     return await this.sessionRepository.findById(sessionId, true)
   }
 
-  private async joinSession(
-    sessionId: string,
-    userId: string,
-    isGuest: boolean,
-  ): Promise<Session | JoinedSession | undefined> {
-    if (!isGuest) {
-      const sessionUpdateData: Prisma.SessionUpdateInput = {
-        users: {
-          connect: [{ id: userId }],
-        },
-      }
-      return await this.sessionRepository.update(sessionId, sessionUpdateData, true)
+  private async joinSession(sessionId: string, userId: string): Promise<Session | JoinedSession> {
+    const sessionUpdateData: Prisma.SessionUpdateInput = {
+      users: {
+        connect: [{ id: userId }],
+      },
     }
+    return await this.sessionRepository.update(sessionId, sessionUpdateData, true)
   }
 
   private async createSession(
     sessionId: string,
     title: string,
     user: User | string,
-    isPrivate: boolean,
+    isPrivate: boolean
   ): Promise<Session | JoinedSession> {
     let sessionData
 
@@ -150,7 +153,8 @@ export default class CreateSessionService {
     }
 
     if (!isCreateSessionSchema(sessionData)) {
-      throw new CustomError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
+      logger.error('Invalid payload type for CreateSessionSchema.')
+      throw new RequestError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     }
 
     return await this.sessionRepository.save(sessionData, true)

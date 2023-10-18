@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.prod
+.env.sentry-build-plugin
 
 # Logs
 logs

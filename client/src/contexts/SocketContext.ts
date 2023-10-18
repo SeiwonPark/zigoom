@@ -1,9 +1,12 @@
 import { createContext } from 'react'
+
 import { Manager } from 'socket.io-client'
-import { SocketType } from '../typings/types'
+
+import { VITE_BASE_URL } from '@/configs/env'
+import { SocketType } from '@/typings/index'
 
 // FIXME: domain
-const manager = new Manager('http://localhost:5001', {})
+const manager = new Manager(VITE_BASE_URL, {})
 
 /**
  * Declare main namespace for the socket connection.

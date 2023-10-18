@@ -1,37 +1,45 @@
+import { logger } from '@configs/logger.config'
+import { ErrorCode, RequestError } from '@shared/errors'
+
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
-import CreateSessionService from '../services/CreateSessionService'
+
 import GetSessionService from '../services/GetSessionService'
+import CreateSessionService from '../services/JoinSessionService'
 import UpdateSessionService from '../services/UpdateSessionService'
-import { CustomError, ErrorCode } from '@shared/errors'
 
 export default class SessionController {
-  public async create(req: Request, res: Response): Promise<Response> {
+  public async join(req: Request, res: Response): Promise<Response> {
     const { sessionId, title, isPrivate } = req.body
 
-    const createSession = container.resolve(CreateSessionService)
-    const createdSession = await createSession.execute({
-      payload: req.ctx.user,
+    const joinSession = container.resolve(CreateSessionService)
+    const payload = req.ctx.user
+    const joinedSession = await joinSession.execute({
+      payload: payload,
       sessionId: sessionId,
       title: title,
       isPrivate: isPrivate,
     })
 
-    console.log('Created a new session: ', createdSession)
-    return res.status(200).send(createdSession)
+    return res.status(200).send({ ...joinedSession, isHost: (payload.sub || payload.id) === joinedSession.host })
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
     const { sessionId } = req.query
 
     if (typeof sessionId !== 'string') {
-      throw new CustomError('Parameter type not matching', ErrorCode.BadRequest)
+      logger.error("Parameter type not matching for 'sessionId'")
+      throw new RequestError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
     }
 
     const getSession = container.resolve(GetSessionService)
     const fetchedSession = await getSession.execute({ payload: req.ctx.user, sessionId })
 
-    console.log('Fetched a session: ', fetchedSession)
+    logger.info(
+      `${req.ctx.user.id ? `guest '${req.ctx.user.id}'` : `user '${req.ctx.user.sub}'`} fetched a session '${
+        fetchedSession?.id
+      }'`
+    )
     return res.status(200).send(fetchedSession)
   }
 
@@ -40,13 +48,13 @@ export default class SessionController {
     const data = req.body
 
     if (typeof sessionId !== 'string') {
-      throw new CustomError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
+      logger.error("Parameter type not matching for 'sessionId'")
+      throw new RequestError("Parameter type not matching for 'sessionId'", ErrorCode.BadRequest)
     }
 
     const updateSession = container.resolve(UpdateSessionService)
     const updatedSession = await updateSession.execute({ payload: req.ctx.user, sessionId, data })
 
-    console.log('Updated a session: ', updatedSession)
     return res.status(200).send(updatedSession)
   }
 }

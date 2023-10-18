@@ -1,8 +1,9 @@
+import { Prisma, Role, Session, User } from '@db/mysql/generated/mysql'
 import SessionRepository from '@modules/sessions/repositories/SessionRepository'
-import { mockMySQL } from '../../setup'
-import { Prisma, User, Role, Session } from '@db/mysql/generated/mysql'
 import { JoinedSession } from '@modules/sessions/repositories/SessionRepository'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
+
+import { mockMySQL } from '../../setup'
 
 describe('Session Repository Unit Tests', () => {
   let sessionRepository: SessionRepository

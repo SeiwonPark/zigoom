@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: web
+    restart: unless-stopped
+    env_file:
+      - ./client/.env
+      - ./client/.env.sentry-build-plugin
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    build:
+      context: ./client
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
+  api:
+    container_name: api
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    build:
+      context: ./server
+    ports:
+      - "5001:5001"
+    depends_on:
+      - redis
+      - mysql
+      - mongo
+    networks:
+      - api-network
+
+  redis:
+    container_name: redis
+    restart: unless-stopped
+    env_file:
+      - ./server/.env
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - api-network
+
+  mysql:
+    container_name: mysql
+    restart: unless-stopped
+    image: "mysql:latest"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqlDB:/var/lib/mysql
+    networks:
+      - api-network
+
+  mongo:
+    container_name: mongo
+    restart: unless-stopped
+    image: "mongo:latest"
+    command: --config /etc/mongod.conf
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongoDB:/data/db
+      - ./server/mongod.conf:/etc/mongod.conf
+    networks:
+      - api-network
+
+volumes:
+  mysqlDB:
+  mongoDB:
+
+networks:
+  api-network:
+    driver: bridge

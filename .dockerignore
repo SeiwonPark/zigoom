@@ -1,0 +1,6 @@
+# Local
+**/.DS_Store
+**/.git/
+
+# Build output
+node_modules/

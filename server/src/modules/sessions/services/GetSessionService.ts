@@ -1,8 +1,11 @@
-import { injectable, inject } from 'tsyringe'
-import SessionRepository from '../repositories/SessionRepository'
-import { CustomError, ErrorCode } from '@shared/errors'
+import { logger } from '@configs/logger.config'
 import { Session } from '@db/mysql/generated/mysql'
+import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
+
+import { inject, injectable } from 'tsyringe'
+
+import SessionRepository from '../repositories/SessionRepository'
 
 interface RequestPayload {
   payload: Token
@@ -13,7 +16,7 @@ interface RequestPayload {
 export default class GetSessionService {
   constructor(
     @inject('SessionRepository')
-    private sessionRepository: SessionRepository,
+    private sessionRepository: SessionRepository
   ) {}
 
   public async execute({ payload, sessionId }: RequestPayload): Promise<Session | null> {
@@ -26,14 +29,16 @@ export default class GetSessionService {
   private async ensureSessionExists(sessionId: string): Promise<Session> {
     const session = await this.sessionRepository.findById(sessionId)
     if (!session) {
-      throw new CustomError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
+      logger.error(`Session doesn't exist by id '${sessionId}'`)
+      throw new RequestError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
     return session
   }
 
   private handlePrivateSession(isGuest: boolean, isPrivate: boolean): void {
     if (isGuest && isPrivate) {
-      throw new CustomError('Authentication is required to get private session', ErrorCode.Unauthorized)
+      logger.error('Authentication is required to get private session')
+      throw new RequestError('Authentication is required to get private session', ErrorCode.Unauthorized)
     }
   }
 }

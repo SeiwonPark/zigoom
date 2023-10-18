@@ -1,12 +1,18 @@
 import { CSSProperties, MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
+
 import { css } from '@emotion/react'
-import { GoogleLogin, CredentialResponse, googleLogout } from '@react-oauth/google'
-import { GoogleJWTPayload, isCredentialResponse } from '../validations/auth.validation'
-import { VITE_BASE_URL } from '../configs/env'
-import { ProfileModal } from './ProfileModal'
-import { decodeGoogleJWT, getLocalStorageItem, storeDataInLocalStorage } from '../utils'
-import { SkeletonLoginButton } from './skeletons/SkeletonLoginButton'
-import Unnamed from '../assets/images/unnamed.png'
+import { CredentialResponse, GoogleLogin, googleLogout } from '@react-oauth/google'
+import { useNavigate } from 'react-router-dom'
+
+import { Unnamed } from '@/assets/images'
+import { ProfileModal } from '@/components/ProfileModal'
+import { SkeletonLoginButton } from '@/components/skeletons/SkeletonLoginButton'
+import { VITE_BASE_URL } from '@/configs/env'
+import axios from '@/configs/http'
+import { useAuthStore } from '@/hooks/useStore'
+import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/localStorage'
+import { decodeGoogleJWT } from '@/utils/string'
+import { GoogleJWTPayload, isCredentialResponse } from '@/validations/auth.validation'
 
 interface HeaderProps {
   style?: CSSProperties
@@ -14,10 +20,11 @@ interface HeaderProps {
 }
 
 export const Header = ({ style, enterGuestMode }: HeaderProps) => {
-  const [authenticated, setAuthenticated] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(globalThis.innerWidth)
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
   const [showSkeleton, setShowSkeleton] = useState<boolean>(true)
+  const { isAuthenticated, setIsAuthenticated } = useAuthStore()
+  const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
 
@@ -47,7 +54,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   const handleLoginSuccess = useCallback(async (credentialResponse: CredentialResponse) => {
     try {
       if (!isCredentialResponse(credentialResponse)) {
-        throw Error(
+        throw new Error(
           'Invalid credential response. Received "success" response, but failed to validate the response object. Check Google API or GoogleLogin component for more details.'
         )
       }
@@ -55,16 +62,17 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
       const { payload } = decodeGoogleJWT(credentialResponse.credential)
       storeDataInLocalStorage<GoogleJWTPayload>('user', payload)
 
-      const res = await fetch(`${VITE_BASE_URL}/v1/auth/verify`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: credentialResponse.credential }),
-      })
+      const res = await axios.post(
+        `${VITE_BASE_URL}/v1/auth/verify`,
+        JSON.stringify({ token: credentialResponse.credential }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
 
-      setAuthenticated(res.ok)
+      setIsAuthenticated(res.status === 200)
     } catch (e) {
       console.error(e)
     }
@@ -74,7 +82,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
     setToggleProfile(!toggleProfile)
   }
 
-  const handleEnterGuestMode = () => {
+  const handleEnterGuestMode = async () => {
     googleLogout()
     localStorage.clear()
 
@@ -106,7 +114,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
           margin-left: 2vw;
         `}
       >
-        <h1>GOOM</h1>
+        <h1 onClick={() => navigate('/')}>GOOM</h1>
       </div>
       <nav>
         <ul
@@ -134,7 +142,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
           margin-right: 2vw;
         `}
       >
-        {!authenticated && (
+        {!isAuthenticated && (
           <div
             css={css`
               display: flex;
@@ -176,7 +184,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
             padding: 0.5rem;
           `}
         >
-          {authenticated ? (
+          {isAuthenticated ? (
             <div>
               {userData() !== null && (
                 <div
@@ -200,7 +208,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
                 <ProfileModal
                   userData={userData()}
                   onClose={handleClickProfile}
-                  setAuthenticated={setAuthenticated}
+                  setIsAuthenticated={setIsAuthenticated}
                   setToggleProfile={setToggleProfile}
                 />
               )}
