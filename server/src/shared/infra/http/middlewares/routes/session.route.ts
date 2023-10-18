@@ -6,6 +6,6 @@ const sessionController = new SessionController()
 
 export const sessionRouter = Router()
 
-sessionRouter.post('/create', sessionController.create)
-sessionRouter.get('/get', sessionController.get)
-sessionRouter.patch('/update', sessionController.update)
+sessionRouter.post('/', sessionController.join)
+sessionRouter.get('/', sessionController.get)
+sessionRouter.patch('/', sessionController.update)

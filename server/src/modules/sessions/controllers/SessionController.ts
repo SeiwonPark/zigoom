@@ -9,18 +9,19 @@ import CreateSessionService from '../services/JoinSessionService'
 import UpdateSessionService from '../services/UpdateSessionService'
 
 export default class SessionController {
-  public async create(req: Request, res: Response): Promise<Response> {
+  public async join(req: Request, res: Response): Promise<Response> {
     const { sessionId, title, isPrivate } = req.body
 
     const joinSession = container.resolve(CreateSessionService)
+    const payload = req.ctx.user
     const joinedSession = await joinSession.execute({
-      payload: req.ctx.user,
+      payload: payload,
       sessionId: sessionId,
       title: title,
       isPrivate: isPrivate,
     })
 
-    return res.status(200).send(joinedSession)
+    return res.status(200).send({ ...joinedSession, isHost: (payload.sub || payload.id) === joinedSession.host })
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
