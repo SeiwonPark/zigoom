@@ -1,18 +1,21 @@
 import { useContext, useEffect, useState } from 'react'
-import type { LocalOptions } from '../typings/types'
-import { useNavigate } from 'react-router-dom'
+
 import { css } from '@emotion/react'
+import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { SocketContext } from '../contexts/SocketContext'
-import { ElevatedButton } from '../components/buttons/ElevatedButton'
-import VideoAddIcon from '../assets/icons/video_add.svg'
-import { Header } from '../components/Header'
-import { getLocalStorageItem, storeDataInLocalStorage } from '../utils'
+
+import { VideoAddIcon } from '@/assets/icons'
+import { Header } from '@/components/Header'
+import { ElevatedButton } from '@/components/buttons/ElevatedButton'
+import { SocketContext } from '@/contexts/SocketContext'
+import type { LocalOptions } from '@/typings/index'
+import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/index'
 
 export default function Home() {
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
   const [isNavigating, setIsNavigating] = useState<boolean>(false)
+  const [inputSessionId, setInputSessionId] = useState<string>('')
 
   useEffect(() => {
     const currentLocalOptions = getLocalStorageItem<LocalOptions>('local')
@@ -22,19 +25,38 @@ export default function Home() {
     }
   }, [])
 
-  const enterRoom = () => {
+  const enterRoom = async () => {
+    if (socket) {
+      setIsNavigating(true)
+      socket.connect()
+
+      setTimeout(() => {
+        navigate(`/room/${inputSessionId}?adhoc=false&ts=${Date.now()}`)
+        setIsNavigating(false)
+      }, 1000)
+    }
+  }
+
+  const enterGuest = () => {
     if (socket) {
       setIsNavigating(true)
       setTimeout(() => {
         socket.connect()
-        navigate(`/room/${uuidv4()}`)
+        navigate(`/room/${uuidv4()}?adhoc=true&ts=${Date.now()}`)
+        setIsNavigating(false)
       }, 1000)
     }
   }
 
   return (
     <>
-      <Header enterGuestMode={enterRoom} />
+      <Header
+        enterGuestMode={enterGuest}
+        style={{
+          backgroundColor: isNavigating ? 'rgba(0, 0, 0, 0.8)' : '#fff',
+          transition: 'background-color 1s',
+        }}
+      />
       <div
         css={css`
           width: 100vw;
@@ -72,6 +94,7 @@ export default function Home() {
           >
             Video calls and meetings for everyone.
           </h1>
+          <input type="text" placeholder="sessionId" onChange={(e) => setInputSessionId(e.target.value)} />
           <ElevatedButton Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
         </section>
         {isNavigating && (

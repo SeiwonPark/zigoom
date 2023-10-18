@@ -7,7 +7,7 @@ import type { SVGProps } from '@/typings/index'
 interface HostOptionButtonProps {
   Icon: string | SVGProps
   fill?: string
-  onClick: MouseEventHandler
+  onClick?: MouseEventHandler
 }
 
 export const HostOptionButton = ({ Icon, fill, onClick }: HostOptionButtonProps) => {

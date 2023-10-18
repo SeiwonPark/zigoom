@@ -41,8 +41,8 @@ export const getProfileImage = async (): Promise<string> => {
   const localUserData = getLocalStorageItem<GoogleJWTPayload>('user')
 
   if (localUserData) {
-    const localProfile = await toDataURL(localUserData.picture.replace('=s96-c', '=l96-c')) // FIXME: seems tricky
-    return localProfile
+    // const localProfile = await toDataURL(localUserData.picture.replace('=s96-c', '=l96-c')) // FIXME: seems tricky
+    return localUserData.picture
   }
 
   return unnamed

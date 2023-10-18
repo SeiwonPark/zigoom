@@ -9,14 +9,25 @@ import { useLocalOption } from '@/hooks/useStore'
 import { getLocalStorageItem } from '@/utils/localStorage'
 import { GoogleJWTPayload } from '@/validations/auth.validation'
 
+type PeerIdPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center'
+
 interface VideoProps {
   stream: MediaStream | null
   peerId: string
+  peerIdPosition: PeerIdPosition
   numOfparticipants: number
+  showHover?: boolean
   muted?: boolean
 }
 
-export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: VideoProps) => {
+export const LocalVideo = ({
+  stream,
+  peerId,
+  peerIdPosition,
+  numOfparticipants,
+  showHover,
+  muted = true,
+}: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [pinned, setPinned] = useState<boolean>(false)
   const { isVideoOn, isAudioOn } = useLocalOption()
@@ -36,6 +47,23 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
     setPinned(!pinned)
   }
 
+  const setIdPosition = () => {
+    switch (peerIdPosition) {
+      case 'top-left':
+        return { top: 0, left: 0 }
+      case 'top-right':
+        return { top: 0, right: 0 }
+      case 'bottom-left':
+        return { bottom: 0, left: 0 }
+      case 'bottom-right':
+        return { bottom: 0, right: 0 }
+      case 'center':
+        return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }
+      default:
+        throw new Error('Invalid position')
+    }
+  }
+
   const getProfileImageFromLocalStorage = () => {
     return getLocalStorageItem<GoogleJWTPayload>('user')?.picture.replace('=s96-c', '=l96-c')
   }
@@ -52,6 +80,8 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
         background-color: ${numOfparticipants === 1 ? 'black' : 'rgb(60, 64, 67)'};
         border-radius: 8px;
 
+        ${showHover ??
+        `
         &:hover #options {
           -webkit-transition: opacity 0.1s ease-in;
           -moz-transition: opacity 0.1s ease-in;
@@ -59,6 +89,7 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
           opacity: 1;
           transition-delay: 0.1s;
         }
+        `}
       `}
     >
       {isVideoOn ? (
@@ -80,6 +111,7 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
           <img
             css={css`
               width: 20vh;
+              min-width: 60px;
               height: 20vh;
               border-radius: 20vh;
             `}
@@ -92,15 +124,14 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
       <div
         css={css`
           position: absolute;
-          bottom: 0;
-          left: 0;
+          border-radius: 8px;
           color: #fff;
           pointer-events: none;
           background-color: rgba(0, 0, 0, 0.3);
           font-size: 14px;
-          border-radius: 0px 8px;
-          padding: 2px 12px;
+          padding: 4px 12px;
         `}
+        style={{ ...setIdPosition() }}
       >
         {peerId}
       </div>
@@ -110,7 +141,7 @@ export const LocalVideo = ({ stream, peerId, numOfparticipants, muted = true }: 
           position: absolute;
           width: 100%;
           height: 100%;
-          display: flex;
+          display: ${showHover ? 'flex' : 'none'};
           opacity: 0;
           justify-content: center;
           align-items: center;

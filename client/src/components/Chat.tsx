@@ -20,7 +20,7 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
 
   const onReceiveChat = useCallback((data: any) => {
     if (!isReceiveChatSchema(data)) {
-      throw Error('Invalid payload type for ReceiveChatSchema.')
+      throw new Error('Invalid payload type for ReceiveChatSchema.')
     }
 
     setChatMessages((prev) => [...prev, data])

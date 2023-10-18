@@ -1,4 +1,5 @@
-export const mediaConstraints: MediaStreamConstraints = {
+// FIXME: all should be TRUE
+export const defaultMediaConstraints = {
   audio: false,
   video: true,
 }
