@@ -48,6 +48,7 @@ describe('Session Controller Unit Tests', () => {
     modifiedAt: new Date(),
     endedAt: new Date(),
     users: [user],
+    isHost: false, // FIXME: how to handle additional properties of Session?
   }
 
   const joinSessionService = new JoinSessionService(userRepository, sessionRepository)
@@ -98,7 +99,7 @@ describe('Session Controller Unit Tests', () => {
       throw new RequestError('Invalid payload type for UpdateSessionSchema', ErrorCode.BadRequest)
     })
 
-    await expect(sessionController.create(req as Request, res as unknown as Response)).rejects.toEqual(
+    await expect(sessionController.join(req as Request, res as unknown as Response)).rejects.toEqual(
       new RequestError('Invalid payload type for CreateSessionSchema.', ErrorCode.BadRequest)
     )
     await expect(sessionController.get(req as Request, res as unknown as Response)).rejects.toEqual(
@@ -113,7 +114,7 @@ describe('Session Controller Unit Tests', () => {
     expect.assertions(2)
 
     mockCreateSession.mockResolvedValue(session)
-    await sessionController.create(req as Request, res as unknown as Response)
+    await sessionController.join(req as Request, res as unknown as Response)
 
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.status(200).send).toHaveBeenCalledWith(session)
