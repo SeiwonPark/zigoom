@@ -44,13 +44,26 @@ export default function Room() {
     }
 
     // const verified = await verifySession({ params }, roomId)
+    const sessionData = sessionStorage.getItem(`session_${roomId}`)
+
+    if (sessionData) {
+      const data = JSON.parse(sessionData)
+      setRoomComponent(
+        <HeaderWrapper>
+          <WaitingRoom roomId={roomId} data={data} />
+        </HeaderWrapper>
+      )
+      return
+    }
 
     const payload = {
       sessionId: roomId,
       title: `${roomId}'s room`,
       isPrivate: false,
     }
+
     const res = await axios.post(`${VITE_BASE_URL}/v1/session`, payload)
+    sessionStorage.setItem(`session_${roomId}`, JSON.stringify(res.data))
 
     if (res.data.isHost) {
       setRoomComponent(<Session roomId={roomId} />)
