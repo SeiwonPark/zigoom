@@ -59,6 +59,35 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
     }
   }
 
+  const getDevices = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      setMicDevices(devices.filter((device) => device.kind === 'audioinput'))
+      setSpeakerDevices(devices.filter((device) => device.kind === 'audiooutput'))
+      setVideoDevices(devices.filter((device) => device.kind === 'videoinput'))
+    } catch (error) {
+      console.error('Error fetching devices', error)
+    }
+  }
+
+  useEffect(() => {
+    getDevices()
+
+    const handlePermissionChange = () => {
+      getDevices()
+    }
+
+    navigator.permissions.query({ name: 'camera' as PermissionName }).then((permissionStatus) => {
+      permissionStatus.onchange = handlePermissionChange
+    })
+
+    return () => {
+      navigator.permissions.query({ name: 'camera' as PermissionName }).then((permissionStatus) => {
+        permissionStatus.onchange = null
+      })
+    }
+  }, [])
+
   useEffect(() => {
     const verifyAndNavigate = async () => {
       const isVerified = await verifySession({ params }, roomId)
@@ -69,21 +98,6 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
 
     verifyAndNavigate()
   }, [roomId])
-
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices()
-        setMicDevices(devices.filter((device) => device.kind === 'audioinput'))
-        setSpeakerDevices(devices.filter((device) => device.kind === 'audiooutput'))
-        setVideoDevices(devices.filter((device) => device.kind === 'videoinput'))
-      } catch (error) {
-        console.error('Error fetching devices', error)
-      }
-    }
-
-    getDevices()
-  }, [])
 
   useEffect(() => {
     initializeLocalStream()

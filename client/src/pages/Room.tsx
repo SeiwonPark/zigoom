@@ -47,10 +47,9 @@ export default function Room() {
     const sessionData = sessionStorage.getItem(`session_${roomId}`)
 
     if (sessionData) {
-      const data = JSON.parse(sessionData)
       setRoomComponent(
         <HeaderWrapper>
-          <WaitingRoom roomId={roomId} data={data} />
+          <WaitingRoom roomId={roomId} data={JSON.parse(sessionData)} />
         </HeaderWrapper>
       )
       return
