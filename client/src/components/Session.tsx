@@ -1,8 +1,8 @@
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { css } from '@emotion/react'
-import { useLocation, useNavigate } from 'react-router-dom'
 
+// import { useLocation, useNavigate } from 'react-router-dom'
 import { ChatBox, ControlBar } from '@/components/index'
 import { LocalVideo } from '@/components/videos/LocalVideo'
 import { RemoteVideo } from '@/components/videos/RemoteVideo'
@@ -10,7 +10,7 @@ import { VIDEO_GRIDS, defaultMediaConstraints, iceServers, offerOptions } from '
 import { SocketContext } from '@/contexts/SocketContext'
 import { useLocalOption } from '@/hooks/useStore'
 import { PeerData, PeerDisconnectionType, PeerInfo, VideoElement } from '@/typings/index'
-import { verifySession } from '@/utils/check'
+// import { verifySession } from '@/utils/check'
 import { getProfileImage } from '@/utils/localStorage'
 import {
   isCallSchema,

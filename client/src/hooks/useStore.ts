@@ -3,8 +3,8 @@ import { create } from 'zustand'
 import { LocalOptions } from '@/typings/index'
 
 interface LocalOptionState extends LocalOptions {
-  setIsVideoOn: () => void
-  setIsAudioOn: () => void
+  setIsVideoOn: (value: boolean) => void
+  setIsAudioOn: (value: boolean) => void
 }
 
 interface AuthState {
@@ -18,8 +18,8 @@ interface AuthState {
 const useLocalOption = create<LocalOptionState>((set) => ({
   isVideoOn: false,
   isAudioOn: false,
-  setIsVideoOn: () => set((state: LocalOptions) => ({ ...state, isVideoOn: !state.isVideoOn })),
-  setIsAudioOn: () => set((state: LocalOptions) => ({ ...state, isAudioOn: !state.isAudioOn })),
+  setIsVideoOn: (value: boolean) => set((state: LocalOptions) => ({ ...state, isVideoOn: value })),
+  setIsAudioOn: (value: boolean) => set((state: LocalOptions) => ({ ...state, isAudioOn: value })),
 }))
 
 /**

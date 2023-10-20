@@ -11,6 +11,7 @@ import SendIcon from '@/assets/icons/send.svg'
 import VideoIcon from '@/assets/icons/video.svg'
 import VideoAddIcon from '@/assets/icons/video_add.svg'
 import VideoOffIcon from '@/assets/icons/video_off.svg'
+import VolumeIcon from '@/assets/icons/volume.svg'
 
 export {
   PinIconDisabled,
@@ -26,4 +27,5 @@ export {
   ChatIconEnabled,
   ChatIconDisabled,
   CallEndIcon,
+  VolumeIcon,
 }
