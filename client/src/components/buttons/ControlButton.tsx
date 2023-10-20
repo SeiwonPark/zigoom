@@ -14,15 +14,15 @@ export const ControlButton = ({ Icon, onClick, enabled }: ControlButtonProps) =>
   return (
     <div
       css={css`
-        padding: 0.5rem;
+        padding: 8px;
       `}
     >
       <button
         type="button"
         css={css`
           border: none;
-          width: 40px;
-          height: 40px;
+          width: 60px;
+          height: 60px;
           align-items: center;
           justify-content: center;
           display: flex;

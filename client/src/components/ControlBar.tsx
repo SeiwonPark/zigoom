@@ -46,7 +46,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
     if (localStream && localStream.getVideoTracks().length > 0) {
       const enabled = !localStream.getVideoTracks()[0].enabled
       localStream.getVideoTracks()[0].enabled = enabled
-      setIsVideoOn()
+      setIsVideoOn(enabled)
 
       socket.emit('toggleVideo', {
         roomId: roomId,
@@ -60,7 +60,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
     if (localStream && localStream.getAudioTracks().length > 0) {
       const enabled = !localStream.getAudioTracks()[0].enabled
       localStream.getAudioTracks()[0].enabled = enabled
-      setIsAudioOn()
+      setIsAudioOn(enabled)
     }
   }
 

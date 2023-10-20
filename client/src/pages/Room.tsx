@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useState } from 'react'
 
 import { css } from '@emotion/react'
-import { useLocation, useParams } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
+// import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { validate } from 'uuid'
 
 import { EmptyLoader } from '@/components/EmptyLoader'
@@ -11,16 +11,15 @@ import { Session } from '@/components/Session'
 import { WaitingRoom } from '@/components/WaitingRoom'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
-import { verifySession } from '@/utils/check'
 
+// import { verifySession } from '@/utils/check'
 import NotFound from './NotFound'
 
 export default function Room() {
   const { roomId = '' } = useParams<{ roomId: string }>()
-  const location = useLocation()
-  const params = new URLSearchParams(location.search)
-  const adhoc = params.get('adhoc')
-  const navigate = useNavigate()
+  // const location = useLocation()
+  // const params = new URLSearchParams(location.search)
+  // const adhoc = params.get('adhoc')
 
   const [loading, setLoading] = useState(true)
   const [roomComponent, setRoomComponent] = useState<ReactNode>(<EmptyLoader />)
@@ -31,7 +30,7 @@ export default function Room() {
     const loadingTimeout = setTimeout(async () => {
       await checkAndSetRoomComponent()
       setLoading(false)
-    }, 500)
+    }, 1000)
 
     return () => {
       clearTimeout(loadingTimeout)
@@ -41,6 +40,7 @@ export default function Room() {
   const checkAndSetRoomComponent = async () => {
     if (roomId !== '' && !validate(roomId)) {
       setRoomComponent(<NotFound />)
+      return
     }
 
     // const verified = await verifySession({ params }, roomId)
@@ -53,16 +53,11 @@ export default function Room() {
     const res = await axios.post(`${VITE_BASE_URL}/v1/session`, payload)
 
     if (res.data.isHost) {
-      setRoomComponent(
-        <HeaderWrapper>
-          <Session roomId={roomId} />
-        </HeaderWrapper>
-      )
-      navigate(`/room/${roomId}`)
+      setRoomComponent(<Session roomId={roomId} />)
     } else {
       setRoomComponent(
         <HeaderWrapper>
-          <WaitingRoom roomId={roomId} />
+          <WaitingRoom roomId={roomId} data={res.data} />
         </HeaderWrapper>
       )
     }

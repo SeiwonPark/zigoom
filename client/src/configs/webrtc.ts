@@ -1,6 +1,8 @@
-// FIXME: all should be TRUE
+/**
+ * Media permissions to initialize local stream.
+ */
 export const defaultMediaConstraints = {
-  audio: false,
+  audio: true,
   video: true,
 }
 

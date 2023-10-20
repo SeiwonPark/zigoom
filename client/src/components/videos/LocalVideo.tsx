@@ -17,17 +17,9 @@ interface VideoProps {
   peerIdPosition: PeerIdPosition
   numOfparticipants: number
   showHover?: boolean
-  muted?: boolean
 }
 
-export const LocalVideo = ({
-  stream,
-  peerId,
-  peerIdPosition,
-  numOfparticipants,
-  showHover,
-  muted = true,
-}: VideoProps) => {
+export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, showHover }: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [pinned, setPinned] = useState<boolean>(false)
   const { isVideoOn, isAudioOn } = useLocalOption()
@@ -40,7 +32,11 @@ export const LocalVideo = ({
     if (stream && stream.getVideoTracks().length > 0) {
       stream.getVideoTracks()[0].enabled = isVideoOn
     }
-  }, [stream, isVideoOn, isAudioOn])
+
+    if (stream && stream.getAudioTracks().length > 0) {
+      stream.getAudioTracks()[0].enabled = isAudioOn
+    }
+  }, [isVideoOn, isAudioOn])
 
   // FIXME: actually pin
   const togglePin = () => {
@@ -95,7 +91,6 @@ export const LocalVideo = ({
       {isVideoOn ? (
         <video
           ref={videoRef}
-          muted={muted}
           autoPlay
           playsInline
           css={css`

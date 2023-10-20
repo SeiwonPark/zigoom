@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { VITE_BASE_URL } from './env'
+import { VITE_BASE_URL } from '@/configs/env'
 
 const instance = axios.create({
   timeout: 2500,
@@ -11,21 +11,23 @@ const instance = axios.create({
   withCredentials: true,
 })
 
-// TODO: add interceptors
-instance.interceptors.request.use(
-  function (config) {
-    return config
-  },
-  function (error) {
-    return Promise.reject(error)
-  }
-)
+// FIXME: do I need interceptors?
+// instance.interceptors.request.use(
+//   (request: InternalAxiosRequestConfig) => {
+//     return request
+//   },
+//   (error: AxiosError) => {
+//     return Promise.reject(error)
+//   }
+// )
 
-instance.interceptors.response.use(
-  function (response) {
-    return response
-  },
-  function (error) {
-    return Promise.reject(error)
-  }
-)
+// instance.interceptors.response.use(
+//   (response: AxiosResponse) => {
+//     return response
+//   },
+//   (error: AxiosError) => {
+//     return Promise.reject(error)
+//   }
+// )
+
+export default instance

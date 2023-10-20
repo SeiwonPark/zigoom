@@ -4,6 +4,8 @@ export type VideoElement = React.RefObject<HTMLVideoElement>
 
 export type SVGProps = React.FC<React.SVGProps<SVGElement>>
 
+export type MediaTypes = 'audioinput' | 'audiooutput' | 'video'
+
 export interface LocalOptions {
   isVideoOn: boolean
   isAudioOn: boolean
