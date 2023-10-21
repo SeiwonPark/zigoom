@@ -8,7 +8,6 @@ const userController = new UserController()
 
 export const userRouter = Router()
 
-// FIXME: router path
-userRouter.post('/create', requireAuthentication, userController.create)
-userRouter.get('/get', requireAuthentication, userController.get)
-userRouter.patch('/update', requireAuthentication, userController.update)
+userRouter.post('/', requireAuthentication, userController.create)
+userRouter.get('/', requireAuthentication, userController.get)
+userRouter.patch('/', requireAuthentication, userController.update)
