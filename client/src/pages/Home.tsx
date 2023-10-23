@@ -120,7 +120,7 @@ export default function Home() {
               Icon={VideoAddIcon}
               text="Start a meeting"
               onClick={enterSession}
-              style={{ width: 'fit-content', color: '' }}
+              style={{ width: 'fit-content', minWidth: 'fit-content' }}
             />
             <div
               css={css`
