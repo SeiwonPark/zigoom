@@ -7,7 +7,7 @@ import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon, VolumeIcon } from '@/asse
 import { ControlButton, DeviceSelectButton, ElevatedButton } from '@/components/buttons'
 import { LocalVideo } from '@/components/videos/LocalVideo'
 import { defaultMediaConstraints } from '@/configs/webrtc'
-import { useLocalOption } from '@/hooks/useStore'
+import { useLocalOption, useSessionStore } from '@/hooks/useStore'
 import { MediaTypes } from '@/typings/types'
 import { verifySession } from '@/utils/check'
 
@@ -42,6 +42,7 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
   const [speakerDevices, setSpeakerDevices] = useState<MediaDeviceInfo[]>([])
   const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([])
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  const { setIsGranted } = useSessionStore()
 
   const localStreamRef = useRef<MediaStream>()
   const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
@@ -303,7 +304,7 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
               <span>No one else is here.</span>
             )}
           </div>
-          <ElevatedButton text="Join now" onClick={() => {}} />
+          <ElevatedButton text="Join now" onClick={() => setIsGranted(true)} />
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ import { ControlButton, HostOptionButton } from '@/components/buttons'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
 import { SocketContext } from '@/contexts/SocketContext'
-import { useLocalOption } from '@/hooks/useStore'
+import { useLocalOption, useSessionStore } from '@/hooks/useStore'
 
 interface ControlBarProps {
   localStream: MediaStream | null
@@ -30,12 +30,14 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
   const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
+  const { setIsGranted } = useSessionStore()
 
   useEffect(() => {
     socket.on('disconnect', async (reason: string) => {
       if (reason === 'io server disconnect') {
         if (localStream && localStream.getVideoTracks().length > 0) {
           localStream.getVideoTracks()[0].stop()
+          setIsGranted(false)
           navigate('/')
         }
       }
@@ -66,6 +68,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
 
   const handleCancelCall = () => {
     socket.emit('cancel')
+    setIsGranted(false)
     handleLeaveSession()
   }
 

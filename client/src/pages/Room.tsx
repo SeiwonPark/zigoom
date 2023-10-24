@@ -11,6 +11,7 @@ import { Session } from '@/components/Session'
 import { WaitingRoom } from '@/components/WaitingRoom'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
+import { useSessionStore } from '@/hooks/useStore'
 
 // import { verifySession } from '@/utils/check'
 import NotFound from './NotFound'
@@ -22,6 +23,7 @@ export default function Room() {
   // const adhoc = params.get('adhoc')
 
   const [loading, setLoading] = useState(true)
+  const { isGranted } = useSessionStore()
   const [roomComponent, setRoomComponent] = useState<ReactNode>(<EmptyLoader />)
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function Room() {
     return () => {
       clearTimeout(loadingTimeout)
     }
-  }, [roomId])
+  }, [roomId, isGranted])
 
   const checkAndSetRoomComponent = async () => {
     if (roomId !== '' && !validate(roomId)) {
@@ -47,11 +49,15 @@ export default function Room() {
     const sessionData = sessionStorage.getItem(`session_${roomId}`)
 
     if (sessionData) {
-      setRoomComponent(
-        <HeaderWrapper>
-          <WaitingRoom roomId={roomId} data={JSON.parse(sessionData)} />
-        </HeaderWrapper>
-      )
+      if (isGranted) {
+        setRoomComponent(<Session roomId={roomId} />)
+      } else {
+        setRoomComponent(
+          <HeaderWrapper>
+            <WaitingRoom roomId={roomId} data={JSON.parse(sessionData)} />
+          </HeaderWrapper>
+        )
+      }
       return
     }
 
@@ -67,11 +73,15 @@ export default function Room() {
     if (res.data.isHost) {
       setRoomComponent(<Session roomId={roomId} />)
     } else {
-      setRoomComponent(
-        <HeaderWrapper>
-          <WaitingRoom roomId={roomId} data={res.data} />
-        </HeaderWrapper>
-      )
+      if (isGranted) {
+        setRoomComponent(<Session roomId={roomId} />)
+      } else {
+        setRoomComponent(
+          <HeaderWrapper>
+            <WaitingRoom roomId={roomId} data={res.data} />
+          </HeaderWrapper>
+        )
+      }
     }
   }
 

@@ -12,6 +12,11 @@ interface AuthState {
   setIsAuthenticated: (value: boolean) => void
 }
 
+interface SessionState {
+  isGranted: boolean
+  setIsGranted: (value: boolean) => void
+}
+
 /**
  * Stores states of client's local media options.
  */
@@ -31,4 +36,9 @@ const useAuthStore = create<AuthState>((set) => ({
   setIsAuthenticated: (value: boolean) => set((state) => ({ ...state, isAuthenticated: value })),
 }))
 
-export { useLocalOption, useAuthStore }
+const useSessionStore = create<SessionState>((set) => ({
+  isGranted: false,
+  setIsGranted: (value: boolean) => set((state) => ({ ...state, isGranted: value })),
+}))
+
+export { useLocalOption, useAuthStore, useSessionStore }
