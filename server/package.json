@@ -11,7 +11,7 @@
     "clear": "sh ./scripts/clear_db.sh",
     "clear:docker": "sh ./scripts/clear_docker.sh",
     "build": "rimraf dist && cross-env NODE_ENV=production swc src -d dist",
-    "dev": "cross-env NODE_ENV=development REDIS_HOST=localhost nodemon --ext ts --exec node --inspect -r @swc/register src/shared/infra/http/server.ts",
+    "dev": "cross-env NODE_ENV=development REDIS_HOST=localhost MYSQL_HOST=localhost MONGO_INITDB_HOST=127.0.0.1 nodemon --ext ts --exec node --inspect -r @swc/register src/shared/infra/http/server.ts",
     "start": "pnpm run build && cross-env NODE_ENV=production node dist/shared/infra/http/server.js",
     "migrate": "sh ./scripts/migrate_dev.sh",
     "generate": "sh ./scripts/generate.sh",

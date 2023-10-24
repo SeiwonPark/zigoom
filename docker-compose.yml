@@ -8,7 +8,7 @@ services:
       - ./client/.env
       - ./client/.env.sentry-build-plugin
     environment:
-      - NODE_ENV=${NODE_ENV}
+      NODE_ENV: ${NODE_ENV}
     build:
       context: ./client
     depends_on:
@@ -22,7 +22,7 @@ services:
     env_file:
       - ./server/.env
     environment:
-      - NODE_ENV=${NODE_ENV}
+      NODE_ENV: ${NODE_ENV}
     build:
       context: ./server
     ports:
