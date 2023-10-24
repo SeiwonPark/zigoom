@@ -23,8 +23,8 @@ export default function Room() {
   // const adhoc = params.get('adhoc')
 
   const [loading, setLoading] = useState(true)
-  const { isGranted } = useSessionStore()
   const [roomComponent, setRoomComponent] = useState<ReactNode>(<EmptyLoader />)
+  const { isGranted } = useSessionStore()
 
   useEffect(() => {
     setLoading(true)
@@ -32,7 +32,7 @@ export default function Room() {
     const loadingTimeout = setTimeout(async () => {
       await checkAndSetRoomComponent()
       setLoading(false)
-    }, 1000)
+    }, 800)
 
     return () => {
       clearTimeout(loadingTimeout)

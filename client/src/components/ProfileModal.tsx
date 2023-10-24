@@ -20,7 +20,7 @@ interface ProfileModalProps {
 export const ProfileModal = ({ userData, onClose, setIsAuthenticated, setToggleProfile }: ProfileModalProps) => {
   const handleLogout = async () => {
     const res = await axios.post(`${VITE_BASE_URL}/v1/auth/logout`, { method: 'POST', credentials: 'include' })
-    
+
     if (res.status === 200) {
       googleLogout()
       setIsAuthenticated(false)
