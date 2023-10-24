@@ -114,7 +114,7 @@ export const setupSocketHandlers = (io: Server) => {
         throw new RequestError('Invalid payload type for ToggleVideoSchema.', ErrorCode.BadRequest)
       }
 
-      socket.to(payload.roomId).emit('videoStatus', {
+      socket.to(payload.roomId).emit('video_status', {
         senderId: payload.senderId,
         video: payload.video,
       })
