@@ -33,10 +33,10 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
       videoRef.current.srcObject = stream
     }
 
-    socket.on('videoStatus', handleVideoStatus)
+    socket.on('video_status', handleVideoStatus)
 
     return () => {
-      socket.off('videoStatus', handleVideoStatus)
+      socket.off('video_status', handleVideoStatus)
     }
   }, [])
 
@@ -49,7 +49,7 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
       if (videoRef.current) {
         toggleVideo()
       }
-
+      console.log('received event: ', event)
       setVideoActive(event.video)
     }
   }

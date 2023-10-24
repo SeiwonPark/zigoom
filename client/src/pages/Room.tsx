@@ -11,6 +11,7 @@ import { Session } from '@/components/Session'
 import { WaitingRoom } from '@/components/WaitingRoom'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
+import { useSessionStore } from '@/hooks/useStore'
 
 // import { verifySession } from '@/utils/check'
 import NotFound from './NotFound'
@@ -23,6 +24,7 @@ export default function Room() {
 
   const [loading, setLoading] = useState(true)
   const [roomComponent, setRoomComponent] = useState<ReactNode>(<EmptyLoader />)
+  const { isGranted } = useSessionStore()
 
   useEffect(() => {
     setLoading(true)
@@ -30,12 +32,12 @@ export default function Room() {
     const loadingTimeout = setTimeout(async () => {
       await checkAndSetRoomComponent()
       setLoading(false)
-    }, 1000)
+    }, 800)
 
     return () => {
       clearTimeout(loadingTimeout)
     }
-  }, [roomId])
+  }, [roomId, isGranted])
 
   const checkAndSetRoomComponent = async () => {
     if (roomId !== '' && !validate(roomId)) {
@@ -44,22 +46,42 @@ export default function Room() {
     }
 
     // const verified = await verifySession({ params }, roomId)
+    const sessionData = sessionStorage.getItem(`session_${roomId}`)
+
+    if (sessionData) {
+      if (isGranted) {
+        setRoomComponent(<Session roomId={roomId} />)
+      } else {
+        setRoomComponent(
+          <HeaderWrapper>
+            <WaitingRoom roomId={roomId} data={JSON.parse(sessionData)} />
+          </HeaderWrapper>
+        )
+      }
+      return
+    }
 
     const payload = {
       sessionId: roomId,
       title: `${roomId}'s room`,
       isPrivate: false,
     }
+
     const res = await axios.post(`${VITE_BASE_URL}/v1/session`, payload)
+    sessionStorage.setItem(`session_${roomId}`, JSON.stringify(res.data))
 
     if (res.data.isHost) {
       setRoomComponent(<Session roomId={roomId} />)
     } else {
-      setRoomComponent(
-        <HeaderWrapper>
-          <WaitingRoom roomId={roomId} data={res.data} />
-        </HeaderWrapper>
-      )
+      if (isGranted) {
+        setRoomComponent(<Session roomId={roomId} />)
+      } else {
+        setRoomComponent(
+          <HeaderWrapper>
+            <WaitingRoom roomId={roomId} data={res.data} />
+          </HeaderWrapper>
+        )
+      }
     }
   }
 

@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { css } from '@emotion/react'
 import Select, { OptionProps, SingleValueProps, StylesConfig, components } from 'react-select'
 
@@ -48,7 +50,9 @@ const CustomOption = (props: OptionProps<DeviceOption>) => (
   <components.Option {...props}>{props.data.label}</components.Option>
 )
 
+// FIXME: !!! how to auto select default option when media permission is granted?
 export const DeviceSelectButton = ({ Icon, options, deviceType, onDeviceChange }: DeviceSelectButtonProps) => {
+  const [selectedOption, setSelectedOption] = useState<DeviceOption | null>(null)
   const selectOptions = options.map((option) => ({
     value: option.deviceId,
     label: option.label,
@@ -115,9 +119,9 @@ export const DeviceSelectButton = ({ Icon, options, deviceType, onDeviceChange }
   }
 
   // FIXME: what type??
-  const handleDeviceChange = (selectedOption: any) => {
-    console.log('device changed: ', selectedOption.value, deviceType)
-    onDeviceChange(selectedOption.value, deviceType)
+  const handleDeviceChange = (changedOption: any) => {
+    onDeviceChange(changedOption.value, deviceType)
+    setSelectedOption(changedOption)
   }
 
   return (
@@ -125,7 +129,7 @@ export const DeviceSelectButton = ({ Icon, options, deviceType, onDeviceChange }
       styles={customStyles}
       options={selectOptions}
       defaultValue={selectOptions[0]}
-      onChange={(selectedOption) => handleDeviceChange(selectedOption)}
+      onChange={(changedOption) => handleDeviceChange(changedOption)}
       components={{
         SingleValue: CustomSingleValue,
         Option: CustomOption,

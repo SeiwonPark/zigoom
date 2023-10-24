@@ -1,8 +1,8 @@
 import { createRef, useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { css } from '@emotion/react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-// import { useLocation, useNavigate } from 'react-router-dom'
 import { ChatBox, ControlBar } from '@/components/index'
 import { LocalVideo } from '@/components/videos/LocalVideo'
 import { RemoteVideo } from '@/components/videos/RemoteVideo'
@@ -10,7 +10,7 @@ import { VIDEO_GRIDS, defaultMediaConstraints, iceServers, offerOptions } from '
 import { SocketContext } from '@/contexts/SocketContext'
 import { useLocalOption } from '@/hooks/useStore'
 import { PeerData, PeerDisconnectionType, PeerInfo, VideoElement } from '@/typings/index'
-// import { verifySession } from '@/utils/check'
+import { verifySession } from '@/utils/check'
 import { getProfileImage } from '@/utils/localStorage'
 import {
   isCallSchema,
@@ -35,9 +35,9 @@ export const Session = ({ roomId }: SessionProps) => {
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
   const [remoteProfiles, setRemoteProfiles] = useState<Map<string, PeerInfo>>(new Map())
-  // const location = useLocation()
-  // const navigate = useNavigate()
-  // const params = new URLSearchParams(location.search)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const params = new URLSearchParams(location.search)
   const { isVideoOn } = useLocalOption()
 
   useEffect(() => {
@@ -47,16 +47,16 @@ export const Session = ({ roomId }: SessionProps) => {
     return () => removeSocketListeners()
   }, [])
 
-  // useEffect(() => {
-  //   const verifyAndNavigate = async () => {
-  //     const isVerified = await verifySession({ params }, roomId)
-  //     if (isVerified) {
-  //       navigate(`/room/${roomId}`, { replace: true })
-  //     }
-  //   }
+  useEffect(() => {
+    const verifyAndNavigate = async () => {
+      const isVerified = await verifySession({ params }, roomId)
+      if (isVerified) {
+        navigate(`/room/${roomId}`, { replace: true })
+      }
+    }
 
-  //   verifyAndNavigate()
-  // }, [roomId])
+    verifyAndNavigate()
+  }, [roomId])
 
   const setSocketListeners = useCallback(() => {
     socket.on('room_created', onRoomCreated)
@@ -112,7 +112,6 @@ export const Session = ({ roomId }: SessionProps) => {
     peersDataChannel.onopen = async () => {
       const profileImage = await getProfileImage()
 
-      console.log('isVideoOn when sending:', isVideoOn)
       peersDataChannel.send(
         JSON.stringify({
           id: localPeerId.current,

@@ -7,7 +7,7 @@ import { MicIcon, MicOffIcon, VideoIcon, VideoOffIcon, VolumeIcon } from '@/asse
 import { ControlButton, DeviceSelectButton, ElevatedButton } from '@/components/buttons'
 import { LocalVideo } from '@/components/videos/LocalVideo'
 import { defaultMediaConstraints } from '@/configs/webrtc'
-import { useLocalOption } from '@/hooks/useStore'
+import { useLocalOption, useSessionStore } from '@/hooks/useStore'
 import { MediaTypes } from '@/typings/types'
 import { verifySession } from '@/utils/check'
 
@@ -42,6 +42,7 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
   const [speakerDevices, setSpeakerDevices] = useState<MediaDeviceInfo[]>([])
   const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([])
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
+  const { setIsGranted } = useSessionStore()
 
   const localStreamRef = useRef<MediaStream>()
   const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
@@ -59,6 +60,35 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
     }
   }
 
+  const getDevices = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      setMicDevices(devices.filter((device) => device.kind === 'audioinput'))
+      setSpeakerDevices(devices.filter((device) => device.kind === 'audiooutput'))
+      setVideoDevices(devices.filter((device) => device.kind === 'videoinput'))
+    } catch (error) {
+      console.error('Error fetching devices', error)
+    }
+  }
+
+  useEffect(() => {
+    getDevices()
+
+    const handlePermissionChange = () => {
+      getDevices()
+    }
+
+    navigator.permissions.query({ name: 'camera' as PermissionName }).then((permissionStatus) => {
+      permissionStatus.onchange = handlePermissionChange
+    })
+
+    return () => {
+      navigator.permissions.query({ name: 'camera' as PermissionName }).then((permissionStatus) => {
+        permissionStatus.onchange = null
+      })
+    }
+  }, [])
+
   useEffect(() => {
     const verifyAndNavigate = async () => {
       const isVerified = await verifySession({ params }, roomId)
@@ -69,21 +99,6 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
 
     verifyAndNavigate()
   }, [roomId])
-
-  useEffect(() => {
-    const getDevices = async () => {
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices()
-        setMicDevices(devices.filter((device) => device.kind === 'audioinput'))
-        setSpeakerDevices(devices.filter((device) => device.kind === 'audiooutput'))
-        setVideoDevices(devices.filter((device) => device.kind === 'videoinput'))
-      } catch (error) {
-        console.error('Error fetching devices', error)
-      }
-    }
-
-    getDevices()
-  }, [])
 
   useEffect(() => {
     initializeLocalStream()
@@ -289,7 +304,7 @@ export const WaitingRoom = ({ roomId, data }: WaitingRoomProps) => {
               <span>No one else is here.</span>
             )}
           </div>
-          <ElevatedButton text="Join now" onClick={() => {}} />
+          <ElevatedButton text="Join now" onClick={() => setIsGranted(true)} />
         </div>
       </div>
     </div>

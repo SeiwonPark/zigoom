@@ -5,7 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { VideoAddIcon } from '@/assets/icons'
+// import { KeyboardIcon } from '@/assets/icons'
 import { Header } from '@/components/Header'
+import { TextButton } from '@/components/buttons'
 import { ElevatedButton } from '@/components/buttons/ElevatedButton'
 import { SocketContext } from '@/contexts/SocketContext'
 import type { LocalOptions } from '@/typings/index'
@@ -25,13 +27,23 @@ export default function Home() {
     }
   }, [])
 
-  const enterRoom = async () => {
+  const enterSessionWithId = async () => {
     if (socket) {
       setIsNavigating(true)
-      socket.connect()
-
       setTimeout(() => {
+        socket.connect()
         navigate(`/room/${inputSessionId}?adhoc=false&ts=${Date.now()}`)
+        setIsNavigating(false)
+      }, 1000)
+    }
+  }
+
+  const enterSession = async () => {
+    if (socket) {
+      setIsNavigating(true)
+      setTimeout(() => {
+        socket.connect()
+        navigate(`/room/${uuidv4()}?adhoc=true&ts=${Date.now()}`)
         setIsNavigating(false)
       }, 1000)
     }
@@ -94,8 +106,59 @@ export default function Home() {
           >
             Video calls and meetings for everyone.
           </h1>
-          <input type="text" placeholder="sessionId" onChange={(e) => setInputSessionId(e.target.value)} />
-          <ElevatedButton Icon={VideoAddIcon} text="Start a meeting" onClick={enterRoom} />
+          <div
+            css={css`
+              display: flex;
+              gap: 30px;
+
+              @media screen and (max-width: 600px) {
+                flex-direction: column;
+              }
+            `}
+          >
+            <ElevatedButton
+              Icon={VideoAddIcon}
+              text="Start a meeting"
+              onClick={enterSession}
+              style={{ width: 'fit-content', minWidth: 'fit-content' }}
+            />
+            <div
+              css={css`
+                display: flex;
+                gap: 10px;
+              `}
+            >
+              <div
+                css={css`
+                  display: flex;
+                  gap: 10px;
+                `}
+              >
+                <input
+                  css={css`
+                    border: 1px solid #80868a;
+                    border-radius: 6px;
+                    padding: 1rem 1.5rem 1rem 2.5rem;
+                    font-size: 1rem;
+                    background-image: url('../assets/icons/keyboard.svg'); // FIXME:
+                    background-position: 10px center;
+                    background-repeat: no-repeat;
+                  `}
+                  type="text"
+                  placeholder="Enter a code or link"
+                  onChange={(e) => setInputSessionId(e.target.value)}
+                />
+                <TextButton
+                  text="Enter"
+                  onClick={enterSessionWithId}
+                  style={{
+                    color: inputSessionId.trim() === '' ? '#B5B6B7' : 'rgb(26, 115, 232)',
+                    pointerEvents: inputSessionId.trim() === '' ? 'none' : 'auto',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </section>
         {isNavigating && (
           <div
