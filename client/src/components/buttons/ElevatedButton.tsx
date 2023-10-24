@@ -1,16 +1,17 @@
-import { MouseEventHandler } from 'react'
+import { CSSProperties, MouseEventHandler } from 'react'
 
 import { css } from '@emotion/react'
 
 import type { SVGProps } from '@/typings/index'
 
 interface ElevatedButtonProps {
-  Icon?: string | SVGProps // FIXME: why it doesn't work?
   text: string
   onClick: MouseEventHandler
+  Icon?: string | SVGProps // FIXME: why it doesn't work?
+  style?: CSSProperties
 }
 
-export const ElevatedButton = ({ Icon, text, onClick }: ElevatedButtonProps) => {
+export const ElevatedButton = ({ Icon, text, onClick, style }: ElevatedButtonProps) => {
   return (
     <button
       type="button"
@@ -27,6 +28,7 @@ export const ElevatedButton = ({ Icon, text, onClick }: ElevatedButtonProps) => 
           box-shadow: 0px 1px 3px rgba(33, 33, 33, 0.6), inset 0 0 300px rgba(33, 33, 33, 0.1);
         }
       `}
+      style={style}
       onClick={onClick}
     >
       <div
