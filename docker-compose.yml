@@ -8,9 +8,8 @@ services:
       - ./client/.env
       - ./client/.env.sentry-build-plugin
     environment:
-      NODE_ENV: ${NODE_ENV}
-    build:
-      context: ./client
+      NODE_ENV: $NODE_ENV
+    image: $AWS_WEB_IMAGE
     depends_on:
       - api
     ports:
@@ -22,9 +21,8 @@ services:
     env_file:
       - ./server/.env
     environment:
-      NODE_ENV: ${NODE_ENV}
-    build:
-      context: ./server
+      NODE_ENV: $NODE_ENV
+    image: $AWS_API_IMAGE
     ports:
       - "5001:5001"
     depends_on:
@@ -48,6 +46,8 @@ services:
   mysql:
     container_name: mysql
     restart: unless-stopped
+    env_file:
+      - ./server/.env
     image: "mysql:latest"
     ports:
       - "3306:3306"
@@ -58,14 +58,15 @@ services:
 
   mongo:
     container_name: mongo
+    image: $AWS_MONGO_IMAGE
     restart: unless-stopped
-    image: "mongo:latest"
-    command: --config /etc/mongod.conf
+    env_file:
+      - ./server/.env
+    command: -f /etc/mongod.conf
     ports:
       - "27017:27017"
     volumes:
       - mongoDB:/data/db
-      - ./server/mongod.conf:/etc/mongod.conf
     networks:
       - api-network
 
