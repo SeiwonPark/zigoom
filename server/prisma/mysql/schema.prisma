@@ -1,6 +1,6 @@
 generator client {
     provider      = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "linux-musl", "linux-musl-openssl-3.0.x"]
     output        = "./generated/mysql"
 }
 
@@ -9,7 +9,17 @@ datasource db {
     url      = env("MYSQL_DATABASE_URL")
 }
 
+generator markdown {
+    provider = "prisma-markdown"
+    output   = "./MYSQL_ERD.md"
+    title    = "Goom"
+}
+
+///  
+/// 
+/// @namespace Actors
 model User {
+    /// User's ID.
     id               String             @id @default(uuid())
     google_id        String             @unique
     name             String
@@ -27,6 +37,7 @@ model User {
     followers        Follow[]           @relation("followers")
 }
 
+/// @namespace Actors
 model Follow {
     followerId String
     follower   User     @relation("followers", fields: [followerId], references: [id])
@@ -37,6 +48,7 @@ model Follow {
     @@id([followerId, followeeId])
 }
 
+/// @namespace Actors
 model Profile {
     id           String  @id @default(uuid())
     family_name  String?
@@ -47,6 +59,8 @@ model Profile {
     user         User    @relation(fields: [userId], references: [id])
 }
 
+/// @namespace Sessions
+/// @erd User
 model Session {
     id         String    @unique @default(uuid())
     isPrivate  Boolean   @default(false)
@@ -58,6 +72,8 @@ model Session {
     endedAt    DateTime?
 }
 
+/// @namespace Notifications
+/// @erd User
 model Notification {
     id               String             @unique @default(uuid())
     title            String
@@ -68,6 +84,7 @@ model Notification {
     senderId         String
 }
 
+/// @namespace Notifications
 model UserNotification {
     isRead         Boolean      @default(false)
     createdAt      DateTime     @default(now())
@@ -80,12 +97,15 @@ model UserNotification {
     @@id([userId, notificationId])
 }
 
+/// @namespace Chats
 model ChatRoom {
     id           String         @id @default(uuid())
     userChatRoom UserChatRoom[]
     createdAt    DateTime       @default(now())
 }
 
+/// @namespace Chats
+/// @erd User
 model UserChatRoom {
     user       User     @relation(fields: [userId], references: [id])
     userId     String
@@ -96,6 +116,7 @@ model UserChatRoom {
     @@id([userId, chatRoomId])
 }
 
+/// @namespace Actors
 enum Role {
     USER
 }
