@@ -2,7 +2,7 @@ FROM --platform=linux/amd64 node:18-alpine AS deps
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN apk add --no-cache libc6-compat build-base postgresql-dev openssl && \
+RUN apk add --no-cache libc6-compat build-base openssl && \
     npm i -g pnpm && \
     pnpm i --frozen-lockfile
 
