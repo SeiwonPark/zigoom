@@ -52,7 +52,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysqlDB:/var/lib/mysql
+      - db-mysql:/var/lib/mysql
     networks:
       - api-network
 
@@ -66,13 +66,13 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongoDB:/data/db
+      - db-mongo:/data/db
     networks:
       - api-network
 
 volumes:
-  mysqlDB:
-  mongoDB:
+  db-mysql:
+  db-mongo:
 
 networks:
   api-network:

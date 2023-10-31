@@ -12,7 +12,7 @@
     "check": "cd ./server && pnpm run check",
     "build": "concurrently -n server,client -c auto \"cd ./server && pnpm run build\" \"cd ./client && pnpm run build\"",
     "dev": "concurrently -n server,client -c auto \"cd ./server && pnpm run dev\" \"cd ./client && pnpm run dev\"",
-    "dev:up": "cross-env NODE_ENV=development docker compose --context default up --build",
+    "dev:up": "cross-env NODE_ENV=development docker --context default compose up --build",
     "prod": "cross-env NODE_ENV=production docker --context ecs-local compose up",
     "down": "docker compose down",
     "start": "concurrently -n server,client -c auto \"cd ./server && pnpm run start\" \"cd ./client && pnpm run dev\"",
