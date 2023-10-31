@@ -114,7 +114,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
           margin-left: 2vw;
         `}
       >
-        <h1 onClick={() => navigate('/')}>GOOM</h1>
+        <h1 onClick={() => navigate('/')}>Zigoom</h1>
       </div>
       <nav>
         <ul
