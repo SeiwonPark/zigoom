@@ -1,4 +1,4 @@
-import { ALLOWED_ORIGIN, PORT } from '@configs/env.config'
+import { ALLOWED_ORIGIN, AWS_ORIGIN, PORT } from '@configs/env.config'
 import { format, logger, stream } from '@configs/logger.config'
 import '@shared/container'
 
@@ -28,7 +28,7 @@ app.use(helmet())
 app.use(morgan(format, { stream: stream }))
 app.set('trust proxy', 1)
 // FIXME: origin domain
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }))
+app.use(cors({ origin: AWS_ORIGIN, credentials: true }))
 // FIXME: host domain
 app.use('/metrics', metricRouter)
 app.use(authHandler)

@@ -11,3 +11,5 @@ export const ALLOWED_ORIGIN = isDevelopment
 
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost'
 export const REDIS_URL = `redis://${REDIS_HOST}:6379`
+
+export const AWS_ORIGIN = isDevelopment ? 'http://localhost:5173' : process.env.AWS_ORIGIN
