@@ -1,6 +1,21 @@
 version: "3.8"
 
 services:
+  # web only for development
+  web:
+    container_name: web
+    restart: unless-stopped
+    env_file:
+      - ./client/.env
+      - ./client/.env.sentry-build-plugin
+    environment:
+      NODE_ENV: $NODE_ENV
+    image: $AWS_WEB_IMAGE
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
   api:
     container_name: api
     restart: unless-stopped
