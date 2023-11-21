@@ -1,0 +1,27 @@
+.wrapper {
+  padding: 0.5rem;
+}
+
+.chatBox {
+  display: flex;
+  width: 100%;
+  border-radius: 20px;
+  background-color: #f1f3f4;
+}
+
+.chatInput {
+  width: 100%;
+  border: none;
+  border-radius: 20px;
+  background-color: inherit;
+  padding-left: 1rem;
+}
+
+.chatInput:active,
+.chatInput:focus {
+  outline: none;
+}
+
+.iconContainer {
+  maring-left: auto;
+}

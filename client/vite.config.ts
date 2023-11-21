@@ -9,10 +9,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      react({
-        jsxImportSource: '@emotion/react',
-        plugins: [['@swc/plugin-emotion', {}]],
-      }),
+      react(),
       svgr({
         exportAsDefault: true,
       }),

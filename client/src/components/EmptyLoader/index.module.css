@@ -1,0 +1,40 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  margin: 0 10px;
+  animation: bounce 1s ease infinite;
+}
+
+.dotBlue {
+  background-color: #4285f5;
+}
+
+.dotRed {
+  background-color: #ea4436;
+  animation-delay: 0.25s;
+}
+
+.dotYellow {
+  background-color: #fbbd06;
+  animation-delay: 0.5s;
+}
+
+.dotGreen {
+  background-color: #34a952;
+  animation-delay: 0.75s;
+}
+
+@keyframes bounce {
+  50% {
+    transform: translateY(25px);
+  }
+}

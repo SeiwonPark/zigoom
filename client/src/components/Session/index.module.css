@@ -1,0 +1,26 @@
+.container {
+  height: inherit;
+  width: 100%;
+  display: flex;
+  background-color: rgb(32, 33, 36);
+  overflow: hidden;
+}
+
+.wrapper {
+  width: 100%;
+  height: calc(100% - 7rem);
+  display: grid;
+  grid-template-rows: repeat(12, 1fr);
+  grid-template-columns: repeat(12, 1fr);
+  grid-gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+
+.single {
+  padding: 0;
+}
+
+.multiple {
+  padding: 1rem;
+}

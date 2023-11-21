@@ -1,0 +1,84 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  background-color: transparent;
+}
+
+.overlapContainer {
+  position: absolute;
+  z-index: 999;
+  top: 70px;
+  right: 4vw;
+  width: 350px;
+  padding-bottom: 1rem;
+  max-width: 436px;
+  min-width: 240px;
+  height: auto;
+  border: none;
+  overflow-x: hidden;
+  border-radius: 28px;
+  background-color: #dde3ea;
+  box-shadow: 0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.modal {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.email {
+  display: flex;
+  max-width: calc(100% - 64px);
+  align-items: center;
+  padding-left: 56px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: normal;
+  text-overflow: ellipsis;
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 22px auto 0 auto;
+}
+
+.profileImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.greeting {
+  font-weight: 400;
+  font-size: 22px;
+  line-height: 28px;
+  letter-spacing: normal;
+  margin: 8px 0;
+  text-align: center;
+}
+
+.buttonContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

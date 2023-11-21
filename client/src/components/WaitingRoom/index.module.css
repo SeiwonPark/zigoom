@@ -1,0 +1,83 @@
+.container {
+  height: inherit;
+  width: 100%;
+  display: flex;
+  min-width: 0;
+}
+
+.grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.videoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.videoWrapper {
+  width: 90vw;
+  max-width: 720px;
+  min-width: 700px;
+  height: 420px;
+  position: relative;
+}
+
+.controlButtons {
+  display: flex;
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.deviceButtons {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+}
+
+.content {
+  width: 720px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.titleWrapper {
+  font-size: 32px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 500;
+}
+
+.userList {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.user {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 6px;
+}
+
+@media screen and (max-width: 1000px) {
+  .grid {
+    padding-top: 100px;
+    display: grid;
+    grid-template: minmax(0, 1fr);
+  }
+}

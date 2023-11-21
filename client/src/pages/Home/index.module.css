@@ -1,0 +1,74 @@
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 1s;
+}
+
+.navigating {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+.default {
+  background-color: transparent;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 400;
+}
+
+.actionContainer {
+  display: flex;
+  gap: 30px;
+}
+
+.wrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.roomInput {
+  border: 1px solid #80868a;
+  border-radius: 6px;
+  padding: 1rem 1.5rem 1rem 2.5rem;
+  font-size: 1rem;
+  background-position: 10px center;
+  background-repeat: no-repeat;
+}
+
+.loading {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+@media screen and (max-width: 1440px) {
+  .section {
+    max-width: 1296px;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .section {
+    margin: 72px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .section {
+    margin: 40px;
+  }
+
+  .actionContainer {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,75 @@
+.header {
+  position: fixed;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -webkit-box-shadow: 0 0 6px 2px rgba(60, 64, 67, 0.3);
+  -moz-box-shadow: 0 0 6px 2px rgba(60, 64, 67, 0.3);
+  box-shadow: 0 0 6px 2px rgba(60, 64, 67, 0.3);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  margin-right: auto;
+  margin-left: 2vw;
+}
+
+.menuList {
+  padding: 0;
+  display: flex;
+  list-style-type: none;
+}
+
+.menu {
+  text-align: center;
+  padding: 12px;
+}
+
+.authContainer {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-right: 2vw;
+}
+
+.guestContainer {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.guestContainer:hover #guestButton {
+  background-color: #f8f9fa;
+  color: #202124;
+}
+
+.guestButton {
+  padding: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  color: #5f6368;
+  background-color: inherit;
+  text-transform: uppercase;
+}
+
+.userContainer {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.5rem;
+}
+
+.profileImage {
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}

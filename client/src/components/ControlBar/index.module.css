@@ -1,0 +1,30 @@
+.container {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  width: 100vw;
+  height: 5rem;
+  background-color: rgb(32, 33, 36);
+  margin-bottom: 0;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.roomId {
+  color: #fff;
+  padding-left: 1rem;
+}
+
+.controlButtons {
+  display: flex;
+}
+
+.hostOptionButtons {
+  display: flex;
+  padding-right: 1rem;
+}
