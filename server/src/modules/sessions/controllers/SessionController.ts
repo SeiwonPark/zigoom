@@ -10,6 +10,7 @@ import UpdateSessionService from '../services/UpdateSessionService'
 
 export default class SessionController {
   public async join(req: Request, res: Response): Promise<Response> {
+    logger.debug('SessionController.join invoked')
     const { sessionId, title, isPrivate } = req.body
 
     const joinSession = container.resolve(CreateSessionService)
@@ -25,6 +26,7 @@ export default class SessionController {
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
+    logger.debug('SessionController.get invoked')
     const { sessionId } = req.query
 
     if (typeof sessionId !== 'string') {
@@ -44,6 +46,7 @@ export default class SessionController {
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
+    logger.debug('SessionController.update invoked')
     const { sessionId } = req.query
     const data = req.body
 

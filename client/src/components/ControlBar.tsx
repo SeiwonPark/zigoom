@@ -74,7 +74,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
 
   const handleLeaveSession = async () => {
     const payload = {
-      sessionId: roomId,
+      id: roomId,
     }
 
     const res = await axios.patch(`${VITE_BASE_URL}/v1/session`, payload, {

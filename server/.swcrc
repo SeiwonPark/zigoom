@@ -22,6 +22,5 @@
     "strictMode": true,
     "lazy": false
   },
-  "exclude": ["src/**/*.test.ts"],
-  "sourceMaps": true
+  "exclude": ["src/**/*.test.ts"]
 }

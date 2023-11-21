@@ -69,7 +69,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   }, [])
 
   const handleLoginError = useCallback((error: any) => {
-    console.error('Google login error:', error)
+    console.error('Login error:', error)
   }, [])
 
   const handleClickProfile = (_: MouseEvent) => {

@@ -10,6 +10,7 @@ import UpdateUserService from '../services/UpdateUserService'
 
 export default class UserController {
   public async create(req: Request, res: Response): Promise<Response> {
+    logger.debug('UserController.create invoked')
     const createUser = container.resolve(CreateUserService)
     const createdUser = await createUser.execute({ payload: req.ctx.user })
 
@@ -18,6 +19,7 @@ export default class UserController {
   }
 
   public async get(req: Request, res: Response): Promise<Response> {
+    logger.debug('UserController.get invoked')
     const { include } = req.query
 
     if (include !== undefined && typeof include !== 'boolean') {
@@ -33,6 +35,7 @@ export default class UserController {
   }
 
   public async update(req: Request, res: Response): Promise<Response> {
+    logger.debug('UserController.update invoked')
     const { include } = req.query
     const data = req.body
 

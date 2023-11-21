@@ -30,8 +30,6 @@ export default class UpdateSessionService {
     ])
 
     const requestedUserId = payload.sub || payload.id
-    this.ensureSessionOwner(requestedUserId, existingSession)
-
     if (payload.isGuest) {
       return await this.handleGuestUser(requestedUserId, existingSession, numOfGuests)
     } else {
@@ -101,13 +99,6 @@ export default class UpdateSessionService {
       throw new RequestError(`Session doesn't exist by id '${sessionId}'`, ErrorCode.NotFound)
     }
     return session
-  }
-
-  private ensureSessionOwner(userId: string, existingSession: Session): void {
-    if (userId !== existingSession.host) {
-      logger.error('Only the session host can perform this action')
-      throw new RequestError('Only the session host can perform this action', ErrorCode.Unauthorized)
-    }
   }
 
   private async countParticipantsInSession(sessionId: string): Promise<number> {
