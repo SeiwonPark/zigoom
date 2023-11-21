@@ -17,6 +17,9 @@ dependencies:
   cross-env:
     specifier: ^7.0.3
     version: 7.0.3
+  dayjs:
+    specifier: ^1.11.10
+    version: 1.11.10
   dotenv:
     specifier: ^16.3.1
     version: 16.3.1
@@ -26,6 +29,9 @@ dependencies:
   express-async-errors:
     specifier: ^3.1.1
     version: 3.1.1(express@4.18.2)
+  express-prom-bundle:
+    specifier: ^6.6.0
+    version: 6.6.0(prom-client@15.0.0)
   express-rate-limit:
     specifier: ^7.1.1
     version: 7.1.1(express@4.18.2)
@@ -2127,6 +2133,10 @@ packages:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  /dayjs@1.11.10:
+    resolution: {integrity: sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ==}
+    dev: false
+
   /debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
     peerDependencies:
@@ -2485,6 +2495,17 @@ packages:
       express: ^4.16.2
     dependencies:
       express: 4.18.2
+    dev: false
+
+  /express-prom-bundle@6.6.0(prom-client@15.0.0):
+    resolution: {integrity: sha512-tZh2P2p5a8/yxQ5VbRav011Poa4R0mHqdFwn9Swe/obXDe5F0jY9wtRAfNYnqk4LXY7akyvR/nrvAHxQPWUjsQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      prom-client: '>=12.0.0'
+    dependencies:
+      on-finished: 2.4.1
+      prom-client: 15.0.0
+      url-value-parser: 2.2.0
     dev: false
 
   /express-rate-limit@7.1.1(express@4.18.2):
@@ -4865,6 +4886,11 @@ packages:
     dependencies:
       punycode: 2.3.0
     dev: true
+
+  /url-value-parser@2.2.0:
+    resolution: {integrity: sha512-yIQdxJpgkPamPPAPuGdS7Q548rLhny42tg8d4vyTNzFqvOnwqrgHXvgehT09U7fwrzxi3RxCiXjoNUNnNOlQ8A==}
+    engines: {node: '>=6.0.0'}
+    dev: false
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}

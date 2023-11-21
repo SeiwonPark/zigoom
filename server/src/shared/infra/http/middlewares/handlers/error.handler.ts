@@ -3,6 +3,8 @@ import { RequestError } from '@shared/errors/RequestError'
 
 import { NextFunction, Request, Response } from 'express'
 
+const isDevelopment = process.env.NODE_ENV === 'development'
+
 export const errorHandler = async (e: Error, req: Request, res: Response, next: NextFunction): Promise<Response> => {
   logger.error(`Error on ${req.method} request to ${req.url}. Error: ${e.message}`)
 
@@ -13,11 +15,13 @@ export const errorHandler = async (e: Error, req: Request, res: Response, next: 
     })
   }
 
-  logger.error(`Unexpected error on ${req.method} request to ${req.url}. Stack trace: ${e.stack}`)
+  isDevelopment
+    ? logger.error(`Unexpected error on ${req.method} request to ${req.url}. Stack trace: ${e.stack}`)
+    : undefined
 
   return res.status(500).send({
     error: 'Internal Server Error.',
-    trace: process.env.NODE_ENV === 'production' ? undefined : e.stack,
+    trace: isDevelopment ? e.stack : undefined,
     timestamp: new Date().toISOString(),
   })
 }

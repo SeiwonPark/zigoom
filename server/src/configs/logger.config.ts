@@ -1,4 +1,10 @@
+import DayJS from 'dayjs'
+import DayJSTimezone from 'dayjs/plugin/timezone'
+import DayJSUtc from 'dayjs/plugin/utc'
 import winston from 'winston'
+
+DayJS.extend(DayJSUtc)
+DayJS.extend(DayJSTimezone)
 
 const configs = {
   levels: {
@@ -24,7 +30,9 @@ const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize({ all: true }),
-        winston.format.timestamp(),
+        winston.format.timestamp({
+          format: () => DayJS().tz('Asia/Seoul').format('YYYY-MM-DD HH:mm:ss'),
+        }),
         winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
       ),
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
