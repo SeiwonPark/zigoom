@@ -18,19 +18,11 @@ export const GoogleJWTHeaderSchema = z.object({
 })
 
 export const GoogleJWTPayloadSchema = z.object({
-  aud: z.string(),
-  azp: z.string(),
   email: z.string().email(),
-  email_verified: z.boolean(),
-  exp: z.number(),
   family_name: z.string(),
   given_name: z.string(),
-  iat: z.number(),
-  iss: z.string(),
-  jti: z.string(),
   locale: z.string(),
   name: z.string(),
-  nbf: z.number(),
   picture: z.string().url(),
   sub: z.string(),
 })

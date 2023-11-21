@@ -1,7 +1,6 @@
 import { MouseEvent } from 'react'
 
 import { css } from '@emotion/react'
-import { googleLogout } from '@react-oauth/google'
 
 import { CloseIcon } from '@/assets/icons'
 import { IconButton } from '@/components/buttons/IconButton'
@@ -22,7 +21,6 @@ export const ProfileModal = ({ userData, onClose, setIsAuthenticated, setToggleP
     const res = await axios.post(`${VITE_BASE_URL}/v1/auth/logout`, { method: 'POST', credentials: 'include' })
 
     if (res.status === 200) {
-      googleLogout()
       setIsAuthenticated(false)
       setToggleProfile(false)
       localStorage.clear()

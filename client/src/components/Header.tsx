@@ -1,18 +1,19 @@
 import { CSSProperties, MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 
 import { css } from '@emotion/react'
-import { CredentialResponse, GoogleLogin, googleLogout } from '@react-oauth/google'
 import { useNavigate } from 'react-router-dom'
 
 import { Unnamed } from '@/assets/images'
 import { ProfileModal } from '@/components/ProfileModal'
-import { SkeletonLoginButton } from '@/components/skeletons/SkeletonLoginButton'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
 import { useAuthStore } from '@/hooks/useStore'
 import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/localStorage'
 import { decodeGoogleJWT } from '@/utils/string'
-import { GoogleJWTPayload, isCredentialResponse } from '@/validations/auth.validation'
+import { GoogleJWTPayload } from '@/validations/auth.validation'
+
+import Dropdown from './Dropdown'
+import { GoogleLoginButton } from './buttons/GoogleLoginButton'
 
 interface HeaderProps {
   style?: CSSProperties
@@ -22,19 +23,10 @@ interface HeaderProps {
 export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   const [windowWidth, setWindowWidth] = useState<number>(globalThis.innerWidth)
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
-  const [showSkeleton, setShowSkeleton] = useState<boolean>(true)
   const { isAuthenticated, setIsAuthenticated } = useAuthStore()
   const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSkeleton(false)
-    }, 800)
-
-    return () => clearTimeout(timer)
-  }, [])
 
   useEffect(() => {
     const handleResize = () => {
@@ -51,26 +43,24 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
     return getLocalStorageItem<GoogleJWTPayload>('user')
   }, [])
 
-  const handleLoginSuccess = useCallback(async (credentialResponse: CredentialResponse) => {
+  const handleLoginSuccess = useCallback(async (credential: string) => {
     try {
-      if (!isCredentialResponse(credentialResponse)) {
-        throw new Error(
-          'Invalid credential response. Received "success" response, but failed to validate the response object. Check Google API or GoogleLogin component for more details.'
-        )
-      }
+      const { payload } = decodeGoogleJWT(credential)
+      storeDataInLocalStorage<GoogleJWTPayload>('user', {
+        email: payload.email,
+        family_name: payload.family_name,
+        given_name: payload.given_name,
+        locale: payload.locale,
+        name: payload.name,
+        picture: payload.picture,
+        sub: payload.sub,
+      })
 
-      const { payload } = decodeGoogleJWT(credentialResponse.credential)
-      storeDataInLocalStorage<GoogleJWTPayload>('user', payload)
-
-      const res = await axios.post(
-        `${VITE_BASE_URL}/v1/auth/verify`,
-        JSON.stringify({ token: credentialResponse.credential }),
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      const res = await axios.post(`${VITE_BASE_URL}/v1/auth/verify`, JSON.stringify({ token: credential }), {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
       setIsAuthenticated(res.status === 200)
     } catch (e) {
@@ -78,12 +68,15 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
     }
   }, [])
 
+  const handleLoginError = useCallback((error: any) => {
+    console.error('Google login error:', error)
+  }, [])
+
   const handleClickProfile = (_: MouseEvent) => {
     setToggleProfile(!toggleProfile)
   }
 
   const handleEnterGuestMode = async () => {
-    googleLogout()
     localStorage.clear()
 
     if (enterGuestMode) {
@@ -142,7 +135,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
           margin-right: 2vw;
         `}
       >
-        {!isAuthenticated && (
+        {!isAuthenticated && enterGuestMode && (
           <div
             css={css`
               display: flex;
@@ -162,7 +155,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
             <button
               type="button"
               css={css`
-                padding: 0.6rem 1rem;
+                padding: 1rem;
                 font-weight: 600;
                 border: none;
                 cursor: pointer;
@@ -214,28 +207,12 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
               )}
             </div>
           ) : (
-            <div
-              css={css`
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: ${windowWidth > 500 ? '200px' : '40px'};
-              `}
-            >
-              {showSkeleton ? (
-                <SkeletonLoginButton width={windowWidth > 500 ? '196px' : '40px'} />
-              ) : (
-                <GoogleLogin
-                  useOneTap
-                  type={windowWidth > 500 ? 'standard' : 'icon'}
-                  theme="outline"
-                  onSuccess={async (credentialResponse) => handleLoginSuccess(credentialResponse)}
-                  onError={() => {
-                    console.log('Login Failed')
-                  }}
-                />
-              )}
-            </div>
+            <Dropdown title="Login">
+              <GoogleLoginButton
+                onSuccess={(credential: any) => handleLoginSuccess(credential.credential)}
+                onError={handleLoginError}
+              />
+            </Dropdown>
           )}
         </div>
       </div>

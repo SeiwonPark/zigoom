@@ -21,3 +21,9 @@ export interface PeerInfo {
   img: string
   video: boolean
 }
+
+declare global {
+  interface Window {
+    google: any
+  }
+}

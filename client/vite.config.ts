@@ -8,9 +8,6 @@ export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
   return {
-    build: {
-      sourcemap: true,
-    },
     plugins: [
       react({
         jsxImportSource: '@emotion/react',
@@ -23,10 +20,6 @@ export default defineConfig(({ mode }) => {
         org: process.env.SENTRY_ORG,
         project: process.env.SENTRY_PROJECT,
         authToken: process.env.SENTRY_AUTH_TOKEN,
-        sourcemaps: {
-          assets: './dist/**',
-          filesToDeleteAfterUpload: './dist/**/*.map',
-        },
       }),
     ],
     resolve: {

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
 import { VideoAddIcon } from '@/assets/icons'
-// import { KeyboardIcon } from '@/assets/icons'
 import { Header } from '@/components/Header'
 import { TextButton } from '@/components/buttons'
 import { ElevatedButton } from '@/components/buttons/ElevatedButton'
@@ -140,7 +139,6 @@ export default function Home() {
                     border-radius: 6px;
                     padding: 1rem 1.5rem 1rem 2.5rem;
                     font-size: 1rem;
-                    background-image: url('../assets/icons/keyboard.svg'); // FIXME:
                     background-position: 10px center;
                     background-repeat: no-repeat;
                   `}
