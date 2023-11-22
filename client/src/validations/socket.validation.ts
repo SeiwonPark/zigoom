@@ -19,10 +19,6 @@ export const CallPayload = z.object({
   senderId: z.string(),
 })
 
-export const ScreenSharePayload = z.object({
-  senderId: z.string().uuid(),
-})
-
 export const PeerOfferPayload = z.object({
   type: z.union([z.literal('answer'), z.literal('offer'), z.literal('pranswer'), z.literal('rollback')]),
   sdp: z.string(),
@@ -68,8 +64,6 @@ export type RoomJoinedSchema = z.infer<typeof RoomJoinedPayload>
 
 export type CallSchema = z.infer<typeof CallPayload>
 
-export type ScreenShareSchema = z.infer<typeof ScreenSharePayload>
-
 export type PeerOfferSchema = z.infer<typeof PeerOfferPayload>
 
 export type PeerAnswerSchema = z.infer<typeof PeerAnswerPayload>
@@ -95,10 +89,6 @@ export const isRoomJoinedSchema = (obj: any): obj is RoomJoinedSchema => {
 
 export const isCallSchema = (obj: any): obj is CallSchema => {
   return CallPayload.safeParse(obj).success
-}
-
-export const isScreenShareSchema = (obj: any): obj is ScreenShareSchema => {
-  return ScreenSharePayload.safeParse(obj).success
 }
 
 export const isPeerOfferSchema = (obj: any): obj is PeerOfferSchema => {

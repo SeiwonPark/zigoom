@@ -16,7 +16,7 @@ import {
   isPeerIceCandidateSchema,
   isPeerOfferSchema,
   isRoomCreatedSchema,
-  isRoomJoinedSchema, // isScreenShareSchema,
+  isRoomJoinedSchema,
 } from '@/validations/socket.validation'
 
 import styles from './index.module.css'
@@ -38,6 +38,7 @@ export const Session = ({ roomId }: SessionProps) => {
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
   const [remoteProfiles, setRemoteProfiles] = useState<Map<string, PeerInfo>>(new Map())
   const [isScreenSharing, setIsScreenSharing] = useState<boolean>(false)
+  const [isNavigating, setIsNavigating] = useState<boolean>(false)
 
   const location = useLocation()
   const navigate = useNavigate()
@@ -73,7 +74,6 @@ export const Session = ({ roomId }: SessionProps) => {
     socket.on('room_created', onRoomCreated)
     socket.on('room_joined', onRoomJoined)
     socket.on('call', onCall)
-    // socket.on('screen_share', onScreenShare)
     socket.on('peer_offer', onPeerOffer)
     socket.on('peer_answer', onPeerAnswer)
     socket.on('peer_ice_candidate', onPeerIceCandidate)
@@ -124,8 +124,6 @@ export const Session = ({ roomId }: SessionProps) => {
     peersDataChannel.onopen = async () => {
       const profileImage = await getProfileImage()
 
-      console.log('Sending data to peer: ', isVideoOnRef.current, isAudioOnRef.current)
-
       peersDataChannel.send(
         JSON.stringify({
           id: localPeerId.current,
@@ -150,7 +148,6 @@ export const Session = ({ roomId }: SessionProps) => {
 
   const handleReceiveMessage = (event: MessageEvent<string>) => {
     const receivedPeerData: PeerData = JSON.parse(event.data)
-    console.log('Received data:', receivedPeerData)
 
     setRemoteProfiles((prev) => {
       return new Map(prev).set(receivedPeerData.id, {
@@ -174,12 +171,6 @@ export const Session = ({ roomId }: SessionProps) => {
 
     peerConnectionRefs.current[remotePeerId] = rtcPeerConnection
   }
-
-  // const onScreenShare = async (event: any) => {
-  //   if (!isScreenShareSchema(event)) {
-  //     throw new Error('Invalid payload type for ScreenShareSchema.')
-  //   }
-  // }
 
   const onPeerOffer = async (event: any) => {
     if (!isPeerOfferSchema(event)) {
@@ -355,10 +346,16 @@ export const Session = ({ roomId }: SessionProps) => {
         }
       }
 
+      setIsNavigating(true)
       screenStream.getVideoTracks()[0].addEventListener('ended', () => {
         stopScreenSharing()
       })
       setIsScreenSharing(true)
+
+      setTimeout(() => {
+        setIsNavigating(false)
+      }, 1500)
+
       console.log('Successfully started screen sharing')
     } catch (error) {
       console.error('Error on starting screen sharing', error)
@@ -366,7 +363,6 @@ export const Session = ({ roomId }: SessionProps) => {
   }
 
   const stopScreenSharing = () => {
-    console.log('Stopping screen sharing...')
     for (const peerId in peerConnectionRefs.current) {
       const peerConnection = peerConnectionRefs.current[peerId]
       const senders = peerConnection.getSenders()
@@ -382,6 +378,11 @@ export const Session = ({ roomId }: SessionProps) => {
 
   return (
     <div className={styles.container}>
+      <div className={isNavigating ? styles.navigating : styles.default}>
+        <div className={styles.background}>
+          <span className={styles.loadingText}>Sharing screen...</span>
+        </div>
+      </div>
       <div className={`${styles.wrapper} ${remoteStreams.size > 0 ? styles.multiple : styles.single}`}>
         <div
           style={{

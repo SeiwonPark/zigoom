@@ -34,10 +34,11 @@
 .roomInput {
   border: 1px solid #80868a;
   border-radius: 6px;
-  padding: 1rem 1.5rem 1rem 2.5rem;
+  padding: 1rem 1.5rem 1rem 3.5rem;
   font-size: 1rem;
   background-position: 10px center;
   background-repeat: no-repeat;
+  background: url(../../assets/icons/keyboard.svg) no-repeat scroll 20px 14px;
 }
 
 .loading {
