@@ -8,9 +8,11 @@ interface ControlButtonProps {
   Icon: string | SVGProps
   enabled: boolean
   onClick: MouseEventHandler
+  width?: string
+  height?: string
 }
 
-export const ControlButton = ({ Icon, onClick, enabled }: ControlButtonProps) => {
+export const ControlButton = ({ Icon, onClick, enabled, width, height }: ControlButtonProps) => {
   return (
     <div className={styles.container}>
       <button
@@ -18,7 +20,7 @@ export const ControlButton = ({ Icon, onClick, enabled }: ControlButtonProps) =>
         type="button"
         onClick={onClick}
       >
-        <Icon fill="#fff" />
+        <Icon fill="#fff" width={width ? width : '24px'} height={height ? height : '24px'} />
       </button>
     </div>
   )

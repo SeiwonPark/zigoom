@@ -8,6 +8,7 @@ import MicOffIcon from '@/assets/icons/mic_off.svg'
 import MoreIcon from '@/assets/icons/more.svg'
 import PinIconDisabled from '@/assets/icons/pin_disabled.svg'
 import PinIconEnabled from '@/assets/icons/pin_enabled.svg'
+import ScreenIcon from '@/assets/icons/screen.svg'
 import SendIcon from '@/assets/icons/send.svg'
 import VideoIcon from '@/assets/icons/video.svg'
 import VideoAddIcon from '@/assets/icons/video_add.svg'
@@ -30,4 +31,5 @@ export {
   CallEndIcon,
   VolumeIcon,
   KeyboardIcon,
+  ScreenIcon,
 }

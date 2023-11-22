@@ -66,7 +66,7 @@ export default function Home() {
         enterGuestMode={enterGuest}
         style={{
           backgroundColor: isNavigating ? 'rgba(0, 0, 0, 0.8)' : '#fff',
-          transition: 'background-color 1s',
+          transition: 'background 1s',
         }}
       />
       <div className={`${styles.container} ${isNavigating ? styles.navigating : styles.default}`}>

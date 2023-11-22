@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { memo, useContext, useEffect, useRef, useState } from 'react'
 
 import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
 import { SVGIcon } from '@/components/Buttons'
@@ -15,16 +15,16 @@ interface VideoProps {
   remoteProfiles: Map<string, PeerInfo>
 }
 
-export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles }: VideoProps) => {
+const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfiles }: VideoProps) => {
   const socket = useContext(SocketContext)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [pinned, setPinned] = useState<boolean>(false)
   const [videoActive, setVideoActive] = useState<boolean>(false)
 
   useEffect(() => {
-    const remotePeerId = remoteProfiles.get(peerId)
-    if (remotePeerId) {
-      setVideoActive(remotePeerId.video)
+    const remotePeerInfo = remoteProfiles.get(peerId)
+    if (remotePeerInfo) {
+      setVideoActive(remotePeerInfo.video)
     }
   }, [remoteProfiles, peerId])
 
@@ -33,37 +33,25 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
       videoRef.current.srcObject = stream
     }
 
+    const handleVideoStatus = (event: any) => {
+      if (!isVideoStatusSchema(event)) {
+        throw new Error('Invalid payload type for VideoStatusSchema.')
+      }
+
+      if (event.senderId === peerId) {
+        setVideoActive(event.video)
+      }
+    }
+
     socket.on('video_status', handleVideoStatus)
 
     return () => {
       socket.off('video_status', handleVideoStatus)
     }
-  }, [])
+  }, [socket, peerId])
 
-  const handleVideoStatus = (event: any) => {
-    if (!isVideoStatusSchema(event)) {
-      throw Error('Invalid payload type for VideoStatusSchema.')
-    }
-
-    if (event.senderId === peerId) {
-      if (videoRef.current) {
-        toggleVideo()
-      }
-      console.log('received event: ', event)
-      setVideoActive(event.video)
-    }
-  }
-
-  // FIXME: actually pin
   const togglePin = () => {
     setPinned(!pinned)
-  }
-
-  const toggleVideo = () => {
-    if (stream && stream.getVideoTracks().length > 0) {
-      const enabled = !stream.getVideoTracks()[0].enabled
-      stream.getVideoTracks()[0].enabled = enabled
-    }
   }
 
   const setVideoRef = (node: HTMLVideoElement) => {
@@ -102,3 +90,12 @@ export const RemoteVideo = ({ stream, peerId, numOfparticipants, remoteProfiles 
     </div>
   )
 }
+
+export const RemoteVideo = memo(RemoteVideoComponent, (prev, next) => {
+  return (
+    prev.peerId === next.peerId &&
+    prev.numOfparticipants === next.numOfparticipants &&
+    prev.stream === next.stream &&
+    prev.remoteProfiles === next.remoteProfiles
+  )
+})

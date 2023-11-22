@@ -36,7 +36,7 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
     if (stream && stream.getAudioTracks().length > 0) {
       stream.getAudioTracks()[0].enabled = isAudioOn
     }
-  }, [isVideoOn, isAudioOn, stream?.active])
+  }, [isVideoOn, stream?.active])
 
   // FIXME: actually pin
   const togglePin = () => {

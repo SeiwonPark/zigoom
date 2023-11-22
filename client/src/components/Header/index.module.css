@@ -45,11 +45,6 @@
   overflow: hidden;
 }
 
-.guestContainer:hover #guestButton {
-  background-color: #f8f9fa;
-  color: #202124;
-}
-
 .guestButton {
   padding: 1rem;
   font-weight: 600;
@@ -58,6 +53,10 @@
   color: #5f6368;
   background-color: inherit;
   text-transform: uppercase;
+}
+
+.guestButton:hover {
+  background-color: #f6fafe;
 }
 
 .userContainer {

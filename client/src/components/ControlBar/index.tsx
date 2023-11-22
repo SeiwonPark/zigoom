@@ -8,6 +8,7 @@ import {
   ChatIconEnabled,
   MicIcon,
   MicOffIcon,
+  ScreenIcon,
   VideoIcon,
   VideoOffIcon,
 } from '@/assets/icons'
@@ -25,9 +26,17 @@ interface ControlBarProps {
   localPeerId?: string
   isChatOpen?: boolean
   toggleChat?: () => void
+  toggleScreenShare: () => void
 }
 
-export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggleChat }: ControlBarProps) => {
+export const ControlBar = ({
+  localStream,
+  roomId,
+  localPeerId,
+  isChatOpen,
+  toggleChat,
+  toggleScreenShare,
+}: ControlBarProps) => {
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
   const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
@@ -43,7 +52,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
         }
       }
     })
-  }, [localStream, isVideoOn, isAudioOn])
+  }, [localStream])
 
   const toggleVideo = () => {
     if (localStream && localStream.getVideoTracks().length > 0) {
@@ -89,7 +98,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
       console.log(res.data)
       navigate('/')
     } else {
-      console.log('handleLeaveSession failed')
+      console.error('handleLeaveSession failed')
     }
   }
 
@@ -100,6 +109,7 @@ export const ControlBar = ({ localStream, roomId, localPeerId, isChatOpen, toggl
         <div className={styles.controlButtons}>
           <ControlButton Icon={isVideoOn ? VideoIcon : VideoOffIcon} onClick={toggleVideo} enabled={isVideoOn} />
           <ControlButton Icon={isAudioOn ? MicIcon : MicOffIcon} onClick={toggleMic} enabled={isAudioOn} />
+          <ControlButton Icon={ScreenIcon} onClick={toggleScreenShare} enabled={true} height="28px" />
           <ControlButton Icon={CallEndIcon} onClick={handleCancelCall} enabled={false} />
         </div>
         <div className={styles.hostOptionButtons}>

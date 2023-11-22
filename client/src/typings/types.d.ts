@@ -15,11 +15,13 @@ export interface PeerData {
   id: string
   img: string
   video: boolean
+  audio: boolean
 }
 
 export interface PeerInfo {
   img: string
   video: boolean
+  audio: boolean
 }
 
 declare global {
