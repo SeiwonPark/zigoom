@@ -53,6 +53,11 @@ export const VideoStatusPayload = z.object({
   video: z.boolean(),
 })
 
+export const AudioStatusPayload = z.object({
+  senderId: z.string(),
+  audio: z.boolean(),
+})
+
 /**
  * =========================================
  * types
@@ -73,6 +78,8 @@ export type PeerIceCandidateSchema = z.infer<typeof PeerIceCandidatePayload>
 export type ReceiveChatSchema = z.infer<typeof ReceiveChatPayload>
 
 export type VideoStatusSchema = z.infer<typeof VideoStatusPayload>
+
+export type AudioStatusSchema = z.infer<typeof AudioStatusPayload>
 
 /**
  * =========================================
@@ -109,4 +116,8 @@ export const isReceiveChatSchema = (obj: any): obj is ReceiveChatSchema => {
 
 export const isVideoStatusSchema = (obj: any): obj is VideoStatusSchema => {
   return VideoStatusPayload.safeParse(obj).success
+}
+
+export const isAudioStatusSchema = (obj: any): obj is AudioStatusSchema => {
+  return AudioStatusPayload.safeParse(obj).success
 }

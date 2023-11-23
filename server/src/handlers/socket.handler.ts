@@ -10,6 +10,7 @@ import {
   isPeerIceCandidateSchema,
   isPeerOfferSchema,
   isSendChatSchema,
+  isToggleAudioSchema,
   isToggleVideoSchema,
 } from '../validations/socket.validation'
 
@@ -120,6 +121,18 @@ export const setupSocketHandlers = (io: Server) => {
       })
     }
 
+    const onToggleAudio = (payload: any) => {
+      if (!isToggleAudioSchema(payload)) {
+        logger.error('Invalid payload type for ToggleAudioSchema.')
+        throw new RequestError('Invalid payload type for ToggleAudioSchema.', ErrorCode.BadRequest)
+      }
+
+      socket.to(payload.roomId).emit('audio_status', {
+        senderId: payload.senderId,
+        audio: payload.audio,
+      })
+    }
+
     socket.on('join', onJoin)
     socket.on('call', onCall)
     socket.on('peer_offer', onPeerOffer)
@@ -128,6 +141,7 @@ export const setupSocketHandlers = (io: Server) => {
     socket.on('send_chat', onSendChat)
     socket.on('disconnect', onDisconnect)
     socket.on('cancel', onCancel)
-    socket.on('toggleVideo', onToggleVideo)
+    socket.on('toggle_video', onToggleVideo)
+    socket.on('toggle_audio', onToggleAudio)
   })
 }
