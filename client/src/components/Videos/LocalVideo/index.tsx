@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
 import { Unnamed } from '@/assets/images'
@@ -21,8 +21,7 @@ interface VideoProps {
 
 export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, showHover }: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [pinned, setPinned] = useState<boolean>(false)
-  const { isVideoOn, isAudioOn } = useLocalOption()
+  const { isVideoOn, isAudioOn, pinnedPeerId, setPinnedPeerId } = useLocalOption()
 
   useEffect(() => {
     if (videoRef.current) {
@@ -37,11 +36,6 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
       stream.getAudioTracks()[0].enabled = isAudioOn
     }
   }, [isVideoOn, stream?.active])
-
-  // FIXME: actually pin
-  const togglePin = () => {
-    setPinned(!pinned)
-  }
 
   const setIdPosition = () => {
     switch (peerIdPosition) {
@@ -62,6 +56,14 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
 
   const getProfileImageFromLocalStorage = () => {
     return getLocalStorageItem<GoogleJWTPayload>('user')?.picture.replace('=s96-c', '=l96-c')
+  }
+
+  const togglePin = () => {
+    if (pinnedPeerId === '' || pinnedPeerId !== peerId) {
+      setPinnedPeerId(peerId)
+    } else {
+      setPinnedPeerId('')
+    }
   }
 
   return (
@@ -88,12 +90,12 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
         </div>
       )}
       <div className={styles.peerId} style={{ ...setIdPosition() }}>
-        {peerId}
+        You
       </div>
-      <div className={`${styles.options} ${showHover ? styles.optionHover : styles.optionDefault}`} id="options">
+      <div className={styles.options}>
         <div className={styles.iconContainer}>
           <div id="icon" className={styles.icon} onClick={togglePin}>
-            <SVGIcon Icon={pinned ? PinIconEnabled : PinIconDisabled} width={30} height={24} />
+            <SVGIcon Icon={peerId === pinnedPeerId ? PinIconEnabled : PinIconDisabled} width={30} height={24} />
           </div>
           <div id="icon" className={styles.icon}>
             <SVGIcon Icon={MoreIcon} width={30} height={24} />

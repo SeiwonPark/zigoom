@@ -1,3 +1,5 @@
+import { sleep } from './time'
+
 interface VerifyOptions {
   params: URLSearchParams
 }
@@ -11,6 +13,6 @@ export const verifySession = async ({ params }: VerifyOptions, sessionId: string
   }
 
   // FIXME: replace this with the actual request
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  await sleep(1000)
   return true
 }

@@ -8,14 +8,6 @@
   border-radius: 8px;
 }
 
-.active:hover #options {
-  -webkit-transition: opacity 0.1s ease-in;
-  -moz-transition: opacity 0.1s ease-in;
-  -o-transition: opacity 0.1s ease-in;
-  opacity: 1;
-  transition-delay: 0.1s;
-}
-
 .single {
   background-color: #000;
 }
@@ -65,12 +57,11 @@
   align-items: center;
 }
 
-.optionHover {
+.active:hover > .options {
   display: flex;
-}
-
-.optionDefault {
-  display: none;
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+  transition-delay: 0.3s;
 }
 
 .iconContainer {

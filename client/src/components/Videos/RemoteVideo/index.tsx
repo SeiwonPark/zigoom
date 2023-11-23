@@ -3,6 +3,7 @@ import { memo, useContext, useEffect, useRef, useState } from 'react'
 import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
 import { SVGIcon } from '@/components/Buttons'
 import { SocketContext } from '@/contexts/SocketContext'
+import { useLocalOption } from '@/hooks/useStore'
 import { PeerInfo } from '@/typings/index'
 import { isVideoStatusSchema } from '@/validations/socket.validation'
 
@@ -18,8 +19,8 @@ interface VideoProps {
 const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfiles }: VideoProps) => {
   const socket = useContext(SocketContext)
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [pinned, setPinned] = useState<boolean>(false)
   const [videoActive, setVideoActive] = useState<boolean>(false)
+  const { pinnedPeerId, setPinnedPeerId } = useLocalOption()
 
   useEffect(() => {
     const remotePeerInfo = remoteProfiles.get(peerId)
@@ -50,16 +51,22 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
     }
   }, [socket, peerId])
 
-  const togglePin = () => {
-    setPinned(!pinned)
-  }
-
   const setVideoRef = (node: HTMLVideoElement) => {
     if (node) {
       node.srcObject = stream
       videoRef.current = node
     }
   }
+
+  const togglePin = () => {
+    if (pinnedPeerId === '' || pinnedPeerId !== peerId) {
+      setPinnedPeerId(peerId)
+    } else {
+      setPinnedPeerId('')
+    }
+  }
+
+  console.log('This is the image', remoteProfiles.get(peerId)?.img)
 
   return (
     <div className={`${styles.container} ${numOfparticipants === 1 ? styles.single : styles.multiple}`}>
@@ -80,7 +87,7 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
       <div id="options" className={styles.options}>
         <div className={styles.iconContainer}>
           <div id="icon" className={styles.icon} onClick={togglePin}>
-            <SVGIcon Icon={pinned ? PinIconEnabled : PinIconDisabled} width={30} height={24} />
+            <SVGIcon Icon={pinnedPeerId === peerId ? PinIconEnabled : PinIconDisabled} width={30} height={24} />
           </div>
           <div id="icon" className={styles.icon}>
             <SVGIcon Icon={MoreIcon} width={30} height={24} />

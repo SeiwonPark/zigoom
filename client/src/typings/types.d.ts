@@ -9,6 +9,7 @@ export type MediaTypes = 'audioinput' | 'audiooutput' | 'video'
 export interface LocalOptions {
   isVideoOn: boolean
   isAudioOn: boolean
+  pinnedPeerId: string
 }
 
 export interface PeerData {
