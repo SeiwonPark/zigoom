@@ -18,7 +18,6 @@ export const offerOptions: RTCOfferOptions = {
   offerToReceiveAudio: true,
 }
 
-// FIXME: to dynamic values
 export const VIDEO_GRIDS = [
   [
     { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 }, // n = 0

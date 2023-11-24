@@ -43,16 +43,10 @@
   justify-content: center;
 }
 
-.pinned {
-  padding: 0;
-  grid-template-rows: 1fr;
-  grid-template-columns: 1fr;
-}
-
-.single {
+.singlePadding {
   padding: 0;
 }
 
-.multiple {
+.multiplePadding {
   padding: 1rem;
 }
