@@ -52,6 +52,12 @@ export const ToggleVideoPayload = z.object({
   video: z.boolean(),
 })
 
+export const ToggleAudioPayload = z.object({
+  roomId: z.string().uuid(),
+  senderId: z.string(),
+  audio: z.boolean(),
+})
+
 /**
  * =========================================
  * types
@@ -70,6 +76,8 @@ export type PeerIceCandidateSchema = z.infer<typeof PeerIceCandidatePayload>
 export type SendChatSchema = z.infer<typeof SendChatPayload>
 
 export type ToggleVideoSchema = z.infer<typeof ToggleVideoPayload>
+
+export type ToggleAudioSchema = z.infer<typeof ToggleAudioPayload>
 
 /**
  * =========================================
@@ -102,4 +110,8 @@ export const isSendChatSchema = (obj: any): obj is SendChatSchema => {
 
 export const isToggleVideoSchema = (obj: any): obj is ToggleVideoSchema => {
   return ToggleVideoPayload.safeParse(obj).success
+}
+
+export const isToggleAudioSchema = (obj: any): obj is ToggleAudioSchema => {
+  return ToggleAudioPayload.safeParse(obj).success
 }

@@ -5,6 +5,7 @@ import { LocalOptions } from '@/typings/index'
 interface LocalOptionState extends LocalOptions {
   setIsVideoOn: (value: boolean) => void
   setIsAudioOn: (value: boolean) => void
+  setPinnedPeerId: (value: string) => void
 }
 
 interface AuthState {
@@ -23,8 +24,10 @@ interface SessionState {
 const useLocalOption = create<LocalOptionState>((set) => ({
   isVideoOn: false,
   isAudioOn: false,
+  pinnedPeerId: '',
   setIsVideoOn: (value: boolean) => set((state: LocalOptions) => ({ ...state, isVideoOn: value })),
   setIsAudioOn: (value: boolean) => set((state: LocalOptions) => ({ ...state, isAudioOn: value })),
+  setPinnedPeerId: (value: string) => set((state: LocalOptions) => ({ ...state, pinnedPeerId: value })),
 }))
 
 /**

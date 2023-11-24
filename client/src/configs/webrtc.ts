@@ -1,3 +1,5 @@
+import { VITE_ICE_SERVER_1, VITE_ICE_SERVER_2 } from './env'
+
 /**
  * Media permissions to initialize local stream.
  */
@@ -8,7 +10,7 @@ export const defaultMediaConstraints = {
 
 export const iceServers: { [key: string]: RTCIceServer[] } = {
   // FIXME: ice servers
-  iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
+  iceServers: [{ urls: VITE_ICE_SERVER_1 }, { urls: VITE_ICE_SERVER_2 }],
 }
 
 export const offerOptions: RTCOfferOptions = {
@@ -16,7 +18,6 @@ export const offerOptions: RTCOfferOptions = {
   offerToReceiveAudio: true,
 }
 
-// FIXME: to dynamic values
 export const VIDEO_GRIDS = [
   [
     { rowStart: 1, rowEnd: 13, colStart: 1, colEnd: 13 }, // n = 0

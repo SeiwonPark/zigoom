@@ -16,15 +16,25 @@
 }
 
 .roomId {
+  text-align: start;
+  width: 33.33%;
   color: #fff;
   padding-left: 1rem;
 }
 
 .controlButtons {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33.33%;
+  display: flex;
 }
 
 .hostOptionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  width: 33.33%;
   display: flex;
   padding-right: 1rem;
 }

@@ -13,6 +13,7 @@ import axios from '@/configs/http'
 import { useSessionStore } from '@/hooks/useStore'
 // import { verifySession } from '@/utils/check'
 import NotFound from '@/pages/NotFound'
+import { sleep } from '@/utils/time'
 
 import styles from './index.module.css'
 
@@ -29,14 +30,13 @@ export default function Room() {
   useEffect(() => {
     setLoading(true)
 
-    const loadingTimeout = setTimeout(async () => {
+    const loadData = async () => {
+      await sleep(800)
       await checkAndSetRoomComponent()
       setLoading(false)
-    }, 800)
-
-    return () => {
-      clearTimeout(loadingTimeout)
     }
+
+    loadData()
   }, [roomId, isGranted])
 
   const checkAndSetRoomComponent = async () => {
