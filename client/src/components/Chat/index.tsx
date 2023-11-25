@@ -35,6 +35,10 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   }, [onReceiveChat])
 
   const sendChatMessage = () => {
+    if (chatInput.trim() === '') {
+      return
+    }
+
     socket.emit('send_chat', {
       roomId: roomId,
       senderId: localPeerId,
@@ -51,7 +55,7 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       <div>
         {chatMessages.map((msg, idx) => (
           <div key={idx}>
