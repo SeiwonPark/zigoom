@@ -26,6 +26,7 @@ services:
     image: $AWS_API_IMAGE
     ports:
       - "5001:5001"
+    # databases only for development
     depends_on:
       - redis
       - mysql

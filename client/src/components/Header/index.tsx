@@ -1,4 +1,4 @@
-import { CSSProperties, MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
+import { CSSProperties, MouseEvent, useCallback, useRef, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
@@ -21,23 +21,11 @@ interface HeaderProps {
 }
 
 export const Header = ({ style, enterGuestMode }: HeaderProps) => {
-  const [windowWidth, setWindowWidth] = useState<number>(globalThis.innerWidth)
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
   const { isAuthenticated, setIsAuthenticated } = useAuthStore()
   const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(globalThis.innerWidth)
-    }
-    globalThis.addEventListener('resize', handleResize)
-
-    return () => {
-      globalThis.removeEventListener('resize', handleResize)
-    }
-  }, [])
 
   const userData = useCallback(() => {
     return getLocalStorageItem<GoogleJWTPayload>('user')
