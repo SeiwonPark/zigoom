@@ -4,10 +4,10 @@ CREATE TABLE `User` (
     `google_id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `profileThumbnail` VARCHAR(191) NOT NULL,
-    `videoRoomId` VARCHAR(191) NULL,
+    `sessionId` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `modifiedAt` DATETIME(3) NOT NULL,
-    `role` ENUM('USER', 'ADMIN') NOT NULL DEFAULT 'USER',
+    `role` ENUM('USER') NOT NULL DEFAULT 'USER',
 
     UNIQUE INDEX `User_google_id_key`(`google_id`),
     PRIMARY KEY (`id`)
@@ -28,25 +28,24 @@ CREATE TABLE `Profile` (
     `family_name` VARCHAR(191) NULL,
     `given_name` VARCHAR(191) NULL,
     `profileImage` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NULL,
     `userId` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Profile_email_key`(`email`),
     UNIQUE INDEX `Profile_userId_key`(`userId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `VideoRoom` (
+CREATE TABLE `Session` (
     `id` VARCHAR(191) NOT NULL,
-    `private` BOOLEAN NOT NULL DEFAULT false,
+    `isPrivate` BOOLEAN NOT NULL DEFAULT false,
     `host` VARCHAR(191) NOT NULL,
     `title` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `modifiedAt` DATETIME(3) NOT NULL,
     `endedAt` DATETIME(3) NULL,
 
-    UNIQUE INDEX `VideoRoom_id_key`(`id`)
+    UNIQUE INDEX `Session_id_key`(`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -89,7 +88,7 @@ CREATE TABLE `UserChatRoom` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `User` ADD CONSTRAINT `User_videoRoomId_fkey` FOREIGN KEY (`videoRoomId`) REFERENCES `VideoRoom`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `User` ADD CONSTRAINT `User_sessionId_fkey` FOREIGN KEY (`sessionId`) REFERENCES `Session`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Follow` ADD CONSTRAINT `Follow_followerId_fkey` FOREIGN KEY (`followerId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -20,12 +20,13 @@ services:
     container_name: api
     restart: unless-stopped
     env_file:
-      - ./server/.env
+      - ./server/.env.dev
     environment:
       NODE_ENV: $NODE_ENV
     image: $AWS_API_IMAGE
     ports:
       - "5001:5001"
+    # databases only for development
     depends_on:
       - redis
       - mysql
@@ -37,7 +38,7 @@ services:
     container_name: redis
     restart: unless-stopped
     env_file:
-      - ./server/.env
+      - ./server/.env.dev
     image: "redis:alpine"
     ports:
       - "6379:6379"
@@ -48,7 +49,7 @@ services:
     container_name: mysql
     restart: unless-stopped
     env_file:
-      - ./server/.env
+      - ./server/.env.dev
     image: "mysql:latest"
     ports:
       - "3306:3306"
@@ -62,7 +63,7 @@ services:
     image: $AWS_MONGO_IMAGE
     restart: unless-stopped
     env_file:
-      - ./server/.env
+      - ./server/.env.dev
     command: -f /etc/mongod.conf
     ports:
       - "27017:27017"

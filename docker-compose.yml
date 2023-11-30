@@ -1,65 +1,15 @@
-version: "3.8"
+version: "3"
 
 services:
   api:
-    container_name: api
-    restart: unless-stopped
     env_file:
-      - ./server/.env
-    environment:
-      NODE_ENV: $NODE_ENV
+      - ./server/.env.prod
     image: $AWS_API_IMAGE
     ports:
       - "5001:5001"
-    depends_on:
-      - redis
-      - mysql
-      - mongo
-    networks:
-      - api-network
-
-  redis:
-    container_name: redis
-    restart: unless-stopped
-    env_file:
-      - ./server/.env
-    image: "redis:alpine"
-    ports:
-      - "6379:6379"
-    networks:
-      - api-network
-
-  mysql:
-    container_name: mysql
-    restart: unless-stopped
-    env_file:
-      - ./server/.env
-    image: "mysql:latest"
-    ports:
-      - "3306:3306"
-    volumes:
-      - db-mysql:/var/lib/mysql
-    networks:
-      - api-network
-
-  mongo:
-    container_name: mongo
-    image: $AWS_MONGO_IMAGE
-    restart: unless-stopped
-    env_file:
-      - ./server/.env
-    command: -f /etc/mongod.conf
-    ports:
-      - "27017:27017"
-    volumes:
-      - db-mongo:/data/db
-    networks:
-      - api-network
-
-volumes:
-  db-mysql:
-  db-mongo:
-
-networks:
-  api-network:
-    driver: bridge
+    logging:
+      driver: awslogs
+      options:
+        awslogs-group: zigoom-group
+        awslogs-region: ap-northeast-2
+        awslogs-stream-prefix: api

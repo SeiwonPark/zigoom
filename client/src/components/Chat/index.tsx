@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { SendIcon } from '@/assets/icons'
 import { IconButton } from '@/components/Buttons'
@@ -17,6 +17,7 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   const socket = useContext(SocketContext)
   const [chatMessages, setChatMessages] = useState<ReceiveChatSchema[]>([])
   const [chatInput, setChatInput] = useState<string>('')
+  const chatRef = useRef<any>(null)
 
   const onReceiveChat = useCallback((data: any) => {
     if (!isReceiveChatSchema(data)) {
@@ -34,7 +35,19 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
     }
   }, [onReceiveChat])
 
+  const scrollToBottom = () => {
+    chatRef.current?.scrollIntoView()
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [chatMessages])
+
   const sendChatMessage = () => {
+    if (chatInput.trim() === '') {
+      return
+    }
+
     socket.emit('send_chat', {
       roomId: roomId,
       senderId: localPeerId,
@@ -51,13 +64,14 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
   }
 
   return (
-    <div>
-      <div>
+    <div className={styles.container}>
+      <div className={styles.messages}>
         {chatMessages.map((msg, idx) => (
           <div key={idx}>
             <strong>{msg.senderId}</strong>: {msg.message}
           </div>
         ))}
+        <div ref={chatRef} />
       </div>
       <div className={styles.wrapper}>
         <div className={styles.chatBox}>
