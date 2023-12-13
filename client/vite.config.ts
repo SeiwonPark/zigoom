@@ -1,4 +1,4 @@
-import { sentryVitePlugin } from '@sentry/vite-plugin'
+// import { sentryVitePlugin } from '@sentry/vite-plugin'
 import react from '@vitejs/plugin-react-swc'
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
@@ -8,21 +8,22 @@ export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd()) }
 
   return {
+    build: {
+      sourcemap: false,
+    },
     plugins: [
       react(),
       svgr({
         exportAsDefault: true,
       }),
-      sentryVitePlugin({
-        org: process.env.SENTRY_ORG,
-        project: process.env.SENTRY_PROJECT,
-        authToken: process.env.SENTRY_AUTH_TOKEN,
-      }),
+      // sentryVitePlugin({
+      //   org: process.env.SENTRY_ORG,
+      //   project: process.env.SENTRY_PROJECT,
+      //   authToken: process.env.SENTRY_AUTH_TOKEN,
+      // }),
     ],
     resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src'),
-      },
+      alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
     },
     server: {
       host: 'localhost',
