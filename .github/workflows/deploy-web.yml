@@ -1,8 +1,9 @@
 name: "deploy-web"
 
 on:
-  branches:
-    - "*"
+  push:
+    branches:
+      - "*"
 
 jobs:
   deploy:
