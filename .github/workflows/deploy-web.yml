@@ -3,7 +3,7 @@ name: "deploy-web"
 on:
   push:
     branches:
-      - "*"
+      - "**"
 
 jobs:
   deploy:
