@@ -1,0 +1,31 @@
+.container {
+  padding: 8px;
+}
+
+.button {
+  border: none;
+  width: 60px;
+  height: 60px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  border-radius: 100%;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.active {
+  background-color: rgb(60, 64, 67);
+}
+
+.inactive {
+  background-color: rgb(234, 67, 53);
+}
+
+.active:hover {
+  background-color: rgb(77, 80, 81);
+}
+
+.inactive:hover {
+  background-color: rgb(245, 77, 63);
+}
