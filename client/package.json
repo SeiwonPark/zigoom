@@ -7,8 +7,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --check --write './src/**/*.{ts,tsx}'",
-    "dev": "cross-env MODE=development vite --host",
-    "build": "cross-env MODE=production tsc && vite build"
+    "dev": "cross-env NODE_ENV=development MODE=development vite --host",
+    "build": "cross-env NODE_ENV=production MODE=production tsc && vite build"
   },
   "dependencies": {
     "@sentry/integrations": "^7.81.1",

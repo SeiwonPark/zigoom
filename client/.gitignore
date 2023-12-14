@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.prod
+.env.development
+.env.production
 .env.sentry-build-plugin
 
 # Logs
