@@ -1,5 +1,6 @@
-import { mongodb, mysql } from '@configs/prisma.config'
-import { PrismaClient as MongoDBPrismaClient } from '@db/mongodb/generated/mongodb'
+// import { mongodb, mysql } from '@configs/prisma.config'
+import { mysql } from '@configs/prisma.config'
+// import { PrismaClient as MongoDBPrismaClient } from '@db/mongodb/generated/mongodb'
 import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
 
 import { DeepMockProxy, mockReset } from 'jest-mock-extended'
@@ -16,8 +17,8 @@ jest.mock('@configs/redis.config', () => ({
 
 beforeEach(() => {
   mockReset(mockMySQL)
-  mockReset(mockMongoDB)
+  // mockReset(mockMongoDB)
 })
 
 export const mockMySQL = mysql as unknown as DeepMockProxy<MySQLPrismaClient>
-export const mockMongoDB = mongodb as unknown as DeepMockProxy<MongoDBPrismaClient>
+// export const mockMongoDB = mongodb as unknown as DeepMockProxy<MongoDBPrismaClient>
