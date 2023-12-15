@@ -3,7 +3,7 @@ version: "3"
 services:
   api:
     env_file:
-      - ./server/.env.prod
+      - ./server/.env.production
     image: $AWS_API_IMAGE
     ports:
       - "5001:5001"

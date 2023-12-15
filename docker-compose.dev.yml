@@ -6,7 +6,7 @@ services:
     container_name: web
     restart: unless-stopped
     env_file:
-      - ./client/.env
+      - ./client/.env.development
       - ./client/.env.sentry-build-plugin
     environment:
       NODE_ENV: $NODE_ENV
