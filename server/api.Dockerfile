@@ -1,4 +1,4 @@
-FROM node:18-alpine AS deps
+FROM --platform=linux/amd64 node:18-alpine AS deps
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
@@ -7,7 +7,7 @@ RUN apk add --no-cache libc6-compat build-base openssl && \
     pnpm i --frozen-lockfile
 
 
-FROM node:18-alpine AS builder
+FROM --platform=linux/amd64 node:18-alpine AS builder
 
 WORKDIR /app
 COPY . ./
@@ -16,7 +16,7 @@ RUN npm i -g pnpm && \
     pnpm run build && \
     pnpm run generate:mysql
 
-FROM node:18-alpine AS runner
+FROM --platform=linux/amd64 node:18-alpine AS runner
 
 WORKDIR /app
 RUN addgroup -g 1001 appgroup && \
