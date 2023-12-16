@@ -21,6 +21,7 @@ if [[ $ARG =~ ^[Yy]$ ]]; then
   [ $(docker images | wc -l) -ne 1 ] && \
   echo "\n[INFO] Removing images..." && \
   docker rmi $(docker images -aq)
+  docker rmi $(docker images -f "dangling=true" -q) -f
   
   [ $(docker volume ls | wc -l) -ne 1 ] && \
   echo "\n[INFO] Removing volumes..." && \
