@@ -86,7 +86,7 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
         <video
           className={`${styles.remoteVideo} ${numOfparticipants === 1 ? styles.singleVideo : styles.multipleVideo}`}
           ref={setVideoRef}
-          muted={audioActive}
+          // muted={audioActive}
           autoPlay
           playsInline
         />

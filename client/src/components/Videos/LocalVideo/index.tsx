@@ -77,6 +77,7 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
           className={`${styles.localVideo} ${numOfparticipants === 1 ? styles.singleVideo : styles.multipleVideo}`}
           ref={videoRef}
           autoPlay
+          muted
           playsInline
         />
       ) : (
