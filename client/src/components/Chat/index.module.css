@@ -11,6 +11,10 @@
   overflow-y: scroll;
 }
 
+.scroll {
+  display: none;
+}
+
 .wrapper {
   margin-top: auto;
   padding: 0.5rem;

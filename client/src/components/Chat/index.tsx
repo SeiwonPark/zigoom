@@ -71,7 +71,7 @@ export const Chat = ({ roomId, localPeerId }: ChatProps) => {
             <strong>{msg.senderId}</strong>: {msg.message}
           </div>
         ))}
-        <div ref={chatRef} />
+        <div className={styles.scroll} ref={chatRef} />
       </div>
       <div className={styles.wrapper}>
         <div className={styles.chatBox}>
