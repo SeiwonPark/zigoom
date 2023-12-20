@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { LocalVideo, RemoteVideo } from '@/components/Videos'
 import { ChatBox, ControlBar } from '@/components/index'
 import { VIDEO_GRIDS } from '@/configs/webrtc'
@@ -13,7 +11,6 @@ interface SessionProps {
 
 export const Session = ({ roomId }: SessionProps) => {
   const { pinnedPeerId } = useLocalOption()
-  const [isChatOpen, setIsChatOpen] = useState<boolean>(false)
   const { localPeerId, localStream, localStreamRef, remoteStreams, remoteProfiles, peerConnectionRefs } = useWebRTC({
     roomId,
   })
@@ -103,18 +100,11 @@ export const Session = ({ roomId }: SessionProps) => {
           )
         )}
       </div>
-      <ChatBox
-        roomId={roomId}
-        isChatOpen={isChatOpen}
-        localPeerId={localPeerId.current}
-        toggleChat={() => setIsChatOpen(!isChatOpen)}
-      />
+      <ChatBox roomId={roomId} localPeerId={localPeerId.current} />
       <ControlBar
         roomId={roomId}
         localPeerId={localPeerId.current}
         localStream={localStream}
-        isChatOpen={isChatOpen}
-        toggleChat={() => setIsChatOpen(!isChatOpen)}
         toggleScreenShare={toggleScreenShare}
       />
     </div>

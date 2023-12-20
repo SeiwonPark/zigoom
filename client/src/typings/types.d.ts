@@ -10,6 +10,7 @@ export interface LocalOptions {
   isVideoOn: boolean
   isAudioOn: boolean
   pinnedPeerId: string
+  isChatOpen: boolean
 }
 
 export interface PeerData {

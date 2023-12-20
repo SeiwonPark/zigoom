@@ -15,18 +15,11 @@
 }
 
 .inactive {
-  min-width: 0;
+  position: relative;
+  top: 0;
   width: 0;
   margin: 0;
-}
-
-.chatWrapper {
-  height: calc(100% - 7rem);
-  background-color: rgb(32, 33, 36);
-  margin-right: 0rem;
-  transition: width 0.28s;
-  display: flex;
-  align-items: center;
+  padding: 0;
 }
 
 .chatboxWrapper {

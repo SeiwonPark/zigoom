@@ -24,22 +24,13 @@ interface ControlBarProps {
   localStream: MediaStream | null
   roomId?: string
   localPeerId?: string
-  isChatOpen?: boolean
-  toggleChat?: () => void
   toggleScreenShare: () => void
 }
 
-export const ControlBar = ({
-  localStream,
-  roomId,
-  localPeerId,
-  isChatOpen,
-  toggleChat,
-  toggleScreenShare,
-}: ControlBarProps) => {
+export const ControlBar = ({ localStream, roomId, localPeerId, toggleScreenShare }: ControlBarProps) => {
   const socket = useContext(SocketContext)
   const navigate = useNavigate()
-  const { isVideoOn, isAudioOn, setIsVideoOn, setIsAudioOn } = useLocalOption()
+  const { isVideoOn, isAudioOn, isChatOpen, setIsVideoOn, setIsAudioOn, setIsChatOpen } = useLocalOption()
   const { setIsGranted } = useSessionStore()
 
   useEffect(() => {
@@ -122,7 +113,7 @@ export const ControlBar = ({
           <HostOptionButton
             Icon={isChatOpen ? ChatIconEnabled : ChatIconDisabled}
             fill={isChatOpen ? '#8ab4f8' : '#fff'}
-            onClick={toggleChat}
+            onClick={() => setIsChatOpen(!isChatOpen)}
           />
         </div>
       </div>

@@ -20,14 +20,14 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
   const socket = useContext(SocketContext)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [videoActive, setVideoActive] = useState<boolean>(false)
-  const [audioActive, setAudioActive] = useState<boolean>(false)
+  // const [audioActive, setAudioActive] = useState<boolean>(false)
   const { pinnedPeerId, setPinnedPeerId } = useLocalOption()
 
   useEffect(() => {
     const remotePeerInfo = remoteProfiles.get(peerId)
     if (remotePeerInfo) {
       setVideoActive(remotePeerInfo.video)
-      setAudioActive(remotePeerInfo.audio)
+      // setAudioActive(remotePeerInfo.audio)
     }
   }, [remoteProfiles, peerId])
 
@@ -52,7 +52,7 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
       }
 
       if (event.senderId === peerId) {
-        setAudioActive(event.audio)
+        // setAudioActive(event.audio)
       }
     }
 
