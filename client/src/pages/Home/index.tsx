@@ -21,7 +21,12 @@ export default function Home() {
     const currentLocalOptions = getLocalStorageItem<LocalOptions>('local')
 
     if (!currentLocalOptions) {
-      storeDataInLocalStorage<LocalOptions>('local', { isVideoOn: false, isAudioOn: false, pinnedPeerId: '' })
+      storeDataInLocalStorage<LocalOptions>('local', {
+        isVideoOn: false,
+        isAudioOn: false,
+        pinnedPeerId: '',
+        isChatOpen: false,
+      })
     }
   }, [])
 
