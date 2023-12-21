@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-and-deploy:
-    if: github.event.pull_request.merged
     runs-on: ubuntu-latest
     env:
       working-directory: ./client
