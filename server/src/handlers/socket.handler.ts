@@ -79,10 +79,11 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onPeerIceCandidate = (payload: any) => {
-      if (!isPeerIceCandidateSchema(payload)) {
-        logger.error('Invalid payload type for PeerIceCandidateSchema.')
-        throw new RequestError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
-      }
+      // if (!isPeerIceCandidateSchema(payload)) {
+      //   logger.error('Invalid payload type for PeerIceCandidateSchema.')
+      //   throw new RequestError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
+      // }
+      logger.info(`PeerIceCandidate: ${payload}`)
 
       socket.broadcast.to(payload.receiverId).emit('peer_ice_candidate', payload)
     }
