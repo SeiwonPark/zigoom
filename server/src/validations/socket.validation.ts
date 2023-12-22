@@ -36,7 +36,7 @@ export const PeerIceCandidatePayload = z.object({
     candidate: z.string(),
     sdpMid: z.string(),
     sdpMLineIndex: z.number(),
-    usernameFragment: z.string(),
+    usernameFragment: z.string().nullable(),
   }),
 })
 

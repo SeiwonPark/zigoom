@@ -8,7 +8,7 @@
     "lint:fix": "eslint . --ext ts,tsx --fix",
     "format": "prettier --check --write './src/**/*.{ts,tsx}'",
     "dev": "cross-env NODE_ENV=development MODE=development vite --host",
-    "build": "cross-env NODE_ENV=production MODE=production tsc && vite build"
+    "build": "rimraf dist && cross-env NODE_ENV=production MODE=production tsc && vite build"
   },
   "dependencies": {
     "@sentry/integrations": "^7.81.1",
@@ -19,6 +19,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
     "react-select": "^5.8.0",
+    "rimraf": "^5.0.5",
     "serve": "^14.2.1",
     "socket.io-client": "^4.7.2",
     "uuid": "^9.0.1",

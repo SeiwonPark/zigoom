@@ -1,4 +1,4 @@
-import { VITE_ICE_SERVER_1, VITE_ICE_SERVER_2, VITE_ICE_SERVER_3 } from './env'
+import { VITE_ICE_CONFIG_1, VITE_ICE_CONFIG_2 } from './env'
 
 /**
  * Media permissions to initialize local stream.
@@ -8,10 +8,7 @@ export const defaultMediaConstraints = {
   video: true,
 }
 
-export const iceServers: { [key: string]: RTCIceServer[] } = {
-  // FIXME: ice servers
-  iceServers: [{ urls: VITE_ICE_SERVER_1 }, { urls: VITE_ICE_SERVER_2 }, { urls: VITE_ICE_SERVER_3 }],
-}
+export const iceServers: RTCIceServer[] = [{ urls: VITE_ICE_CONFIG_1 }, { urls: VITE_ICE_CONFIG_2 }]
 
 export const offerOptions: RTCOfferOptions = {
   offerToReceiveVideo: true,
