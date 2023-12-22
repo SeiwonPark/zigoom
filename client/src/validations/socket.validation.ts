@@ -17,12 +17,16 @@ export const RoomJoinedPayload = z.object({
 
 export const CallPayload = z.object({
   senderId: z.string(),
+  username: z.string(),
+  credential: z.string(),
 })
 
 export const PeerOfferPayload = z.object({
   type: z.union([z.literal('answer'), z.literal('offer'), z.literal('pranswer'), z.literal('rollback')]),
   sdp: z.string(),
   senderId: z.string(),
+  username: z.string(),
+  credential: z.string(),
 })
 
 export const PeerAnswerPayload = z.object({
@@ -39,7 +43,7 @@ export const PeerIceCandidatePayload = z.object({
     candidate: z.string(),
     sdpMid: z.string(),
     sdpMLineIndex: z.number(),
-    usernameFragment: z.string(),
+    usernameFragment: z.string().nullable(),
   }),
 })
 

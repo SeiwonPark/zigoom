@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { VITE_ICE_CONFIG_3 } from '@/configs/env'
 import { defaultMediaConstraints, iceServers, offerOptions } from '@/configs/webrtc'
 import { SocketContext } from '@/contexts/SocketContext'
 import { useLocalOption } from '@/hooks/useStore'
@@ -105,8 +106,10 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
     })
   }
 
-  const configurePeerConnection = (remotePeerId: string) => {
-    const rtcPeerConnection: RTCPeerConnection = new RTCPeerConnection(iceServers)
+  const configurePeerConnection = (remotePeerId: string, username: string, credential: string) => {
+    const rtcPeerConnection: RTCPeerConnection = new RTCPeerConnection({
+      iceServers: [...iceServers, { urls: VITE_ICE_CONFIG_3, username, credential }],
+    })
 
     rtcPeerConnection.ontrack = (ev: RTCTrackEvent) => setRemoteStream(ev, remotePeerId)
     rtcPeerConnection.oniceconnectionstatechange = () => checkPeerDisconnect(remotePeerId)
@@ -159,7 +162,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
 
     const remotePeerId = event.senderId
 
-    const rtcPeerConnection = configurePeerConnection(remotePeerId)
+    const rtcPeerConnection = configurePeerConnection(remotePeerId, event.username, event.credential)
     await addLocalTracks(rtcPeerConnection)
     await createOffer(rtcPeerConnection, remotePeerId)
 
@@ -172,7 +175,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
     }
 
     const remotePeerId = event.senderId
-    const rtcPeerConnection = configurePeerConnection(remotePeerId)
+    const rtcPeerConnection = configurePeerConnection(remotePeerId, event.username, event.credential)
 
     rtcPeerConnection.setRemoteDescription(new RTCSessionDescription({ ...event }))
     await addLocalTracks(rtcPeerConnection)

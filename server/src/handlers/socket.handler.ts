@@ -1,5 +1,7 @@
+import { TURN_SECRET_KEY } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
 import { ErrorCode, RequestError } from '@shared/errors'
+import { createTURNCredentials } from '@utils/math'
 
 import type { Server, Socket } from 'socket.io'
 
@@ -14,7 +16,27 @@ import {
   isToggleVideoSchema,
 } from '../validations/socket.validation'
 
+/**
+ * Configures signaling server with all the necessary event listeners for peer-to-peer connection.
+ * This handles following events:
+ *
+ * - **Events**
+ *   - `join` - joins or creates a room
+ *   - `call` - emits `call` event to all peers in the room
+ *   - `peer_offer` - triggers peer connection
+ *   - `peer_answer` - accepts peer connection
+ *   - `peer_ice_candidate` - adds ice candidates so to relay connection
+ *   - `send_chat` - sends chat message to the room
+ *   - `disconnect` - disconnects peer connection from the room
+ *   - `cancel` - disconnects socket client
+ *   - `toggle_video` - sends video component toggle status
+ *   - `toggle_audio` - sends audio component toggle status
+ *
+ * @param {Server} io - Socket.io Server
+ */
 export const setupSocketHandlers = (io: Server) => {
+  const { username, password } = createTURNCredentials(TURN_SECRET_KEY)
+
   io.on('connection', (socket: Socket) => {
     const onJoin = (payload: any) => {
       if (!isJoinSchema(payload)) {
@@ -26,15 +48,15 @@ export const setupSocketHandlers = (io: Server) => {
       const roomClients = io.sockets.adapter.rooms.get(roomId) || { size: 0 }
       const numOfClients = roomClients.size
 
-      if (numOfClients == 0) {
+      if (numOfClients) {
         socket.join(roomId)
-        socket.emit('room_created', {
+        socket.emit('room_joined', {
           roomId: roomId,
           peerId: socket.id,
         })
       } else {
         socket.join(roomId)
-        socket.emit('room_joined', {
+        socket.emit('room_created', {
           roomId: roomId,
           peerId: socket.id,
         })
@@ -49,6 +71,8 @@ export const setupSocketHandlers = (io: Server) => {
 
       socket.broadcast.to(payload.roomId).emit('call', {
         senderId: payload.senderId,
+        username: username,
+        credential: password,
       })
     }
 
@@ -62,6 +86,8 @@ export const setupSocketHandlers = (io: Server) => {
         type: payload.type,
         sdp: payload.sdp,
         senderId: payload.senderId,
+        username: username,
+        credential: password,
       })
     }
 
@@ -79,11 +105,10 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onPeerIceCandidate = (payload: any) => {
-      // if (!isPeerIceCandidateSchema(payload)) {
-      //   logger.error('Invalid payload type for PeerIceCandidateSchema.')
-      //   throw new RequestError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
-      // }
-      logger.info(`PeerIceCandidate: ${payload}`)
+      if (!isPeerIceCandidateSchema(payload)) {
+        logger.error('Invalid payload type for PeerIceCandidateSchema.')
+        throw new RequestError('Invalid payload type for PeerIceCandidateSchema.', ErrorCode.BadRequest)
+      }
 
       socket.broadcast.to(payload.receiverId).emit('peer_ice_candidate', payload)
     }

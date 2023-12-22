@@ -12,3 +12,5 @@ export const ALLOWED_ORIGIN = isDevelopment
 
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost'
 export const REDIS_URL = `redis://${REDIS_HOST}:6379`
+
+export const TURN_SECRET_KEY = process.env.TURN_SECRET_KEY || ''
