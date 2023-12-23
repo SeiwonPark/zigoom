@@ -107,8 +107,13 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
   }
 
   const configurePeerConnection = (remotePeerId: string, username: string, credential: string) => {
+    const iceConfigs =
+      import.meta.env.MODE === 'production'
+        ? [...iceServers, { urls: VITE_ICE_CONFIG_3, username, credential }]
+        : iceServers
+
     const rtcPeerConnection: RTCPeerConnection = new RTCPeerConnection({
-      iceServers: [...iceServers, { urls: VITE_ICE_CONFIG_3, username, credential }],
+      iceServers: iceConfigs,
     })
 
     rtcPeerConnection.ontrack = (ev: RTCTrackEvent) => setRemoteStream(ev, remotePeerId)
