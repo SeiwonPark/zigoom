@@ -10,8 +10,8 @@ import SessionRepository, { JoinedSession } from '../repositories/SessionReposit
 import { isUpdateSessionSchema } from '../validations/session.validation'
 
 interface RequestPayload {
-  payload: Token
-  sessionId: string
+  readonly payload: Token
+  readonly sessionId: string
   data: any
 }
 

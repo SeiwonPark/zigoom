@@ -8,8 +8,8 @@ import { inject, injectable } from 'tsyringe'
 import SessionRepository from '../repositories/SessionRepository'
 
 interface RequestPayload {
-  payload: Token
-  sessionId: string
+  readonly payload: Token
+  readonly sessionId: string
 }
 
 @injectable()

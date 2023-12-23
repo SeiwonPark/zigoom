@@ -11,9 +11,9 @@ import SessionRepository, { JoinedSession } from '../repositories/SessionReposit
 import { isCreateSessionSchema } from '../validations/session.validation'
 
 interface RequestPayload {
-  payload: Token
-  sessionId: string
-  title: string
+  readonly payload: Token
+  readonly sessionId: string
+  readonly title: string
   isPrivate?: boolean
 }
 

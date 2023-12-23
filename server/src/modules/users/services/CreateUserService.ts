@@ -9,7 +9,7 @@ import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { isCreateUserSchema } from '../validations/user.validation'
 
 interface RequestPayload {
-  payload: Token
+  readonly payload: Token
 }
 
 @injectable()

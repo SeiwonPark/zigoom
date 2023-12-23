@@ -8,7 +8,7 @@ import { inject, injectable } from 'tsyringe'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 
 interface RequestPayload {
-  payload: Token
+  readonly payload: Token
   include: boolean
 }
 

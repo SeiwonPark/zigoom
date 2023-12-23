@@ -9,7 +9,7 @@ import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { isUpdateUserSchema } from '../validations/user.validation'
 
 interface RequestPayload {
-  payload: Token
+  readonly payload: Token
   include: boolean
   data: any
 }
