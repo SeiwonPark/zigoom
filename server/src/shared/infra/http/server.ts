@@ -1,6 +1,7 @@
-import { ALLOWED_ORIGIN, PORT } from '@configs/env.config'
+import { ALLOWED_ORIGIN, PORT, REDIS_URL } from '@configs/env.config'
 import { format, logger, stream } from '@configs/logger.config'
 import '@shared/container'
+import { createAdapter } from '@socket.io/redis-adapter'
 
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
@@ -11,6 +12,7 @@ import helmet from 'helmet'
 import { createServer } from 'http'
 import morgan from 'morgan'
 import { collectDefaultMetrics } from 'prom-client'
+import { createClient } from 'redis'
 import { Server } from 'socket.io'
 
 import { setupSocketHandlers } from '../../../handlers/socket.handler'
@@ -52,7 +54,14 @@ const io = new Server(server, {
   },
 })
 
+const pubClient = createClient({ url: REDIS_URL })
+const subClient = pubClient.duplicate()
+
 setupSocketHandlers(io)
+
+Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+  io.adapter(createAdapter(pubClient, subClient))
+})
 
 server.listen(PORT, () => {
   logger.info(`Server is listening on PORT ${PORT}...`)
