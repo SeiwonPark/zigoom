@@ -23,6 +23,7 @@
     "baseUrl": "./src",
     "paths": {
       "@modules/*": ["modules/*"],
+      "@handlers/*": ["handlers/*"],
       "@configs/*": ["configs/*"],
       "@shared/*": ["shared/*"],
       "@db/*": ["../prisma/*"],
