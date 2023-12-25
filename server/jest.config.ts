@@ -14,7 +14,7 @@ const config: Config = {
     'interfaces',
     'generated',
     'configs',
-    '<rootDir>/src/shared/infra/http/server.ts',
+    '<rootDir>/src/shared',
   ],
   testMatch: ['**/*.test.ts'],
   transform: {
