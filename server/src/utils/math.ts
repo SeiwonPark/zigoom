@@ -5,7 +5,7 @@ import sha256 from 'crypto-js/sha256'
 /**
  * Creates temporary user credentials for TURN server. TTL for 6 hours.
  */
-export const createTURNCredentials = (key: string, ttl: number = 21600) => {
+export const createTURNCredentials = (key: string = '', ttl: number = 21600) => {
   const timestamp = Math.floor(Date.now() / 1000) + ttl
   const username = timestamp.toString()
   const hashDigest = sha256(username)

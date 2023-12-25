@@ -6,6 +6,11 @@ import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
 import { DeepMockProxy, mockReset } from 'jest-mock-extended'
 
 jest.mock('@configs/logger.config')
+jest.mock('@configs/env.config', () => ({
+  dotenv: {
+    config: jest.fn(),
+  },
+}))
 jest.mock('@configs/redis.config', () => ({
   redisClient: {
     connect: jest.fn(),

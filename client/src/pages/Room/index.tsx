@@ -40,6 +40,9 @@ export default function Room() {
   }, [roomId, isGranted])
 
   const checkAndSetRoomComponent = async () => {
+    /**
+     * Checks if `roomId` is uuid format.
+     */
     if (roomId !== '' && !validate(roomId)) {
       setRoomComponent(<NotFound />)
       return

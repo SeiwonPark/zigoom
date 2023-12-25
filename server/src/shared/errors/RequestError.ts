@@ -1,5 +1,8 @@
 import { ErrorCode } from './ErrorCode'
 
+/**
+ * Handles HTTP request error.
+ */
 export class RequestError {
   public readonly message: string
   public readonly code: ErrorCode

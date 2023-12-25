@@ -22,6 +22,7 @@ const config: Config = {
   },
   moduleNameMapper: {
     '^@modules/(.*)$': '<rootDir>/src/modules/$1',
+    '^@handlers/(.*)$': '<rootDir>/src/handlers/$1',
     '^@configs/(.*)$': '<rootDir>/src/configs/$1',
     '^@shared/(.*)$': '<rootDir>/src/shared/$1',
     '^@db/(.*)$': '<rootDir>/prisma/$1',
