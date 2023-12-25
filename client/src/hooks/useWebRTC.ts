@@ -29,6 +29,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null)
   const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(new Map())
   const [remoteProfiles, setRemoteProfiles] = useState<Map<string, PeerInfo>>(new Map())
+  const [rtt, setRtt] = useState<number>(0)
 
   const localStreamRef = useRef<MediaStream>()
   const peerConnectionRefs = useRef<Record<string, RTCPeerConnection>>({})
@@ -106,6 +107,19 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
     })
   }
 
+  const getRTT = async (peerConnection: RTCPeerConnection): Promise<void> => {
+    try {
+      const stats = await peerConnection.getStats()
+      stats.forEach((report) => {
+        if (report.type === 'candidate-pair' && report.currentRoundTripTime) {
+          setRtt(report.currentRoundTripTime)
+        }
+      })
+    } catch (error) {
+      console.error('Error in getStats', error)
+    }
+  }
+
   const configurePeerConnection = (remotePeerId: string, username: string, credential: string) => {
     const iceConfigs =
       import.meta.env.MODE === 'production'
@@ -124,9 +138,11 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
 
     peersDataChannel.onopen = async () => {
       const profileImage = await getProfileImage()
+      await getRTT(rtcPeerConnection)
 
       peersDataChannel.send(
         JSON.stringify({
+          rtt: rtt,
           id: localPeerId.current,
           img: profileImage,
           video: isVideoOnRef.current,
@@ -149,7 +165,6 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
 
   const handleReceiveMessage = (event: MessageEvent<string>) => {
     const receivedPeerData: PeerData = JSON.parse(event.data)
-    console.log('Received data from peers: ', receivedPeerData)
 
     setRemoteProfiles((prev) => {
       return new Map(prev).set(receivedPeerData.id, {
@@ -323,6 +338,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
   }
 
   return {
+    rtt,
     localPeerId,
     localStream,
     localStreamRef,

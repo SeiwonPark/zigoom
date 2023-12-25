@@ -11,9 +11,10 @@ interface SessionProps {
 
 export const Session = ({ roomId }: SessionProps) => {
   const { pinnedPeerId } = useLocalOption()
-  const { localPeerId, localStream, localStreamRef, remoteStreams, remoteProfiles, peerConnectionRefs } = useWebRTC({
-    roomId,
-  })
+  const { rtt, localPeerId, localStream, localStreamRef, remoteStreams, remoteProfiles, peerConnectionRefs } =
+    useWebRTC({
+      roomId,
+    })
   const { isNavigating, toggleScreenShare } = useScreen({ localStreamRef, peerConnectionRefs })
 
   const isPinned = pinnedPeerId !== '' && (pinnedPeerId === localPeerId.current || remoteStreams.has(pinnedPeerId))
@@ -69,6 +70,7 @@ export const Session = ({ roomId }: SessionProps) => {
             peerId === pinnedPeerId ? (
               <div key={peerId} style={getPinnedVideoStyle()}>
                 <RemoteVideo
+                  rtt={rtt}
                   key={peerId}
                   stream={stream}
                   peerId={peerId}
@@ -79,6 +81,7 @@ export const Session = ({ roomId }: SessionProps) => {
             ) : (
               <div key={peerId} style={getRegularVideoStyle(index + 1, true)}>
                 <RemoteVideo
+                  rtt={rtt}
                   key={peerId}
                   stream={stream}
                   peerId={peerId}
@@ -90,6 +93,7 @@ export const Session = ({ roomId }: SessionProps) => {
           ) : (
             <div key={peerId} style={getRegularVideoStyle(index + 1, false)}>
               <RemoteVideo
+                rtt={rtt}
                 key={peerId}
                 stream={stream}
                 peerId={peerId}

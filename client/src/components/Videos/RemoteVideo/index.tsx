@@ -2,6 +2,7 @@ import { memo, useContext, useEffect, useRef, useState } from 'react'
 
 import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
 import { SVGIcon } from '@/components/Buttons'
+import { Stat } from '@/components/Stat'
 import { SocketContext } from '@/contexts/SocketContext'
 import { useLocalOption } from '@/hooks/useStore'
 import { PeerInfo } from '@/typings/index'
@@ -9,25 +10,24 @@ import { isAudioStatusSchema, isVideoStatusSchema } from '@/validations/socket.v
 
 import styles from './index.module.css'
 
-interface VideoProps {
+interface RemoteVideoProps {
+  rtt: number
   stream: MediaStream | null
   peerId: string
   numOfparticipants: number
   remoteProfiles: Map<string, PeerInfo>
 }
 
-const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfiles }: VideoProps) => {
+const RemoteVideoComponent = ({ rtt, stream, peerId, numOfparticipants, remoteProfiles }: RemoteVideoProps) => {
   const socket = useContext(SocketContext)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [videoActive, setVideoActive] = useState<boolean>(false)
-  // const [audioActive, setAudioActive] = useState<boolean>(false)
   const { pinnedPeerId, setPinnedPeerId } = useLocalOption()
 
   useEffect(() => {
     const remotePeerInfo = remoteProfiles.get(peerId)
     if (remotePeerInfo) {
       setVideoActive(remotePeerInfo.video)
-      // setAudioActive(remotePeerInfo.audio)
     }
   }, [remoteProfiles, peerId])
 
@@ -86,7 +86,6 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
         <video
           className={`${styles.remoteVideo} ${numOfparticipants === 1 ? styles.singleVideo : styles.multipleVideo}`}
           ref={setVideoRef}
-          // muted={audioActive}
           autoPlay
           playsInline
         />
@@ -95,7 +94,10 @@ const RemoteVideoComponent = ({ stream, peerId, numOfparticipants, remoteProfile
           <img className={styles.altImage} src={remoteProfiles.get(peerId)?.img} alt={peerId} />
         </div>
       )}
-      <div className={styles.peerId}>{peerId}</div>
+      <div className={styles.peerIdContainer}>
+        <Stat stat={rtt} />
+        <span className={styles.peerId}>{peerId}</span>
+      </div>
       <div id="options" className={styles.options}>
         <div className={styles.iconContainer}>
           <div id="icon" className={styles.icon} onClick={togglePin}>
