@@ -2,7 +2,7 @@ import dotenv from 'dotenv-flow'
 
 dotenv.config()
 
-const isDevelopment = process.env.NODE_ENV === 'development'
+export const isDevelopment = process.env.NODE_ENV === 'development'
 
 export const PORT = isDevelopment ? 5001 : process.env.PORT || 5001
 
