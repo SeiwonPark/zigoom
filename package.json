@@ -27,8 +27,8 @@
   "homepage": "https://github.com/SeiwonPark/zigoom#readme",
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-prettier": "^5.0.1"
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prettier": "^5.1.2"
   },
   "dependencies": {
     "artillery": "^2.0.3",
