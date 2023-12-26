@@ -6,7 +6,7 @@ config:
       rampTo: 100
       name: "Warm up"
     - duration: 60
-      arrivalRate: 50
+      arrivalRate: 30
       name: "Sustained max load"
   engines:
     socketio-v3: {}
@@ -20,7 +20,6 @@ config:
           Maecenas consectetur tristique purus, id fringilla dolor maximus a. Duis erat orci, cursus nec dignissim non, dictum sit amet libero. Proin aliquet urna fermentum, tempus lacus eget, laoreet mi. Sed viverra nisl quis scelerisque facilisis. Aenean et porta magna. Phasellus interdum dolor lobortis lacus eleifend iaculis. Donec pellentesque dui posuere lacus maximus ornare. Aliquam erat volutpat. Vestibulum enim libero, elementum ac laoreet et, varius eu nunc. Vestibulum sit amet molestie arcu. Vivamus a egestas nunc, sodales pulvinar nisl. Fusce eget laoreet purus. In mattis mattis nisl, id lacinia metus tempor eget. Nunc rhoncus mauris at pulvinar placerat. Nunc convallis ultricies libero, id vehicula orci efficitur in.
           Nam quis volutpat arcu. Pellentesque dignissim sit amet mauris eu commodo. Aliquam sit amet tortor in magna tempor semper. In at faucibus urna, vel bibendum ligula. Fusce et nunc lacinia diam interdum aliquet. Praesent tempus bibendum auctor. In dapibus nunc sed tellus efficitur convallis. Nullam at tincidunt neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Cras rhoncus elementum eros, id ultricies turpis semper sed. Sed aliquet lectus leo, volutpat tristique lectus mollis iaculis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
         ]
-
   ensure:
     maxErrorRate: 1
     max: 100
@@ -44,7 +43,71 @@ scenarios:
           channel: "peer_offer"
           data:
             type: "type"
-            sdp: "sdp"
+            sdp: |
+              v=0
+              s=-
+              t=0 0
+              a=group:BUNDLE 0 1 2
+              a=extmap-allow-mixed
+              c=IN IP4 0.0.0.0
+              a=rtcp:9 IN IP4 0.0.0.0
+              a=ice-ufrag:mEFi
+              a=ice-options:trickle
+              a=setup:active
+              a=mid:0
+              a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level
+              a=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time
+              a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
+              a=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid
+              a=sendrecv
+              a=rtcp-mux
+              a=rtpmap:111 opus/48000/2
+              a=rtcp-fb:111 transport-cc
+              a=fmtp:111 minptime=10;useinbandfec=1
+              a=rtpmap:63 red/48000/2
+              a=fmtp:63 111/111
+              a=rtpmap:9 G722/8000
+              a=rtpmap:0 PCMU/8000
+              a=rtpmap:8 PCMA/8000
+              a=rtpmap:13 CN/8000
+              a=rtpmap:110 telephone-event/48000
+              a=rtpmap:126 telephone-event/8000
+              m=video 9 UDP/TLS/RTP/SAVPF 96 97 102 103 104 105 106 107 108 109 127 125 39 40 45 46 98 99 100 101 112 113 116 117 118
+              c=IN IP4 0.0.0.0
+              a=rtcp:9 IN IP4 0.0.0.0
+              a=ice-ufrag:mEFi
+              a=ice-options:trickle
+              a=setup:active
+              a=mid:1
+              a=extmap:14 urn:ietf:params:rtp-hdrext:toffset
+              a=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time
+              a=extmap:13 urn:3gpp:video-orientation
+              a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
+              a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay
+              a=extmap:6 http://www.webrtc.org/experiments/rtp-hdrext/video-content-type
+              a=extmap:7 http://www.webrtc.org/experiments/rtp-hdrext/video-timing
+              a=extmap:8 http://www.webrtc.org/experiments/rtp-hdrext/color-space
+              a=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid
+              a=extmap:10 urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id
+              a=extmap:11 urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id
+              a=sendrecv
+              a=rtcp-mux
+              a=rtcp-rsize
+              a=rtpmap:96 VP8/90000
+              a=rtcp-fb:96 goog-remb
+              a=rtcp-fb:96 transport-cc
+              a=rtcp-fb:96 ccm fir
+              a=rtcp-fb:96 nack
+              a=rtcp-fb:96 nack pli
+              a=rtpmap:97 rtx/90000
+              a=fmtp:97 apt=96
+              a=rtpmap:102 H264/90000
+              a=rtcp-fb:102 goog-remb
+              a=rtcp-fb:102 transport-cc
+              a=rtcp-fb:102 ccm fir
+              a=rtcp-fb:102 nack
+              a=rtcp-fb:102 nack pli
+              a=rtpmap:103
             senderId: "sender-id"
             receiverId: "receiver-id"
 
@@ -52,7 +115,71 @@ scenarios:
           channel: "peer_answer"
           data:
             type: "type"
-            sdp: "sdp"
+            sdp: |
+              v=0
+              s=-
+              t=0 0
+              a=group:BUNDLE 0 1 2
+              a=extmap-allow-mixed
+              c=IN IP4 0.0.0.0
+              a=rtcp:9 IN IP4 0.0.0.0
+              a=ice-ufrag:mEFi
+              a=ice-options:trickle
+              a=setup:active
+              a=mid:0
+              a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level
+              a=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time
+              a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
+              a=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid
+              a=sendrecv
+              a=rtcp-mux
+              a=rtpmap:111 opus/48000/2
+              a=rtcp-fb:111 transport-cc
+              a=fmtp:111 minptime=10;useinbandfec=1
+              a=rtpmap:63 red/48000/2
+              a=fmtp:63 111/111
+              a=rtpmap:9 G722/8000
+              a=rtpmap:0 PCMU/8000
+              a=rtpmap:8 PCMA/8000
+              a=rtpmap:13 CN/8000
+              a=rtpmap:110 telephone-event/48000
+              a=rtpmap:126 telephone-event/8000
+              m=video 9 UDP/TLS/RTP/SAVPF 96 97 102 103 104 105 106 107 108 109 127 125 39 40 45 46 98 99 100 101 112 113 116 117 118
+              c=IN IP4 0.0.0.0
+              a=rtcp:9 IN IP4 0.0.0.0
+              a=ice-ufrag:mEFi
+              a=ice-options:trickle
+              a=setup:active
+              a=mid:1
+              a=extmap:14 urn:ietf:params:rtp-hdrext:toffset
+              a=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time
+              a=extmap:13 urn:3gpp:video-orientation
+              a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
+              a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay
+              a=extmap:6 http://www.webrtc.org/experiments/rtp-hdrext/video-content-type
+              a=extmap:7 http://www.webrtc.org/experiments/rtp-hdrext/video-timing
+              a=extmap:8 http://www.webrtc.org/experiments/rtp-hdrext/color-space
+              a=extmap:4 urn:ietf:params:rtp-hdrext:sdes:mid
+              a=extmap:10 urn:ietf:params:rtp-hdrext:sdes:rtp-stream-id
+              a=extmap:11 urn:ietf:params:rtp-hdrext:sdes:repaired-rtp-stream-id
+              a=sendrecv
+              a=rtcp-mux
+              a=rtcp-rsize
+              a=rtpmap:96 VP8/90000
+              a=rtcp-fb:96 goog-remb
+              a=rtcp-fb:96 transport-cc
+              a=rtcp-fb:96 ccm fir
+              a=rtcp-fb:96 nack
+              a=rtcp-fb:96 nack pli
+              a=rtpmap:97 rtx/90000
+              a=fmtp:97 apt=96
+              a=rtpmap:102 H264/90000
+              a=rtcp-fb:102 goog-remb
+              a=rtcp-fb:102 transport-cc
+              a=rtcp-fb:102 ccm fir
+              a=rtcp-fb:102 nack
+              a=rtcp-fb:102 nack pli
+              a=rtpmap:103
             senderId: "sender-id"
             receiverId: "receiver-id"
 
