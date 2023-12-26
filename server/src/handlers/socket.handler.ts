@@ -38,6 +38,7 @@ export const setupSocketHandlers = (io: Server) => {
 
   io.on('connection', (socket: Socket) => {
     const onJoin = (payload: any) => {
+      logger.debug('onJoin event invoked')
       if (!isJoinSchema(payload)) {
         logger.error('Invalid payload type for JoinSchema.')
         socket.emit('error', 'Invalid payload type for JoinSchema.')
@@ -64,6 +65,7 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onCall = (payload: any) => {
+      logger.debug('onCall event invoked')
       if (!isCallSchema(payload)) {
         logger.error('Invalid payload type for CallSchema.')
         socket.emit('error', 'Invalid payload type for CallSchema.')
@@ -78,6 +80,7 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onPeerOffer = (payload: any) => {
+      logger.debug('onPeerOffer event invoked')
       if (!isPeerOfferSchema(payload)) {
         logger.error('Invalid payload type for PeerOfferSchema.')
         socket.emit('error', 'Invalid payload type for PeerOfferSchema.')
@@ -94,6 +97,7 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onPeerAnswer = (payload: any) => {
+      logger.debug('onPeerAnswer event invoked')
       if (!isPeerAnswerSchema(payload)) {
         logger.error('Invalid payload type for PeerAnswerSchema.')
         socket.emit('error', 'Invalid payload type for PeerAnswerSchema.')
@@ -108,6 +112,7 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onPeerIceCandidate = (payload: any) => {
+      logger.debug('onPeerIceCandidate event invoked')
       if (!isPeerIceCandidateSchema(payload)) {
         logger.error('Invalid payload type for PeerIceCandidateSchema.')
         socket.emit('error', 'Invalid payload type for PeerIceCandidateSchema.')
@@ -118,6 +123,7 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onSendChat = (payload: any) => {
+      logger.debug('onSendChat event invoked')
       if (!isSendChatSchema(payload)) {
         logger.error('Invalid payload type for SendChatSchema.')
         socket.emit('error', 'Invalid payload type for SendChatSchema.')
@@ -131,16 +137,19 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onDisconnect = () => {
+      logger.debug('onDisconnect event invoked')
       logger.info(`Peer ${socket.id} has been disconnected`)
       socket.broadcast.emit('peer_disconnected', { peerId: socket.id })
     }
 
     const onCancel = () => {
+      logger.debug('onCancel event invoked')
       logger.info(`Peer ${socket.id} has cancelled the call`)
       socket.disconnect()
     }
 
     const onToggleVideo = (payload: any) => {
+      logger.debug('onToggleVideo event invoked')
       if (!isToggleVideoSchema(payload)) {
         logger.error('Invalid payload type for ToggleVideoSchema.')
         socket.emit('error', 'Invalid payload type for ToggleVideoSchema.')
@@ -154,6 +163,7 @@ export const setupSocketHandlers = (io: Server) => {
     }
 
     const onToggleAudio = (payload: any) => {
+      logger.debug('onToggleAudio event invoked')
       if (!isToggleAudioSchema(payload)) {
         logger.error('Invalid payload type for ToggleAudioSchema.')
         socket.emit('error', 'Invalid payload type for ToggleAudioSchema.')

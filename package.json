@@ -10,6 +10,8 @@
     "lint:fix": "pnpm --prefix ./client run lint:fix && pnpm --prefix ./server run lint:fix",
     "format": "pnpm --prefix ./client run format && pnpm --prefix ./server run format",
     "check": "cd ./server && pnpm run check",
+    "load:dev": "artillery run scenario.development.yml -o ./results/test.json",
+    "load:view": "artillery report ./results/test.json",
     "build": "concurrently -n server,client -c auto \"cd ./server && pnpm run build\" \"cd ./client && pnpm run build\"",
     "dev": "concurrently -n server,client -c auto \"cd ./server && pnpm run dev\" \"cd ./client && pnpm run dev\"",
     "dev:up": "cross-env NODE_ENV=development docker --context default compose -f docker-compose.dev.yml up --build",
@@ -30,6 +32,8 @@
     "eslint-plugin-prettier": "^5.0.1"
   },
   "dependencies": {
+    "artillery": "^2.0.3",
+    "artillery-engine-socketio-v3": "^1.2.0",
     "cross-env": "^7.0.3"
   }
 }

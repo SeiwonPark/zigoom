@@ -41,7 +41,7 @@
   border-radius: 20vh;
 }
 
-.peerId {
+.peerIdContainer {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -51,6 +51,10 @@
   font-size: 14px;
   border-radius: 0px 8px;
   padding: 2px 12px;
+}
+
+.peerId {
+  margin-left: 6px;
 }
 
 .container:hover > .options {

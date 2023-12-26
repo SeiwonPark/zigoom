@@ -1,0 +1,96 @@
+config:
+  target: "http://localhost:5001"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 100
+      name: "Warm up"
+    - duration: 60
+      arrivalRate: 50
+      name: "Sustained max load"
+  engines:
+    socketio-v3: {}
+  variables:
+    messages:
+      - [
+          "short message",
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non eros pretium, commodo risus commodo, aliquam nibh. Quisque quam nunc, convallis id tincidunt vitae, cursus nec velit. Curabitur lacinia ante tellus, vitae facilisis lectus egestas at. Morbi nibh lectus, elementum et molestie ut, iaculis nec nunc. Sed consequat facilisis elementum. Curabitur vitae risus tellus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum accumsan semper tincidunt. Sed et orci malesuada, pretium augue nec, semper erat.
+          Cras et euismod erat, in pharetra enim. In fermentum lorem a lectus euismod, ut lacinia justo bibendum. Cras eu dui neque. Curabitur euismod, arcu vel dapibus consectetur, erat ex tempor augue, sed viverra dui ex ac nisi. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras ac varius ex, a consectetur nisi. Vestibulum convallis tempor tellus sit amet elementum. Phasellus id neque felis. In leo lorem, egestas sed diam interdum, lobortis rutrum enim. Quisque commodo vulputate ultrices. Vivamus vitae mollis urna. Curabitur elementum dolor quam, ac molestie est ultricies nec. Phasellus quis interdum felis. Pellentesque sapien mi, iaculis dignissim tempor eu, pretium et lorem.
+          Nulla ac lorem iaculis, congue metus elementum, luctus massa. Vestibulum ornare semper ex, id pulvinar est eleifend ut. Sed fermentum lorem in dolor lobortis, vitae porttitor est iaculis. In et accumsan mi. Sed finibus justo in erat ullamcorper ultricies. Quisque eget cursus arcu. Etiam nulla arcu, imperdiet nec justo a, venenatis elementum felis. Suspendisse mattis magna a erat pulvinar mattis. Vestibulum ut lectus mollis, congue magna a, eleifend purus. Sed finibus est sit amet tincidunt vehicula. Suspendisse potenti. Mauris fringilla nisi a nunc vestibulum, sed tincidunt libero ullamcorper. Mauris non orci vitae lectus hendrerit euismod. Curabitur scelerisque vestibulum quam vitae porta. Mauris nec nulla ligula.
+          Maecenas consectetur tristique purus, id fringilla dolor maximus a. Duis erat orci, cursus nec dignissim non, dictum sit amet libero. Proin aliquet urna fermentum, tempus lacus eget, laoreet mi. Sed viverra nisl quis scelerisque facilisis. Aenean et porta magna. Phasellus interdum dolor lobortis lacus eleifend iaculis. Donec pellentesque dui posuere lacus maximus ornare. Aliquam erat volutpat. Vestibulum enim libero, elementum ac laoreet et, varius eu nunc. Vestibulum sit amet molestie arcu. Vivamus a egestas nunc, sodales pulvinar nisl. Fusce eget laoreet purus. In mattis mattis nisl, id lacinia metus tempor eget. Nunc rhoncus mauris at pulvinar placerat. Nunc convallis ultricies libero, id vehicula orci efficitur in.
+          Nam quis volutpat arcu. Pellentesque dignissim sit amet mauris eu commodo. Aliquam sit amet tortor in magna tempor semper. In at faucibus urna, vel bibendum ligula. Fusce et nunc lacinia diam interdum aliquet. Praesent tempus bibendum auctor. In dapibus nunc sed tellus efficitur convallis. Nullam at tincidunt neque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Cras rhoncus elementum eros, id ultricies turpis semper sed. Sed aliquet lectus leo, volutpat tristique lectus mollis iaculis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.",
+        ]
+
+  ensure:
+    maxErrorRate: 1
+    max: 100
+
+scenarios:
+  - name: "[DEV] Zigoom's socket.io scenario test"
+    engine: socketio-v3
+    flow:
+      - emit:
+          channel: "join"
+          data:
+            roomId: "123e4567-e89b-12d3-a456-426614174000"
+
+      - emit:
+          channel: "call"
+          data:
+            roomId: "123e4567-e89b-12d3-a456-426614174000"
+            senderId: "sender-id"
+
+      - emit:
+          channel: "peer_offer"
+          data:
+            type: "type"
+            sdp: "sdp"
+            senderId: "sender-id"
+            receiverId: "receiver-id"
+
+      - emit:
+          channel: "peer_answer"
+          data:
+            type: "type"
+            sdp: "sdp"
+            senderId: "sender-id"
+            receiverId: "receiver-id"
+
+      - emit:
+          channel: "peer_ice_candidate"
+          data:
+            senderId: "sender-id"
+            receiverId: "receiver-id"
+            roomId: "123e4567-e89b-12d3-a456-426614174000"
+            candidate:
+              candidate: "candidate"
+              sdpMid: "sdp-mid"
+              sdpMLineIndex: 123
+              usernameFragment: null
+
+      - loop:
+          - emit:
+              channel: "send_chat"
+              data:
+                roomId: "123e4567-e89b-12d3-a456-426614174000"
+                senderId: "sender-id"
+                message: "{{ $loopElement }}"
+
+          - emit:
+              channel: "toggle_video"
+              data:
+                roomId: "123e4567-e89b-12d3-a456-426614174000"
+                senderId: "sender-id"
+                video: true
+
+          - emit:
+              channel: "toggle_audio"
+              data:
+                roomId: "123e4567-e89b-12d3-a456-426614174000"
+                senderId: "sender-id"
+                audio: true
+        count: 50
+        over: messages
+
+      - emit:
+          channel: "cancel"

@@ -1,15 +1,10 @@
 import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { ErrorCode, RequestError } from '@shared/errors'
+import { Guest } from '@shared/types/common'
 import { decodeToken } from '@utils/token'
 
 import { NextFunction, Request, Response } from 'express'
-
-export interface Guest {
-  id: string
-  name: string
-  isGuest: boolean
-}
 
 /**
  * Captures request object and parses authentication-related properties to check authentication.

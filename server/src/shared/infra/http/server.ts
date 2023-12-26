@@ -1,5 +1,6 @@
-import { ALLOWED_ORIGIN, PORT, REDIS_URL } from '@configs/env.config'
+import { ALLOWED_ORIGIN, PORT, REDIS_URL, isDevelopment } from '@configs/env.config'
 import { format, logger, stream } from '@configs/logger.config'
+import { setupSocketHandlers } from '@handlers/socket.handler'
 import '@shared/container'
 import { createAdapter } from '@socket.io/redis-adapter'
 
@@ -15,7 +16,6 @@ import { collectDefaultMetrics } from 'prom-client'
 import { createClient } from 'redis'
 import { Server } from 'socket.io'
 
-import { setupSocketHandlers } from '../../../handlers/socket.handler'
 import { authHandler, errorHandler, limiter } from './middlewares/handlers'
 import { router } from './middlewares/routes'
 import { metricRouter } from './middlewares/routes/metric.route'
@@ -43,7 +43,7 @@ const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      if (origin === ALLOWED_ORIGIN) {
+      if (origin === ALLOWED_ORIGIN || (origin === undefined && isDevelopment)) {
         callback(null, true)
       } else {
         callback(new Error('Not allowed by CORS'))
