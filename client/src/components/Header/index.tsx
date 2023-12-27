@@ -78,9 +78,9 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
         <h1 onClick={() => navigate('/')}>Zigoom</h1>
       </div>
       <nav>
-        <ul className={styles.menuList}>
+        {/* <ul className={styles.menuList}>
           <li className={styles.menu}>page</li>
-        </ul>
+        </ul> */}
       </nav>
       <div className={styles.authContainer}>
         {!isAuthenticated && enterGuestMode && (
