@@ -18,7 +18,8 @@ describe('Socket Handler Integration Tests', () => {
   let serverSocket: ServerSocket
   let clientSocket: ClientSocket
   let participantSocket: ClientSocket
-  let tempClientSocket: ClientSocket
+  let tempClientSocket1: ClientSocket
+  let tempClientSocket2: ClientSocket
 
   const TEST_ROOM_ID = '123e4567-e89b-12d3-a456-426614174000'
   const WRONG_TEST_ROOM_ID = 'abcd'
@@ -34,7 +35,8 @@ describe('Socket Handler Integration Tests', () => {
       const PORT = (httpServer.address() as AddressInfo).port
       clientSocket = ioc(`http://localhost:${PORT}`)
       participantSocket = ioc(`http://localhost:${PORT}`)
-      tempClientSocket = ioc(`http://localhost:${PORT}`)
+      tempClientSocket1 = ioc(`http://localhost:${PORT}`)
+      tempClientSocket2 = ioc(`http://localhost:${PORT}`)
 
       /**
        * Setup servers to listen to events
@@ -69,11 +71,23 @@ describe('Socket Handler Integration Tests', () => {
       })
 
       /**
-       * tempClientSocket JOINS the room.
+       * tempClientSocket1 JOINS the room.
        */
-      tempClientSocket.on('connect', () => {
-        tempClientSocket.emit('join', { roomId: TEST_ROOM_ID })
-        tempClientSocket.on('room_joined', (payload) => {
+      tempClientSocket1.on('connect', () => {
+        tempClientSocket1.emit('join', { roomId: TEST_ROOM_ID })
+        tempClientSocket1.on('room_joined', (payload) => {
+          if (payload.roomId === TEST_ROOM_ID) {
+            done()
+          }
+        })
+      })
+
+      /**
+       * tempClientSocket2 JOINS the room.
+       */
+      tempClientSocket2.on('connect', () => {
+        tempClientSocket2.emit('join', { roomId: TEST_ROOM_ID })
+        tempClientSocket2.on('room_joined', (payload) => {
           if (payload.roomId === TEST_ROOM_ID) {
             done()
           }
@@ -88,13 +102,15 @@ describe('Socket Handler Integration Tests', () => {
   beforeEach(() => {
     clientSocket.on('error', () => {})
     participantSocket.on('error', () => {})
-    tempClientSocket.on('error', () => {})
+    tempClientSocket1.on('error', () => {})
+    tempClientSocket2.on('error', () => {})
   })
 
   afterEach(() => {
     clientSocket.off('error')
     participantSocket.off('error')
-    tempClientSocket.off('error')
+    tempClientSocket1.off('error')
+    tempClientSocket2.off('error')
   })
 
   afterAll(() => {
@@ -103,7 +119,8 @@ describe('Socket Handler Integration Tests', () => {
      */
     clientSocket.close()
     participantSocket.close()
-    tempClientSocket.close()
+    tempClientSocket1.close()
+    tempClientSocket2.close()
     io.close()
     serverSocket.disconnect()
   })
@@ -284,19 +301,16 @@ describe('Socket Handler Integration Tests', () => {
     clientSocket.emit('send_chat', { invalidData: true })
   })
 
-  /**
-   * This works but needs better idea since the host socket is closed.
-   */
-  // test('should emit `peer_disconnected` when the peer is disconnected', (done) => {
-  //   expect.assertions(0)
+  test('should emit `peer_disconnected` when the peer is disconnected', (done) => {
+    expect.assertions(0)
 
-  //   tempClientSocket.on('peer_disconnected', (payload) => {
-  //     tempClientSocket.close()
-  //     done()
-  //   })
+    tempClientSocket1.on('peer_disconnected', (payload) => {
+      tempClientSocket1.close()
+      done()
+    })
 
-  //   clientSocket.close()
-  // })
+    tempClientSocket2.close()
+  })
 
   test('should work with onToggleVideo', (done) => {
     const toggleVideoPaylod = {
