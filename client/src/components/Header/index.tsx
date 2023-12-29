@@ -12,7 +12,7 @@ import axios from '@/configs/http'
 import { useAuthStore } from '@/hooks/useStore'
 import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/localStorage'
 import { decodeGoogleJWT } from '@/utils/string'
-import { GoogleJWTPayload } from '@/validations/auth.validation'
+import { GoogleJWTPayload, GoogleJWTRequestPayload } from '@/validations/auth.validation'
 
 import { SVGIcon } from '../Buttons'
 import { HamburgerMenu } from '../HamburgerMenu'
@@ -47,13 +47,15 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
     return getLocalStorageItem<GoogleJWTPayload>('user')
   }, [])
 
+  // FIXME: This should be fixed to use adapters properly.
   const handleLoginSuccess = useCallback(async (credential: string) => {
     try {
       const { payload } = decodeGoogleJWT(credential)
-      storeDataInLocalStorage<GoogleJWTPayload>('user', {
+      storeDataInLocalStorage<GoogleJWTRequestPayload>('user', {
+        authProvider: 'google',
         email: payload.email,
-        family_name: payload.family_name,
-        given_name: payload.given_name,
+        familyName: payload.family_name,
+        givenName: payload.given_name,
         locale: payload.locale,
         name: payload.name,
         picture: payload.picture,

@@ -9,9 +9,18 @@ datasource db {
     url      = env("MYSQL_DATABASE_URL")
 }
 
+model AuthProvider {
+    id         String @id @default(uuid())
+    provider   String
+    providerId String
+    userId     String
+    user       User   @relation(fields: [userId], references: [id])
+
+    @@unique([provider, providerId])
+}
+
 model User {
     id               String             @id @default(uuid())
-    google_id        String             @unique
     name             String
     profileThumbnail String
     session          Session?           @relation(fields: [sessionId], references: [id])
@@ -25,6 +34,7 @@ model User {
     notification     Notification[]     @relation("notofication")
     following        Follow[]           @relation("following")
     followers        Follow[]           @relation("followers")
+    authProvider     AuthProvider[]
 }
 
 model Follow {
@@ -39,8 +49,8 @@ model Follow {
 
 model Profile {
     id           String  @id @default(uuid())
-    family_name  String?
-    given_name   String?
+    familyName   String?
+    givenName    String?
     profileImage String
     email        String?
     userId       String  @unique

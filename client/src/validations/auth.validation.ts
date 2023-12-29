@@ -27,6 +27,17 @@ export const GoogleJWTPayloadSchema = z.object({
   sub: z.string(),
 })
 
+export const GoogleJWTRequestPayloadSchema = z.object({
+  authProvider: z.string(),
+  email: z.string().email(),
+  familyName: z.string(),
+  givenName: z.string(),
+  locale: z.string(),
+  name: z.string(),
+  picture: z.string().url(),
+  sub: z.string(),
+})
+
 export const GoogleJWTSchema = z.object({
   header: GoogleJWTHeaderSchema,
   payload: GoogleJWTPayloadSchema,
@@ -42,6 +53,8 @@ export type CredentialResponse = z.infer<typeof CredentialResponseSchema>
 export type GoogleJWTHeader = z.infer<typeof GoogleJWTHeaderSchema>
 
 export type GoogleJWTPayload = z.infer<typeof GoogleJWTPayloadSchema>
+
+export type GoogleJWTRequestPayload = z.infer<typeof GoogleJWTRequestPayloadSchema>
 
 export type GoolgeJWT = z.infer<typeof GoogleJWTSchema>
 
