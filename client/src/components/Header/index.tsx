@@ -1,7 +1,8 @@
-import { CSSProperties, MouseEvent, useCallback, useRef, useState } from 'react'
+import { CSSProperties, MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
+import { LogoIcon } from '@/assets/icons'
 import { Unnamed } from '@/assets/images'
 import { GoogleLoginButton } from '@/components/Buttons/GoogleLoginButton'
 import Dropdown from '@/components/Dropdown'
@@ -13,6 +14,8 @@ import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/localStora
 import { decodeGoogleJWT } from '@/utils/string'
 import { GoogleJWTPayload } from '@/validations/auth.validation'
 
+import { SVGIcon } from '../Buttons'
+import { HamburgerMenu } from '../HamburgerMenu'
 import styles from './index.module.css'
 
 interface HeaderProps {
@@ -22,10 +25,23 @@ interface HeaderProps {
 
 export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
+  const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
   const { isAuthenticated, setIsAuthenticated } = useAuthStore()
   const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   const userData = useCallback(() => {
     return getLocalStorageItem<GoogleJWTPayload>('user')
@@ -74,8 +90,9 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
 
   return (
     <header className={styles.header} style={style}>
-      <div className={styles.title}>
-        <h1 onClick={() => navigate('/')}>Zigoom</h1>
+      <div className={styles.title} onClick={() => navigate('/')}>
+        {windowWidth <= 600 && <HamburgerMenu />}
+        <SVGIcon Icon={LogoIcon} width="80px" />
       </div>
       <nav>
         {/* <ul className={styles.menuList}>

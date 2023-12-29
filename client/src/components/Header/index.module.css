@@ -13,8 +13,8 @@
 .title {
   display: flex;
   align-items: center;
-  margin-right: auto;
-  margin-left: 2vw;
+  padding: 20px 2vw;
+  cursor: pointer;
 }
 
 .menuList {

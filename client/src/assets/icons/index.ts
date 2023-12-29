@@ -3,6 +3,7 @@ import ChatIconDisabled from '@/assets/icons/chat_disabled.svg'
 import ChatIconEnabled from '@/assets/icons/chat_enabled.svg'
 import CloseIcon from '@/assets/icons/close.svg'
 import KeyboardIcon from '@/assets/icons/keyboard.svg'
+import LogoIcon from '@/assets/icons/logo.svg'
 import MicIcon from '@/assets/icons/mic.svg'
 import MicOffIcon from '@/assets/icons/mic_off.svg'
 import MoreIcon from '@/assets/icons/more.svg'
@@ -32,4 +33,5 @@ export {
   VolumeIcon,
   KeyboardIcon,
   ScreenIcon,
+  LogoIcon,
 }
