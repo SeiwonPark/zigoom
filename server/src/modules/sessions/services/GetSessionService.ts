@@ -1,9 +1,9 @@
+import { inject, injectable } from 'tsyringe'
+
 import { logger } from '@configs/logger.config'
 import { Session } from '@db/mysql/generated/mysql'
 import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
-
-import { inject, injectable } from 'tsyringe'
 
 import SessionRepository from '../repositories/SessionRepository'
 

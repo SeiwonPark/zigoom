@@ -1,9 +1,9 @@
 // import { mongodb, mysql } from '@configs/prisma.config'
+import { DeepMockProxy, mockReset } from 'jest-mock-extended'
+
 import { mysql } from '@configs/prisma.config'
 // import { PrismaClient as MongoDBPrismaClient } from '@db/mongodb/generated/mongodb'
 import { PrismaClient as MySQLPrismaClient } from '@db/mysql/generated/mysql'
-
-import { DeepMockProxy, mockReset } from 'jest-mock-extended'
 
 jest.mock('@configs/logger.config')
 jest.mock('@configs/env.config', () => ({

@@ -1,8 +1,8 @@
+import type { Server, Socket } from 'socket.io'
+
 import { TURN_SECRET_KEY } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
 import { createTURNCredentials } from '@utils/math'
-
-import type { Server, Socket } from 'socket.io'
 
 import {
   isCallSchema,
