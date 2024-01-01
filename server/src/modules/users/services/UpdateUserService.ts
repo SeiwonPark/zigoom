@@ -1,9 +1,9 @@
+import { inject, injectable } from 'tsyringe'
+
 import { logger } from '@configs/logger.config'
 import { Prisma, User } from '@db/mysql/generated/mysql'
 import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
-
-import { inject, injectable } from 'tsyringe'
 
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { isUpdateUserSchema } from '../validations/user.validation'
@@ -23,9 +23,9 @@ export default class UpdateUserService {
 
   public async execute({ payload, include, data }: RequestPayload): Promise<User | JoinedUser> {
     const validatedData = this.getValidatedData(data)
-    await this.ensureUserExists(payload.sub)
+    await this.ensureUserExists(payload.providerId)
 
-    return await this.userRepository.update(payload.sub, validatedData, include)
+    return await this.userRepository.update(payload.providerId, validatedData, include)
   }
 
   private getValidatedData(data: any): Prisma.UserUpdateInput {
@@ -37,7 +37,7 @@ export default class UpdateUserService {
   }
 
   private async ensureUserExists(googleId: string): Promise<void> {
-    const user = await this.userRepository.findUserByGoogleId(googleId)
+    const user = await this.userRepository.findByProviderId(googleId)
     if (!user) {
       logger.error(`User doesn't exist by id '${googleId}'`)
       throw new RequestError(`User doesn't exist by id '${googleId}'`, ErrorCode.NotFound)

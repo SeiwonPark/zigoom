@@ -1,4 +1,9 @@
+import { Request, Response } from 'express'
+import { container } from 'tsyringe'
+
 import { Role, User } from '@db/mysql/generated/mysql'
+import GoogleAuth from '@modules/users/adapters/GoogleAuth/GoogleAuth'
+import GoogleAuthProvider from '@modules/users/adapters/GoogleAuth/GoogleAuthProvider'
 import UserController from '@modules/users/controllers/UserController'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import CreateUserService from '@modules/users/services/CreateUserService'
@@ -6,12 +11,20 @@ import GetUserService from '@modules/users/services/GetUserService'
 import UpdateUserService from '@modules/users/services/UpdateUserService'
 import { ErrorCode, RequestError } from '@shared/errors'
 
-import { Request, Response } from 'express'
-import { container } from 'tsyringe'
+const mockRequest = () => ({
+  query: { include: 'true' },
+  body: {
+    token: 'json-web-token',
+    provider: 'google',
+  },
+  ctx: { user: {} },
+})
 
 describe('User Controller Unit Tests', () => {
   const userRepository = new UserRepositoryImpl()
   const userController = new UserController()
+  const googleAuth = new GoogleAuth()
+  const googleAuthProvider = new GoogleAuthProvider(googleAuth)
 
   const sendMock = jest.fn()
 
@@ -25,7 +38,6 @@ describe('User Controller Unit Tests', () => {
 
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
-    google_id: '000000000000000000000',
     name: 'Seiwon Park',
     profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
     sessionId: null,
@@ -34,7 +46,7 @@ describe('User Controller Unit Tests', () => {
     role: Role.USER,
   }
 
-  const createUserService = new CreateUserService(userRepository)
+  const createUserService = new CreateUserService(userRepository, googleAuthProvider)
   const getUserService = new GetUserService(userRepository)
   const updateUserService = new UpdateUserService(userRepository)
 
@@ -43,12 +55,7 @@ describe('User Controller Unit Tests', () => {
   const mockUpdateUser = jest.spyOn(updateUserService, 'execute')
 
   beforeEach(() => {
-    req = {
-      ctx: {
-        user: {},
-      },
-      query: {},
-    }
+    req = mockRequest()
     res = {
       status: jest.fn((code: number) => ({ send: sendMock })),
       send: jest.fn(),

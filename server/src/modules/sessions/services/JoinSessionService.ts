@@ -1,11 +1,11 @@
+import { inject, injectable } from 'tsyringe'
+
 import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { Prisma, Session, User } from '@db/mysql/generated/mysql'
 import UserRepository from '@modules/users/repositories/UserRepository'
 import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
-
-import { inject, injectable } from 'tsyringe'
 
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import { isCreateSessionSchema } from '../validations/session.validation'
@@ -44,7 +44,7 @@ export default class JoinSessionService {
     if (payload.isGuest) {
       return await this.handleGuestUser(existingSession, payload, sessionId, title, isPrivate)
     } else {
-      return await this.handleAuthenticatedUser(existingSession, payload.sub, sessionId, title, isPrivate)
+      return await this.handleAuthenticatedUser(existingSession, payload.providerId, sessionId, title, isPrivate)
     }
   }
 
@@ -82,11 +82,11 @@ export default class JoinSessionService {
 
     if (existingSession) {
       const updatedSession = await this.joinSession(sessionId, existingUser.id)
-      logger.info(`User '${existingUser.google_id}' has joined the session '${sessionId}'`)
+      logger.info(`User '${existingUser.id}' has joined the session '${sessionId}'`)
       return updatedSession || existingSession
     } else {
       const createdSession = await this.createSession(sessionId, title, existingUser, isPrivate)
-      logger.info(`User '${existingUser.google_id}' has created a new session '${sessionId}'`)
+      logger.info(`User '${existingUser.id}' has created a new session '${sessionId}'`)
       return createdSession
     }
   }
@@ -101,7 +101,7 @@ export default class JoinSessionService {
   }
 
   private async getUserByGoogleId(googleId: string): Promise<User> {
-    const user = await this.userRepository.findUserByGoogleId(googleId)
+    const user = await this.userRepository.findByProviderId(googleId)
     if (!user) {
       logger.error(`No user has been found by google id '${googleId}'`)
       throw new RequestError(`No user has been found by google id '${googleId}'`, ErrorCode.BadRequest)
@@ -143,7 +143,7 @@ export default class JoinSessionService {
     else {
       sessionData = {
         id: sessionId,
-        host: user.google_id,
+        host: user.id,
         title: title,
         isPrivate: isPrivate,
         users: {

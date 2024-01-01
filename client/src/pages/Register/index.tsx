@@ -20,7 +20,6 @@ export default function Register() {
   const [checkPrivacyStatement, setCheckPrivacyStatement] = useState<boolean>(false)
   const [viewTermsOfUse, setViewTermsOfUse] = useState<boolean>(false)
   const [viewPrivacyStatement, setViewPrivacyStatement] = useState<boolean>(false)
-  const { setIsAuthenticated } = useAuthStore()
 
   const { authToken } = useAuthStore()
   const navigate = useNavigate()
@@ -65,12 +64,9 @@ export default function Register() {
       const res = await axios.post(`${VITE_BASE_URL}/v1/user`, payload)
 
       if (res.status === 200) {
-        setIsAuthenticated(true)
         navigate('/', { replace: true })
       }
     } catch (error) {
-      setIsAuthenticated(false)
-
       if (isAxiosError(error) && error.response) {
         console.error(error.response)
 

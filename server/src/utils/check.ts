@@ -58,6 +58,7 @@ import { join, resolve } from 'path'
     assert(env.NODE_ENV, "\x1b[0;31mEnvironment variable 'NODE_ENV' is required.\x1b[0m")
     assert(env.AWS_API_IMAGE, "\x1b[0;31mEnvironment variable 'AWS_API_IMAGE' is required.\x1b[0m")
     assert(env.TURN_SECRET_KEY, "\x1b[0;31mEnvironment variable 'TURN_SECRET_KEY' is required.")
+    assert(env.TOKEN_KEY, "\x1b[0;31mEnvironment variable 'TOKEN_KEY' is required.")
   })
 
   console.log('\n\x1b[0;32m✔\x1b[0m Environment variables are all set.\n')

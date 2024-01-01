@@ -25,13 +25,13 @@ export default class AuthController {
       return res.sendStatus(401)
     }
 
-    const getUser = container.resolve(AuthService)
-    const foundUser = await getUser.execute({ token: token, provider: provider })
+    const getValidatedPayload = container.resolve(AuthService)
+    const validatedPayload = await getValidatedPayload.execute({ token: token, provider: provider })
 
-    if (!foundUser) {
+    if (!validatedPayload.isUserExists) {
       res.sendStatus(303)
     } else {
-      const encodedToken = signToken(token)
+      const encodedToken = signToken(validatedPayload)
       res.cookie('zigoomjwt', encodedToken, {
         httpOnly: true,
         secure: true,

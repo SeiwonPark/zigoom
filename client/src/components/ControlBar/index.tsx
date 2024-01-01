@@ -92,7 +92,6 @@ export const ControlBar = ({ localStream, roomId, localPeerId, toggleScreenShare
     })
 
     if (res.status === 200) {
-      console.log(res.data)
       navigate('/')
     } else {
       console.error('handleLeaveSession failed')

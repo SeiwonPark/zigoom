@@ -1,10 +1,10 @@
+import { inject, injectable } from 'tsyringe'
+
 import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { Prisma, Session } from '@db/mysql/generated/mysql'
 import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
-
-import { inject, injectable } from 'tsyringe'
 
 import SessionRepository, { JoinedSession } from '../repositories/SessionRepository'
 import { isUpdateSessionSchema } from '../validations/session.validation'
@@ -29,7 +29,7 @@ export default class UpdateSessionService {
       this.countParticipantsInSession(sessionId),
     ])
 
-    const requestedUserId = payload.sub || payload.id
+    const requestedUserId = payload.providerId || payload.id
     if (payload.isGuest) {
       return await this.handleGuestUser(requestedUserId, existingSession, numOfGuests)
     } else {

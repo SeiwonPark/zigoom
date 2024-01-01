@@ -1,4 +1,4 @@
-import type { TokenPayload } from 'google-auth-library'
+import { AuthTokenSchema } from '@modules/users/validations/auth.validation'
 
 export interface Guest {
   id: string
@@ -6,4 +6,8 @@ export interface Guest {
   isGuest: boolean
 }
 
-export type Token = TokenPayload & Guest
+export type Token = AuthTokenSchema & Guest
+
+export enum AuthProviderType {
+  GOOGLE = 'google',
+}

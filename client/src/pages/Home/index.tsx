@@ -34,6 +34,9 @@ export default function Home() {
     if (socket) {
       setIsNavigating(true)
 
+      /**
+       * Minimum exposure for 1000 ms
+       */
       await sleep(1000)
       socket.connect()
       navigate(`/room/${inputSessionId}?adhoc=false&ts=${Date.now()}`)
@@ -45,6 +48,9 @@ export default function Home() {
     if (socket) {
       setIsNavigating(true)
 
+      /**
+       * Minimum exposure for 1000 ms
+       */
       await sleep(1000)
       socket.connect()
       navigate(`/room/${uuidv4()}?adhoc=true&ts=${Date.now()}`)
@@ -56,6 +62,9 @@ export default function Home() {
     if (socket) {
       setIsNavigating(true)
 
+      /**
+       * Minimum exposure for 1000 ms
+       */
       await sleep(1000)
       socket.connect()
       navigate(`/room/${uuidv4()}?adhoc=true&ts=${Date.now()}`)
