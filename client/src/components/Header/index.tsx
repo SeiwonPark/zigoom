@@ -1,5 +1,6 @@
 import { CSSProperties, MouseEvent, useCallback, useEffect, useRef, useState } from 'react'
 
+import { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 import { LogoIcon } from '@/assets/icons'
@@ -11,8 +12,7 @@ import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
 import { useAuthStore } from '@/hooks/useStore'
 import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/localStorage'
-import { decodeGoogleJWT } from '@/utils/string'
-import { GoogleJWTPayload } from '@/validations/auth.validation'
+import { GetUserResponse } from '@/validations/user.validation'
 
 import { SVGIcon } from '../Buttons'
 import { HamburgerMenu } from '../HamburgerMenu'
@@ -26,7 +26,8 @@ interface HeaderProps {
 export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
-  const { isAuthenticated, setIsAuthenticated } = useAuthStore()
+  const [userData, setUserData] = useState<GetUserResponse>()
+  const { isAuthenticated, setIsAuthenticated, setAuthToken } = useAuthStore()
   const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
@@ -43,32 +44,58 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
     }
   }, [])
 
-  const userData = useCallback(() => {
-    return getLocalStorageItem<GoogleJWTPayload>('user')
+  const getUserData = useCallback(async () => {
+    const res = await axios.get(`${VITE_BASE_URL}/v1/user`, {
+      params: {
+        include: true,
+      },
+    })
+
+    if (res.status === 200) {
+      setUserData(res.data)
+    }
+  }, [])
+
+  useEffect(() => {
+    getUserData()
+  }, [getUserData])
+
+  useEffect(() => {
+    /**
+     * As this is VULNERABLE to XSS, setting short expiration time and storing non-critical
+     * data is required.
+     *
+     * But if this could be enhanced in security then that SHOULD be the top priority.
+     */
+    const token = getLocalStorageItem<string>('authToken')
+    if (token) {
+      setAuthToken(token)
+      setIsAuthenticated(true)
+      getUserData()
+    }
   }, [])
 
   const handleLoginSuccess = useCallback(async (credential: string) => {
     try {
-      const { payload } = decodeGoogleJWT(credential)
-      storeDataInLocalStorage<GoogleJWTPayload>('user', {
-        email: payload.email,
-        family_name: payload.family_name,
-        given_name: payload.given_name,
-        locale: payload.locale,
-        name: payload.name,
-        picture: payload.picture,
-        sub: payload.sub,
-      })
+      setAuthToken(credential)
+      storeDataInLocalStorage('authToken', credential)
 
-      const res = await axios.post(`${VITE_BASE_URL}/v1/auth/verify`, JSON.stringify({ token: credential }), {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      setIsAuthenticated(res.status === 200)
+      const res = await axios.post(
+        `${VITE_BASE_URL}/v1/auth/verify`,
+        JSON.stringify({ provider: 'google', token: credential })
+      )
+      if (res.status === 200) {
+        setIsAuthenticated(true)
+        getUserData()
+      }
     } catch (e) {
-      console.error(e)
+      const error = e as AxiosError
+      if (error.response && error.response.status === 303) {
+        navigate('/register')
+      } else {
+        console.error(error)
+        setIsAuthenticated(false)
+      }
     }
   }, [])
 
@@ -110,10 +137,10 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
         <div className={styles.userContainer}>
           {isAuthenticated ? (
             <div>
-              {userData() !== null && (
+              {userData !== null && (
                 <div className={styles.profileImage} ref={profileRef} onClick={handleClickProfile}>
                   <img
-                    src={userData()!.picture.replace('=s96-c', '=l96-c') || Unnamed}
+                    src={userData?.profileThumbnail.replace('=s96-c', '=l96-c') || Unnamed}
                     alt="user"
                     style={{ width: '40px', borderRadius: '20px' }}
                   />
@@ -121,7 +148,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
               )}
               {toggleProfile && (
                 <ProfileModal
-                  userData={userData()}
+                  userData={userData}
                   onClose={handleClickProfile}
                   setIsAuthenticated={setIsAuthenticated}
                   setToggleProfile={setToggleProfile}

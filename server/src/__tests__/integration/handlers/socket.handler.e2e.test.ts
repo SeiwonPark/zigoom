@@ -1,10 +1,10 @@
-import { setupSocketHandlers } from '@handlers/socket.handler'
-
 import { createServer } from 'node:http'
 import { type AddressInfo } from 'node:net'
 import { Server, type Socket as ServerSocket } from 'socket.io'
 import { type Socket as ClientSocket, io as ioc } from 'socket.io-client'
 import { type DefaultEventsMap } from 'socket.io/dist/typed-events'
+
+import { setupSocketHandlers } from '@handlers/socket.handler'
 
 jest.mock('@utils/math', () => ({
   createTURNCredentials: jest.fn().mockReturnValue({ username: 'mocked-username', password: 'mocked-password' }),

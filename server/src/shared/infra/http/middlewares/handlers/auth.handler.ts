@@ -1,10 +1,10 @@
+import { NextFunction, Request, Response } from 'express'
+
 import { logger } from '@configs/logger.config'
 import { redisClient } from '@configs/redis.config'
 import { ErrorCode, RequestError } from '@shared/errors'
 import { Guest } from '@shared/types/common'
-import { decodeToken } from '@utils/token'
-
-import { NextFunction, Request, Response } from 'express'
+import { verifyToken } from '@utils/token'
 
 /**
  * Captures request object and parses authentication-related properties to check authentication.
@@ -12,10 +12,11 @@ import { NextFunction, Request, Response } from 'express'
  */
 export const authHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   logger.debug('authHandler invoked')
-  const { jwt, guestId } = req.cookies
+  const { zigoomjwt, guestId } = req.cookies
 
   // handle when it's a guest or not signed in
-  if (!jwt) {
+  if (!zigoomjwt) {
+    logger.debug('guest mode invoked')
     let guest: Guest
 
     // if it's a successive request from guest
@@ -46,17 +47,15 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
     return
   }
 
-  // handle when it's a user
-  const payload = await decodeToken(jwt)
+  logger.debug('user mode invoked')
+  /**
+   * Handles authentication logic for authenticated user.
+   */
+  const payload = await verifyToken(zigoomjwt)
 
   if (!payload) {
-    logger.error('Failed to get payload from token')
-    throw new RequestError('Failed to get payload from token', ErrorCode.Unauthorized)
-  }
-
-  if (Date.now() >= payload.exp * 1000) {
-    logger.error('The token has been expired')
-    throw new RequestError('The token has been expired', ErrorCode.Unauthorized)
+    logger.error('Authentication required - Failed to verify token.')
+    throw new RequestError('Authentication required - Failed to verify token.', ErrorCode.Unauthorized)
   }
 
   req.ctx = { user: { ...payload, isGuest: false } }
@@ -70,7 +69,10 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
 export const requireAuthentication = (req: Request, res: Response, next: NextFunction): void => {
   if (req.ctx.user.isGuest) {
     logger.warn('Authentication required - guest user attempting to access protected resource')
-    throw new RequestError('Authentication required', ErrorCode.Unauthorized)
+    throw new RequestError(
+      'Authentication required - guest user attempting to access protected resource',
+      ErrorCode.Unauthorized
+    )
   }
   next()
 }

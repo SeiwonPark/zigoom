@@ -1,7 +1,7 @@
+import { createClient } from 'redis'
+
 import { REDIS_URL } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
-
-import { createClient } from 'redis'
 
 export const redisClient = createClient({
   url: REDIS_URL,

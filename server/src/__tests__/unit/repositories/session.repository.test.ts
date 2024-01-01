@@ -10,7 +10,6 @@ describe('Session Repository Unit Tests', () => {
 
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
-    google_id: '000000000000000000000',
     name: 'Seiwon Park',
     profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
     sessionId: null,
@@ -20,7 +19,6 @@ describe('Session Repository Unit Tests', () => {
   }
   const anotherUser: User = {
     id: 'fedcba98-7654-3210-fedc-ba9876543210',
-    google_id: '222222222222222222222',
     name: 'Tony Park',
     profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
     sessionId: null,

@@ -3,7 +3,6 @@
 import ReactDOM from 'react-dom/client'
 
 // import { VITE_SENTRY_DSN_KEY } from '@/configs/env.ts'
-
 import App from './App.tsx'
 import './index.css'
 

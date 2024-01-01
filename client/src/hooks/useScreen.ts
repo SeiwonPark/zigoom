@@ -39,6 +39,9 @@ export const useScreen = ({ localStreamRef, peerConnectionRefs }: ScreenProps) =
       })
       setIsScreenSharing(true)
 
+      /**
+       * Minimum exposure for 1500 ms
+       */
       await sleep(1500)
       setIsNavigating(false)
 

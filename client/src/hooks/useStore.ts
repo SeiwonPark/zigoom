@@ -10,8 +10,10 @@ interface LocalOptionState extends LocalOptions {
 }
 
 interface AuthState {
+  authToken: string
   isAuthenticated: boolean
   setIsAuthenticated: (value: boolean) => void
+  setAuthToken: (value: string) => void
 }
 
 interface SessionState {
@@ -39,7 +41,9 @@ const useLocalOption = create<LocalOptionState>((set) => ({
  */
 const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
+  authToken: '',
   setIsAuthenticated: (value: boolean) => set((state) => ({ ...state, isAuthenticated: value })),
+  setAuthToken: (value: string) => set((state) => ({ ...state, authToken: value })),
 }))
 
 const useSessionStore = create<SessionState>((set) => ({

@@ -1,8 +1,8 @@
-import { logger } from '@configs/logger.config'
-import { ErrorCode, RequestError } from '@shared/errors'
-
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
+
+import { logger } from '@configs/logger.config'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 import GetSessionService from '../services/GetSessionService'
 import CreateSessionService from '../services/JoinSessionService'

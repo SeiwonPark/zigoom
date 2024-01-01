@@ -1,12 +1,12 @@
-import { logger } from '@configs/logger.config'
-
 import { NextFunction, Request, Response } from 'express'
 import { Options, rateLimit } from 'express-rate-limit'
+
+import { logger } from '@configs/logger.config'
 
 // FIXME: cluster
 export const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  limit: 10,
+  limit: 100,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   keyGenerator(req: Request, res: Response): string {

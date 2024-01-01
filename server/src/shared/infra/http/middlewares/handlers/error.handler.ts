@@ -1,7 +1,7 @@
+import { NextFunction, Request, Response } from 'express'
+
 import { logger } from '@configs/logger.config'
 import { RequestError } from '@shared/errors/RequestError'
-
-import { NextFunction, Request, Response } from 'express'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 

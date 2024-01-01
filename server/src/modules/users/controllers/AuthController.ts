@@ -1,39 +1,48 @@
-import { logger } from '@configs/logger.config'
-import { decodeToken } from '@utils/token'
-
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
 
+import { logger } from '@configs/logger.config'
+import { signToken } from '@utils/token'
+
 import AuthService from '../services/AuthService'
 
+/**
+ * Controller for registering user in `guest mode` so `authHandler` doesn't do anything in
+ * this logic.
+ */
 export default class AuthController {
-  public async verifyToken(req: Request, res: Response): Promise<Response | undefined> {
-    logger.debug('AuthController.verifyToken invoked')
-    const { token } = req.body
+  /**
+   * Handles registering user
+   */
+  public async verify(req: Request, res: Response): Promise<Response | undefined> {
+    logger.debug('AuthController.verify invoked')
+    /**
+     * Received token could be from any auth providers.
+     */
+    const { token, provider } = req.body
 
-    if (!token) {
+    if (!token || !provider) {
       return res.sendStatus(401)
     }
 
-    const payload = await decodeToken(token)
+    const getValidatedPayload = container.resolve(AuthService)
+    const validatedPayload = await getValidatedPayload.execute({ token: token, provider: provider })
 
-    if (!payload) {
-      return res.sendStatus(401)
+    if (!validatedPayload.isUserExists) {
+      res.sendStatus(303)
+    } else {
+      const encodedToken = signToken(validatedPayload)
+      res.cookie('zigoomjwt', encodedToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 1 * 60 * 60 * 1000, // 1 hour
+      })
+      res.sendStatus(200)
     }
-
-    const authorizeUser = container.resolve(AuthService)
-    const authorizedUser = await authorizeUser.execute({ payload: payload })
-
-    res.cookie('jwt', token, {
-      httpOnly: true,
-      // secure: true,
-      maxAge: 1 * 60 * 60 * 1000, // 1 hour
-    })
-    res.status(200).send(authorizedUser)
   }
 
   public logout(req: Request, res: Response): void {
-    res.clearCookie('jwt')
+    res.clearCookie('zigoomjwt')
     res.sendStatus(200)
   }
 }

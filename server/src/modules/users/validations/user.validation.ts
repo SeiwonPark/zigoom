@@ -6,15 +6,20 @@ import { z } from 'zod'
  * =========================================
  */
 const CreateUserPayload = z.object({
-  google_id: z.string(),
   name: z.string(),
   profileThumbnail: z.string(),
   profile: z.object({
     create: z.object({
-      family_name: z.string(),
-      given_name: z.string(),
+      familyName: z.string(),
+      givenName: z.string(),
       profileImage: z.string(),
       email: z.string().email(),
+    }),
+  }),
+  authProvider: z.object({
+    create: z.object({
+      provider: z.string(),
+      providerId: z.string(),
     }),
   }),
 })
@@ -25,8 +30,8 @@ const UpdateUserPayload = z.object({
   profile: z
     .object({
       update: z.object({
-        family_name: z.string().optional(),
-        given_name: z.string().optional(),
+        familyName: z.string().optional(),
+        givenName: z.string().optional(),
         profileImage: z.string().optional(),
       }),
     })

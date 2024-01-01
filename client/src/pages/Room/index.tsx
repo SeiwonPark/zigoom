@@ -31,6 +31,9 @@ export default function Room() {
     setLoading(true)
 
     const loadData = async () => {
+      /**
+       * Minimum exposure for 800 ms
+       */
       await sleep(800)
       await checkAndSetRoomComponent()
       setLoading(false)

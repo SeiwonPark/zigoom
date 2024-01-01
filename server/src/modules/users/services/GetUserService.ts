@@ -1,9 +1,9 @@
+import { inject, injectable } from 'tsyringe'
+
 import { logger } from '@configs/logger.config'
 import { User } from '@db/mysql/generated/mysql'
 import { ErrorCode, RequestError } from '@shared/errors'
 import { Token } from '@shared/types/common'
-
-import { inject, injectable } from 'tsyringe'
 
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 
@@ -19,12 +19,22 @@ export default class GetUserService {
     private userRepository: UserRepository
   ) {}
 
-  public async execute({ payload, include }: RequestPayload): Promise<User | JoinedUser | null> {
-    const user = await this.userRepository.findUserByGoogleId(payload.sub, include)
+  public async execute({ payload, include }: RequestPayload): Promise<User | JoinedUser> {
+    return await this.findUserByProviderId(payload.provider, payload.providerId, include)
+  }
+
+  private async findUserByProviderId(
+    provider: string,
+    providerId: string,
+    includeProfile: boolean
+  ): Promise<User | JoinedUser> {
+    const user = await this.userRepository.findByProviderId(providerId, includeProfile)
+
     if (!user) {
-      logger.error(`User doesn't exist by id '${payload.sub}'`)
-      throw new RequestError(`User doesn't exist by id '${payload.sub}'`, ErrorCode.NotFound)
+      logger.error(`User doesn't exist by ${provider} id '${providerId}'`)
+      throw new RequestError(`User doesn't exist by ${provider} id '${providerId}'`, ErrorCode.NotFound)
     }
+
     return user
   }
 }

@@ -1,0 +1,53 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.modal {
+  background-color: #fff;
+  width: min(80vw, 800px);
+  height: min(90vh, 800px);
+  overflow-y: auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.iconContainer {
+  z-index: 2;
+  position: fixed;
+  display: flex;
+  height: 60px;
+  width: min(80vw, 800px);
+  align-items: center;
+  margin-top: -20px;
+  background-color: #ffffffab;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.iconWrapper {
+  margin-left: auto;
+}
+
+.modalEnter {
+  animation: slideIn 0.2s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(min(-4%, 20px));
+  }
+  to {
+    transform: translateY(0);
+  }
+}

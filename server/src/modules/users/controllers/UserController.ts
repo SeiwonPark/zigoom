@@ -1,8 +1,8 @@
-import { logger } from '@configs/logger.config'
-import { ErrorCode, RequestError } from '@shared/errors'
-
 import type { Request, Response } from 'express'
 import { container } from 'tsyringe'
+
+import { logger } from '@configs/logger.config'
+import { ErrorCode, RequestError } from '@shared/errors'
 
 import CreateUserService from '../services/CreateUserService'
 import GetUserService from '../services/GetUserService'
@@ -11,8 +11,11 @@ import UpdateUserService from '../services/UpdateUserService'
 export default class UserController {
   public async create(req: Request, res: Response): Promise<Response> {
     logger.debug('UserController.create invoked')
+
+    const { token, provider } = req.body
+
     const createUser = container.resolve(CreateUserService)
-    const createdUser = await createUser.execute({ payload: req.ctx.user })
+    const createdUser = await createUser.execute({ token: token, provider: provider })
 
     logger.info(`New user '${createdUser.id}' has been created.`)
     return res.status(200).send(createdUser)
@@ -22,15 +25,15 @@ export default class UserController {
     logger.debug('UserController.get invoked')
     const { include } = req.query
 
-    if (include !== undefined && typeof include !== 'boolean') {
+    if (include !== undefined && typeof include !== 'string') {
       logger.error("Parameter type not matching for 'include'")
       throw new RequestError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
     }
 
     const getUser = container.resolve(GetUserService)
-    const fetchedUser = await getUser.execute({ payload: req.ctx.user, include: include ?? false })
+    const fetchedUser = await getUser.execute({ payload: req.ctx.user, include: !!include ?? false })
 
-    logger.info(`Fetched a user '${fetchedUser?.id}'`)
+    logger.info(`Fetched a user '${fetchedUser.id}'`)
     return res.status(200).send(fetchedUser)
   }
 
@@ -39,13 +42,13 @@ export default class UserController {
     const { include } = req.query
     const data = req.body
 
-    if (include !== undefined && typeof include !== 'boolean') {
+    if (include !== undefined && typeof include !== 'string') {
       logger.error("Parameter type not matching for 'include'")
       throw new RequestError("Parameter type not matching for 'include'", ErrorCode.BadRequest)
     }
 
     const updateUser = container.resolve(UpdateUserService)
-    const updatedUser = await updateUser.execute({ payload: req.ctx.user, include: include ?? false, data: data })
+    const updatedUser = await updateUser.execute({ payload: req.ctx.user, include: !!include ?? false, data: data })
 
     logger.info(`User '${updatedUser.id}' has been updated.`)
     return res.status(200).send(updatedUser)

@@ -1,3 +1,6 @@
+import { Request, Response } from 'express'
+import { container } from 'tsyringe'
+
 import { Role, User } from '@db/mysql/generated/mysql'
 import SessionController from '@modules/sessions/controllers/SessionController'
 import SessionRepositoryImpl from '@modules/sessions/repositories/implementations/SessionRepositoryImpl'
@@ -6,9 +9,6 @@ import JoinSessionService from '@modules/sessions/services/JoinSessionService'
 import UpdateSessionService from '@modules/sessions/services/UpdateSessionService'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import { ErrorCode, RequestError } from '@shared/errors'
-
-import { Request, Response } from 'express'
-import { container } from 'tsyringe'
 
 describe('Session Controller Unit Tests', () => {
   const sessionRepository = new SessionRepositoryImpl()
@@ -31,7 +31,6 @@ describe('Session Controller Unit Tests', () => {
 
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
-    google_id: '000000000000000000000',
     name: 'Seiwon Park',
     profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
     sessionId: null,

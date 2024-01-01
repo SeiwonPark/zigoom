@@ -1,6 +1,7 @@
 import CallEndIcon from '@/assets/icons/call_end.svg'
 import ChatIconDisabled from '@/assets/icons/chat_disabled.svg'
 import ChatIconEnabled from '@/assets/icons/chat_enabled.svg'
+import CheckedIcon from '@/assets/icons/checked-icon.svg'
 import CloseIcon from '@/assets/icons/close.svg'
 import KeyboardIcon from '@/assets/icons/keyboard.svg'
 import LogoIcon from '@/assets/icons/logo.svg'
@@ -11,6 +12,7 @@ import PinIconDisabled from '@/assets/icons/pin_disabled.svg'
 import PinIconEnabled from '@/assets/icons/pin_enabled.svg'
 import ScreenIcon from '@/assets/icons/screen.svg'
 import SendIcon from '@/assets/icons/send.svg'
+import UncheckedIcon from '@/assets/icons/unchecked-icon.svg'
 import VideoIcon from '@/assets/icons/video.svg'
 import VideoAddIcon from '@/assets/icons/video_add.svg'
 import VideoOffIcon from '@/assets/icons/video_off.svg'
@@ -34,4 +36,6 @@ export {
   KeyboardIcon,
   ScreenIcon,
   LogoIcon,
+  CheckedIcon,
+  UncheckedIcon,
 }

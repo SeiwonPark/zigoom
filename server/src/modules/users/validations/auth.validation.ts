@@ -6,7 +6,15 @@ import { z } from 'zod'
  * =========================================
  */
 export const AuthToken = z.object({
-  token: z.string(),
+  email: z.string().email(),
+  familyName: z.string(),
+  givenName: z.string(),
+  locale: z.string(),
+  name: z.string(),
+  picture: z.string(),
+  providerId: z.string(),
+  provider: z.string(),
+  // provider: z.union([z.literal('google'), z.literal('')]),
 })
 
 /**
