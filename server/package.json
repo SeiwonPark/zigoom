@@ -11,7 +11,7 @@
     "check:env": "pnpm ts-node src/utils/check.ts",
     "clear": "sh ./scripts/clear_db.sh",
     "clear:docker": "sh ./scripts/clear_docker.sh",
-    "build": "pnpm run check && rimraf dist && cross-env NODE_ENV=production swc src -d dist",
+    "build": "pnpm run check:env && rimraf dist && cross-env NODE_ENV=production swc src -d dist",
     "dev": "pnpm run check:env && cross-env NODE_ENV=development nodemon --ext ts --exec node --inspect -r @swc/register src/shared/infra/http/server.ts",
     "start": "pnpm run check:env && pnpm run build && cross-env NODE_ENV=production node dist/shared/infra/http/server.js",
     "migrate:dev": "pnpm run check:env && dotenv -e ./.env.development sh ./scripts/migrate_dev.sh",
