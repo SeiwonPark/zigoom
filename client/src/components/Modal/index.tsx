@@ -13,7 +13,7 @@ interface ModalProps {
 
 export const Modal = ({ children, onClose }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null)
-  const [animate, setAnimate] = useState<boolean>(false)
+  const [_, setAnimate] = useState<boolean>(false)
 
   const handleClickOutside = (event: MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
