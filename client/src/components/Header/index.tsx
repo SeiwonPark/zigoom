@@ -27,7 +27,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
   const [userData, setUserData] = useState<GetUserResponse>()
-  const { isAuthenticated, setIsAuthenticated, setAuthToken } = useAuthStore()
+  const { isAuthenticated, setIsAuthenticated, setAuthToken, setProfileImage } = useAuthStore()
   const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
@@ -54,6 +54,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
 
       if (res.status === 200) {
         setUserData(res.data)
+        setProfileImage(res.data.profileThumbnail)
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error)

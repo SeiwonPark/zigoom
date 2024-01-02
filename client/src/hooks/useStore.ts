@@ -10,10 +10,12 @@ interface LocalOptionState extends LocalOptions {
 }
 
 interface AuthState {
+  profileImage: string
   authToken: string
   isAuthenticated: boolean
   setIsAuthenticated: (value: boolean) => void
   setAuthToken: (value: string) => void
+  setProfileImage: (value: string) => void
 }
 
 interface SessionState {
@@ -42,8 +44,10 @@ const useLocalOption = create<LocalOptionState>((set) => ({
 const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   authToken: '',
+  profileImage: 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
   setIsAuthenticated: (value: boolean) => set((state) => ({ ...state, isAuthenticated: value })),
   setAuthToken: (value: string) => set((state) => ({ ...state, authToken: value })),
+  setProfileImage: (value: string) => set((state) => ({ ...state, profileImage: value })),
 }))
 
 const useSessionStore = create<SessionState>((set) => ({
