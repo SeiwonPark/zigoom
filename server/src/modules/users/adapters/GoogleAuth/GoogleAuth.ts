@@ -24,16 +24,15 @@ export default class GoogleAuth {
         throw new RequestError('Failed to get payload from GoogleAuth.', ErrorCode.Unauthorized)
       }
 
-      // FIXME: fix return values
       return {
         provider: 'google',
         providerId: payload.sub,
-        name: payload.name || '',
+        name: payload.name || 'Anonymous User',
         email: payload.email || 'no-email@example.com',
         familyName: payload.family_name || '',
         givenName: payload.given_name || '',
-        locale: payload.locale || '',
-        picture: payload.picture || 'https://avatars.githubusercontent.com/u/63793178?v=4',
+        locale: payload.locale || 'ko',
+        picture: payload.picture || 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
       }
     } catch (e) {
       logger.error((e as Error).message)

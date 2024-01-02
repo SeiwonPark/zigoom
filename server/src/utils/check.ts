@@ -51,14 +51,19 @@ import { join, resolve } from 'path'
 
     // FIXME: Should be added later
     // assert(env.MONGODB_DATABASE_URL, "Environment variable 'MONGODB_DATABASE_URL' is required")
+    // Required for docker compose. Not for production.
+    // assert(env.AWS_API_IMAGE, "\x1b[0;31mEnvironment variable 'AWS_API_IMAGE' is required.\x1b[0m")
     assert(env.MYSQL_DATABASE_URL, "\x1b[0;31mEnvironment variable 'MYSQL_DATABASE_URL' is required.\x1b[0m")
     assert(env.GOOGLE_CLIENT_ID, "\x1b[0;31mEnvironment variable 'GOOGLE_CLIENT_ID' is required.\x1b[0m")
-    assert(env.REDIS_HOST, "\x1b[0;31mEnvironment variable 'REDIS_HOST' is required.\x1b[0m")
     assert(env.ALLOWED_ORIGIN, "\x1b[0;31mEnvironment variable 'ALLOWED_ORIGIN' is required.\x1b[0m")
     assert(env.NODE_ENV, "\x1b[0;31mEnvironment variable 'NODE_ENV' is required.\x1b[0m")
-    assert(env.AWS_API_IMAGE, "\x1b[0;31mEnvironment variable 'AWS_API_IMAGE' is required.\x1b[0m")
+    assert(env.REDIS_HOST, "\x1b[0;31mEnvironment variable 'REDIS_HOST' is required.\x1b[0m")
     assert(env.TURN_SECRET_KEY, "\x1b[0;31mEnvironment variable 'TURN_SECRET_KEY' is required.")
     assert(env.TOKEN_KEY, "\x1b[0;31mEnvironment variable 'TOKEN_KEY' is required.")
+    assert(env.AWS_BUCKET, "\x1b[0;31mEnvironment variable 'AWS_BUCKET' is required.")
+    assert(env.AWS_REGION, "\x1b[0;31mEnvironment variable 'AWS_REGION' is required.")
+    assert(env.AWS_ACCESS_KEY_ID, "\x1b[0;31mEnvironment variable 'AWS_ACCESS_KEY_ID' is required.")
+    assert(env.AWS_ACCESS_SECRET_KEY, "\x1b[0;31mEnvironment variable 'AWS_ACCESS_SECRET_KEY' is required.")
   })
 
   console.log('\n\x1b[0;32m✔\x1b[0m Environment variables are all set.\n')

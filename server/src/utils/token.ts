@@ -5,8 +5,14 @@ import { logger } from '@configs/logger.config'
 import { ErrorCode, RequestError } from '@shared/errors'
 
 export interface TokenPayload extends JwtPayload {
+  /**
+   * @see AuthProvider
+   */
   provider: string
-  providerId: string // provider_id
+  /**
+   * Auth provider's id.
+   */
+  providerId: string
   name: string
   email: string
 }

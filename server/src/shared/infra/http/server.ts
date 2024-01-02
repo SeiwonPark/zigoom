@@ -32,7 +32,6 @@ app.use(cookieParser())
 app.use(helmet())
 app.use(morgan(format, { stream: stream }))
 app.set('trust proxy', 1)
-// FIXME: origin domain
 app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
 app.use(metricsMiddleware)
 app.use('/metrics', metricRouter)
