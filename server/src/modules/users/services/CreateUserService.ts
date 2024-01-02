@@ -1,5 +1,6 @@
 import { inject, injectable } from 'tsyringe'
 
+import { AWS_BUCKET } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
 import { Prisma, User } from '@db/mysql/generated/mysql'
 import { ErrorCode, RequestError } from '@shared/errors'
@@ -9,6 +10,7 @@ import { AuthProvider } from '../adapters'
 import UserRepository, { JoinedUser } from '../repositories/UserRepository'
 import { AuthTokenSchema, isAuthTokenSchema } from '../validations/auth.validation'
 import { isCreateUserSchema } from '../validations/user.validation'
+import SingleUploadService from './SingleUploadService'
 
 interface RequestPayload {
   readonly token: string
@@ -21,14 +23,16 @@ export default class CreateUserService {
     @inject('UserRepository')
     private userRepository: UserRepository,
     @inject('GoogleAuthProvider')
-    private googleAuthProvider: AuthProvider
+    private googleAuthProvider: AuthProvider,
+    @inject('SingleUploadService')
+    private singleUploadService: SingleUploadService
   ) {}
 
   public async execute({ token, provider }: RequestPayload): Promise<User | JoinedUser> {
     this.ensureProviderType(provider)
     const payload = await this.validateToken(token, provider)
     await this.ensureUserNotExists(provider, payload.providerId)
-    const userCreateInput = this.getValidatedData(payload)
+    const userCreateInput = await this.getValidatedData(payload)
 
     return await this.userRepository.save(userCreateInput, true)
   }
@@ -52,8 +56,8 @@ export default class CreateUserService {
 
     const tokenPayload = {
       email: payload?.email,
-      familyName: payload?.familyName || '',
-      givenName: payload?.givenName || '',
+      familyName: payload?.familyName,
+      givenName: payload?.givenName,
       locale: payload?.locale,
       name: payload?.name,
       picture: payload?.picture,
@@ -69,15 +73,28 @@ export default class CreateUserService {
     return tokenPayload
   }
 
-  private getValidatedData(data: AuthTokenSchema): Prisma.UserCreateInput {
+  private async getValidatedData(data: AuthTokenSchema): Promise<Prisma.UserCreateInput> {
+    let publicImageUrl = 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png'
+
+    if (data.picture && data.picture !== publicImageUrl) {
+      const uploadedUrl = await this.singleUploadService.uploadImageFromUrl(
+        data.picture,
+        `${AWS_BUCKET}/profiles/${data.providerId}.png`
+      )
+
+      if (uploadedUrl) {
+        publicImageUrl = uploadedUrl
+      }
+    }
+
     const userData = {
-      name: data.name || 'Anonymous User',
-      profileThumbnail: '', // FIXME: bucket url
+      name: data.name,
+      profileThumbnail: publicImageUrl, // FIXME: minimize image size for thumbnail
       profile: {
         create: {
           familyName: data.familyName,
           givenName: data.givenName,
-          profileImage: data.picture || '', // FIXME: bucket url
+          profileImage: publicImageUrl,
           email: data.email,
         },
       },

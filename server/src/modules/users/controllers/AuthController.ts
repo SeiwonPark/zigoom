@@ -7,8 +7,7 @@ import { signToken } from '@utils/token'
 import AuthService from '../services/AuthService'
 
 /**
- * Controller for registering user in `guest mode` so `authHandler` doesn't do anything in
- * this logic.
+ * Controller for registering user in `guest mode`.
  */
 export default class AuthController {
   /**
@@ -29,6 +28,11 @@ export default class AuthController {
     const validatedPayload = await getValidatedPayload.execute({ token: token, provider: provider })
 
     if (!validatedPayload.isUserExists) {
+      res.cookie('confirmed', true, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 1 * 60 * 1000, // 1 minute
+      })
       res.sendStatus(303)
     } else {
       const encodedToken = signToken(validatedPayload)
@@ -43,6 +47,7 @@ export default class AuthController {
 
   public logout(req: Request, res: Response): void {
     res.clearCookie('zigoomjwt')
+    res.clearCookie('confirmed')
     res.sendStatus(200)
   }
 }

@@ -67,7 +67,9 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
  * Wraps controller as router-level middleware to ensure authentication.
  */
 export const requireAuthentication = (req: Request, res: Response, next: NextFunction): void => {
-  if (req.ctx.user.isGuest) {
+  const { zigoomjwt, confirmed } = req.cookies
+
+  if (!zigoomjwt && !confirmed && req.ctx.user.isGuest) {
     logger.warn('Authentication required - guest user attempting to access protected resource')
     throw new RequestError(
       'Authentication required - guest user attempting to access protected resource',

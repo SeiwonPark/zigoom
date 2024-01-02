@@ -1,11 +1,8 @@
 import { useEffect, useRef } from 'react'
 
 import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
-import { Unnamed } from '@/assets/images'
 import { SVGIcon } from '@/components/Buttons'
-import { useLocalOption } from '@/hooks/useStore'
-import { getLocalStorageItem } from '@/utils/localStorage'
-import { GoogleJWTPayload } from '@/validations/auth.validation'
+import { useAuthStore, useLocalOption } from '@/hooks/useStore'
 
 import styles from './index.module.css'
 
@@ -22,6 +19,7 @@ interface VideoProps {
 export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, showHover }: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { isVideoOn, isAudioOn, pinnedPeerId, setPinnedPeerId } = useLocalOption()
+  const { profileImage } = useAuthStore()
 
   useEffect(() => {
     if (videoRef.current) {
@@ -54,10 +52,6 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
     }
   }
 
-  const getProfileImageFromLocalStorage = () => {
-    return getLocalStorageItem<GoogleJWTPayload>('user')?.picture.replace('=s96-c', '=l96-c')
-  }
-
   const togglePin = () => {
     if (pinnedPeerId === '' || pinnedPeerId !== peerId) {
       setPinnedPeerId(peerId)
@@ -82,12 +76,7 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
         />
       ) : (
         <div>
-          <img
-            className={styles.altImage}
-            // FIXME: hope there's a better idea
-            src={getProfileImageFromLocalStorage() || Unnamed}
-            alt="Unnamed"
-          />
+          <img className={styles.altImage} src={profileImage} alt="profile-image" />
         </div>
       )}
       <div className={styles.peerId} style={{ ...setIdPosition() }}>
