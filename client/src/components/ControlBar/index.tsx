@@ -86,9 +86,6 @@ export const ControlBar = ({ localStream, roomId, localPeerId, toggleScreenShare
 
     const res = await axios.patch(`${VITE_BASE_URL}/v1/session`, payload, {
       params: { sessionId: roomId },
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
 
     if (res.status === 200) {

@@ -45,59 +45,69 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   }, [])
 
   const getUserData = useCallback(async () => {
-    const res = await axios.get(`${VITE_BASE_URL}/v1/user`, {
-      params: {
-        include: true,
-      },
-    })
-
-    if (res.status === 200) {
-      setUserData(res.data)
-    }
-  }, [])
-
-  useEffect(() => {
-    getUserData()
-  }, [getUserData])
-
-  useEffect(() => {
-    /**
-     * As this is VULNERABLE to XSS, setting short expiration time and storing non-critical
-     * data is required.
-     *
-     * But if this could be enhanced in security then that SHOULD be the top priority.
-     */
-    const token = getLocalStorageItem<string>('authToken')
-    if (token) {
-      setAuthToken(token)
-      setIsAuthenticated(true)
-      getUserData()
-    }
-  }, [])
-
-  const handleLoginSuccess = useCallback(async (credential: string) => {
     try {
-      setAuthToken(credential)
-      storeDataInLocalStorage('authToken', credential)
+      const res = await axios.get(`${VITE_BASE_URL}/v1/user`, {
+        params: {
+          include: true,
+        },
+      })
 
-      const res = await axios.post(
-        `${VITE_BASE_URL}/v1/auth/verify`,
-        JSON.stringify({ provider: 'google', token: credential })
-      )
       if (res.status === 200) {
-        setIsAuthenticated(true)
-        getUserData()
+        setUserData(res.data)
       }
-    } catch (e) {
-      const error = e as AxiosError
-      if (error.response && error.response.status === 303) {
-        navigate('/register')
-      } else {
-        console.error(error)
-        setIsAuthenticated(false)
-      }
+    } catch (error) {
+      console.error('Failed to fetch user data:', error)
     }
   }, [])
+
+  useEffect(() => {
+    const init = async () => {
+      const token = getLocalStorageItem<string>('authToken')
+      if (token) {
+        setAuthToken(token)
+        setIsAuthenticated(true)
+        await getUserData()
+      } else {
+        const res = await axios.post(
+          `${VITE_BASE_URL}/v1/auth/verify`,
+          JSON.stringify({ provider: 'google', token: token })
+        )
+        if (res.status === 200) {
+          setIsAuthenticated(true)
+          await getUserData()
+        }
+      }
+    }
+
+    init()
+  }, [getUserData, setAuthToken, setIsAuthenticated])
+
+  const handleLoginSuccess = useCallback(
+    async (credential: string) => {
+      try {
+        setAuthToken(credential)
+        storeDataInLocalStorage('authToken', credential)
+
+        const res = await axios.post(
+          `${VITE_BASE_URL}/v1/auth/verify`,
+          JSON.stringify({ provider: 'google', token: credential })
+        )
+        if (res.status === 200) {
+          setIsAuthenticated(true)
+          await getUserData()
+        }
+      } catch (e) {
+        const error = e as AxiosError
+        if (error.response && error.response.status === 303) {
+          navigate('/register')
+        } else {
+          console.error(error)
+          setIsAuthenticated(false)
+        }
+      }
+    },
+    [getUserData, navigate, setIsAuthenticated, setAuthToken]
+  )
 
   const handleLoginError = useCallback((error: any) => {
     console.error('Login error:', error)
@@ -121,11 +131,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
         {windowWidth <= 600 && <HamburgerMenu />}
         <SVGIcon Icon={LogoIcon} width="80px" />
       </div>
-      <nav>
-        {/* <ul className={styles.menuList}>
-          <li className={styles.menu}>page</li>
-        </ul> */}
-      </nav>
+      <nav>{/* Navigation menu can be added here */}</nav>
       <div className={styles.authContainer}>
         {!isAuthenticated && enterGuestMode && (
           <div className={styles.guestContainer}>
@@ -140,7 +146,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
               {userData !== null && (
                 <div className={styles.profileImage} ref={profileRef} onClick={handleClickProfile}>
                   <img
-                    src={userData?.profileThumbnail.replace('=s96-c', '=l96-c') || Unnamed}
+                    src={userData?.profileThumbnail || Unnamed}
                     alt="user"
                     style={{ width: '40px', borderRadius: '20px' }}
                   />
