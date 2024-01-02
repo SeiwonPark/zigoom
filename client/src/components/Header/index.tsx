@@ -62,6 +62,12 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
 
   useEffect(() => {
     const init = async () => {
+      /**
+       * As this is VULNERABLE to XSS, setting short expiration time and storing non-critical
+       * data is required.
+       *
+       * But if this could be enhanced in security then that SHOULD be the top priority.
+       */
       const token = getLocalStorageItem<string>('authToken')
       if (token) {
         setAuthToken(token)
