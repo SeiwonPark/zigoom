@@ -59,7 +59,7 @@ export const authHandler = async (req: Request, res: Response, next: NextFunctio
   }
 
   req.ctx = { user: { ...payload, isGuest: false } }
-  logger.info(`Request from user '${payload.sub}'`)
+  logger.info(`Request from user '${payload.providerId}'`)
   next()
 }
 
