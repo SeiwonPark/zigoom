@@ -22,7 +22,7 @@ interface RenewalTokenIncluded {
 export const verifyToken = async (accessToken: string, refreshToken: string): Promise<RenewalTokenIncluded> => {
   try {
     const decodedAccessToken = jwt.decode(accessToken) as AuthTokenSchema
-    const blacklistedId = await redisClient.get(`blacklist:${decodedAccessToken.providerId}`)
+    const blacklistedId = await redisClient.get(`blacklist:${accessToken}`)
 
     if (decodedAccessToken.providerId === blacklistedId) {
       logger.error('Access token is blacklisted. Please log in again')

@@ -78,7 +78,7 @@ export default class AuthController {
     /**
      * Set blacklist for logged out users.
      */
-    redisClient.set(`blacklist:${decodedAccessToken.providerId}`, decodedAccessToken.providerId, {
+    redisClient.set(`blacklist:${accessToken}`, decodedAccessToken.providerId, {
       EX: decodedAccessToken.exp! - decodedAccessToken.iat!,
     })
     redisClient.del(decodedAccessToken.providerId)
