@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 
+import { PRODUCTION } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
 import { RequestError } from '@shared/errors/RequestError'
-
-const isDevelopment = process.env.NODE_ENV === 'development'
 
 export const errorHandler = async (e: Error, req: Request, res: Response, next: NextFunction): Promise<Response> => {
   logger.error(`Error on ${req.method} request to ${req.url}. Error: ${e.message}`)
@@ -15,13 +14,13 @@ export const errorHandler = async (e: Error, req: Request, res: Response, next: 
     })
   }
 
-  isDevelopment
-    ? logger.error(`Unexpected error on ${req.method} request to ${req.url}. Stack trace: ${e.stack}`)
-    : undefined
+  PRODUCTION
+    ? undefined
+    : logger.error(`Unexpected error on ${req.method} request to ${req.url}. Stack trace: ${e.stack}`)
 
   return res.status(500).send({
     error: 'Internal Server Error.',
-    trace: isDevelopment ? e.stack : undefined,
+    trace: PRODUCTION ? undefined : e.stack,
     timestamp: new Date().toISOString(),
   })
 }

@@ -1,20 +1,24 @@
 import type { Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
 import { container } from 'tsyringe'
 
+import { PRODUCTION } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
+import { redisClient } from '@configs/redis.config'
 import { signToken } from '@utils/token'
 
 import AuthService from '../services/AuthService'
+import { AuthTokenSchema } from '../validations/auth.validation'
 
 /**
  * Controller for registering user in `guest mode`.
  */
 export default class AuthController {
   /**
-   * Handles registering user
+   * Verifies auth provider's token NOT the server's access/refresh token.
    */
-  public async verify(req: Request, res: Response): Promise<Response | undefined> {
-    logger.debug('AuthController.verify invoked')
+  public async verifyAuthProvider(req: Request, res: Response): Promise<Response | undefined> {
+    logger.debug('AuthController.verifyAuthProvider invoked')
     /**
      * Received token could be from any auth providers.
      */
@@ -30,24 +34,58 @@ export default class AuthController {
     if (!validatedPayload.isUserExists) {
       res.cookie('confirmed', true, {
         httpOnly: true,
-        secure: true,
-        maxAge: 1 * 60 * 1000, // 1 minute
+        secure: PRODUCTION,
+        maxAge: 60000, // 1 minute
       })
-      res.sendStatus(303)
-    } else {
-      const encodedToken = signToken(validatedPayload)
-      res.cookie('zigoomjwt', encodedToken, {
-        httpOnly: true,
-        secure: true,
-        maxAge: 1 * 60 * 60 * 1000, // 1 hour
-      })
-      res.sendStatus(200)
+      return res.sendStatus(303)
     }
+
+    const { accessToken, refreshToken } = req.cookies
+
+    /**
+     * Since accessToken and refreshToken would already been validated from authHandler, these SHOULD be valid.
+     */
+    if (accessToken && refreshToken) {
+      return res.sendStatus(200)
+    }
+    /**
+     * This access/refresh token will be issued on INITIAL login where there's no token exists for some reasons:
+     * i.e. user has been logged out or new user has just registered.
+     */
+    const newAccessToken = signToken(validatedPayload, 3600) // 1 hour
+    const newRefreshToken = signToken(validatedPayload, 604800) // 7 days
+    redisClient.set(validatedPayload.providerId, newRefreshToken, { EX: 604800 }) // 7 days
+
+    res.cookie('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: PRODUCTION,
+      maxAge: 3600000, // 1 hour
+    })
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: PRODUCTION,
+      maxAge: 604800000, // 7 days
+    })
+
+    return res.sendStatus(200)
   }
 
   public logout(req: Request, res: Response): void {
-    res.clearCookie('zigoomjwt')
+    const { accessToken } = req.cookies
+    const decodedAccessToken = jwt.decode(accessToken) as AuthTokenSchema
+
+    /**
+     * Set blacklist for logged out users.
+     */
+    redisClient.set(`blacklist:${decodedAccessToken.providerId}`, decodedAccessToken.providerId, {
+      EX: decodedAccessToken.exp! - decodedAccessToken.iat!,
+    })
+    redisClient.del(decodedAccessToken.providerId)
+
     res.clearCookie('confirmed')
+    res.clearCookie('accessToken')
+    res.clearCookie('refreshToken')
     res.sendStatus(200)
   }
 }

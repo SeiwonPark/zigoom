@@ -13,11 +13,8 @@ interface RequestPayload {
   readonly provider: string
 }
 
-type ValidatedToken = AuthTokenSchema & { isUserExists: boolean }
+type ValidatedTokenPayload = AuthTokenSchema & { isUserExists: boolean }
 
-/**
- * This is for global auth provider logic from `guest mode`. JWT signed by 'Zigoom' is then parsed.
- */
 @injectable()
 export default class AuthService {
   constructor(
@@ -27,9 +24,9 @@ export default class AuthService {
     private googleAuthProvider: AuthProvider
   ) {}
 
-  public async execute({ token, provider }: RequestPayload): Promise<ValidatedToken> {
+  public async execute({ token, provider }: RequestPayload): Promise<ValidatedTokenPayload> {
     this.ensureProviderType(provider)
-    const payload = await this.validateToken(token, provider)
+    const payload = await this.getValidatedTokenPayload(token, provider)
     const foundUser = await this.findUserByProviderId(payload.providerId)
 
     return {
@@ -45,7 +42,7 @@ export default class AuthService {
     }
   }
 
-  private async validateToken(token: string, provider: string): Promise<AuthTokenSchema> {
+  private async getValidatedTokenPayload(token: string, provider: string): Promise<AuthTokenSchema> {
     let payload: AuthTokenSchema | undefined
 
     switch (provider) {
@@ -57,8 +54,8 @@ export default class AuthService {
 
     const tokenPayload = {
       email: payload?.email,
-      familyName: payload?.familyName || '',
-      givenName: payload?.givenName || '',
+      familyName: payload?.familyName,
+      givenName: payload?.givenName,
       locale: payload?.locale,
       name: payload?.name,
       picture: payload?.picture,

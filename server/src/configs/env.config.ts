@@ -5,11 +5,9 @@ dotenv.config()
 /**
  * Server configs
  */
-export const isDevelopment = process.env.NODE_ENV === 'development'
-export const PORT = isDevelopment ? 5001 : process.env.PORT || 5001
-export const ALLOWED_ORIGIN = isDevelopment
-  ? 'http://localhost:5173'
-  : process.env.ALLOWED_ORIGIN || 'http://localhost:5173'
+export const PRODUCTION = process.env.NODE_ENV === 'production'
+export const PORT = PRODUCTION ? process.env.PORT : 5001
+export const ALLOWED_ORIGIN = PRODUCTION ? process.env.ALLOWED_ORIGIN : 'http://localhost:5173'
 export const TURN_SECRET_KEY = process.env.TURN_SECRET_KEY || ''
 export const TOKEN_KEY = process.env.TOKEN_KEY || ''
 export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || ''

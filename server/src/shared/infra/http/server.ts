@@ -11,7 +11,7 @@ import { createClient } from 'redis'
 import 'reflect-metadata'
 import { Server } from 'socket.io'
 
-import { ALLOWED_ORIGIN, PORT, REDIS_URL, isDevelopment } from '@configs/env.config'
+import { ALLOWED_ORIGIN, PORT, PRODUCTION, REDIS_URL } from '@configs/env.config'
 import { format, logger, stream } from '@configs/logger.config'
 import { setupSocketHandlers } from '@handlers/socket.handler'
 import '@shared/container'
@@ -23,18 +23,24 @@ import { metricRouter } from './middlewares/routes/metric.route'
 
 const app = express()
 
-const metricsMiddleware = promBundle({ autoregister: false, includeMethod: true, includePath: true })
+const metricsMiddleware = promBundle({
+  autoregister: false,
+  includeMethod: true,
+  includePath: true,
+  excludeRoutes: ['/', '/metrics'],
+})
 collectDefaultMetrics()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(helmet())
-app.use(morgan(format, { stream: stream }))
 app.set('trust proxy', 1)
-app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
+app.get('/', (req, res) => res.sendStatus(200))
 app.use(metricsMiddleware)
 app.use('/metrics', metricRouter)
+app.use(morgan(format, { stream: stream }))
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
 app.use(authHandler)
 app.use('/v1', limiter, router)
 app.use(errorHandler)
@@ -43,7 +49,7 @@ const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      if (origin === ALLOWED_ORIGIN || (origin === undefined && isDevelopment)) {
+      if (origin === ALLOWED_ORIGIN || (origin === undefined && !PRODUCTION)) {
         callback(null, true)
       } else {
         callback(new Error('Not allowed by CORS'))
