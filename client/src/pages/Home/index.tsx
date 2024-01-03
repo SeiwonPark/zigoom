@@ -10,6 +10,7 @@ import type { LocalOptions } from '@/typings/index'
 import { getLocalStorageItem, sleep, storeDataInLocalStorage } from '@/utils/index'
 
 import styles from './index.module.css'
+import { Footer } from '@/components/Footer'
 
 export default function Home() {
   const socket = useContext(SocketContext)
@@ -90,6 +91,7 @@ export default function Home() {
         />
         {isNavigating && <div className={styles.loading}>Loading...</div>}
       </div>
+      <Footer />
     </>
   )
 }

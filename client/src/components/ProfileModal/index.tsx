@@ -19,6 +19,7 @@ interface ProfileModalProps {
 export const ProfileModal = ({ userData, onClose, setToggleProfile }: ProfileModalProps) => {
   const { authState, setAuthState } = useAuth()
 
+  // FIXME: What if there's an error when logging out from browser?
   const handleLogout = async () => {
     const res = await axios.post(`${VITE_BASE_URL}/v1/auth/logout`)
 
