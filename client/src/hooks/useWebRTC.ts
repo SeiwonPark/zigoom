@@ -5,11 +5,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { VITE_ICE_CONFIG_3 } from '@/configs/env'
 import { defaultMediaConstraints, iceServers, offerOptions } from '@/configs/webrtc'
 import { SocketContext } from '@/contexts/SocketContext'
-import { useLocalOption } from '@/hooks/useStore'
+import { useAuthStore, useLocalOption } from '@/hooks/useStore'
 import { PeerDisconnectionType } from '@/typings/enums'
 import { PeerData, PeerInfo } from '@/typings/types'
 import { verifySession } from '@/utils/check'
-import { getProfileImage } from '@/utils/localStorage'
 import {
   isCallSchema,
   isPeerAnswerSchema,
@@ -39,6 +38,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
   const navigate = useNavigate()
   const params = new URLSearchParams(location.search)
   const { isVideoOn, isAudioOn } = useLocalOption()
+  const { profileImage } = useAuthStore()
   const isVideoOnRef = useRef(isVideoOn)
   const isAudioOnRef = useRef(isAudioOn)
 
@@ -137,7 +137,6 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
     const peersDataChannel = rtcPeerConnection.createDataChannel('peers', { ordered: true, maxRetransmits: 0 })
 
     peersDataChannel.onopen = async () => {
-      const profileImage = await getProfileImage()
       await getRTT(rtcPeerConnection)
 
       peersDataChannel.send(
