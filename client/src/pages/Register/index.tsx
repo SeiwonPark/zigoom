@@ -11,7 +11,6 @@ import { PrivacyStatement } from '@/components/Policy/PrivacyStatement'
 import { TermsOfUse } from '@/components/Policy/TermsOfUse'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
-import { useAuthStore } from '@/hooks/useStore'
 
 import styles from './index.module.css'
 
@@ -21,7 +20,6 @@ export default function Register() {
   const [viewTermsOfUse, setViewTermsOfUse] = useState<boolean>(false)
   const [viewPrivacyStatement, setViewPrivacyStatement] = useState<boolean>(false)
 
-  const { authToken } = useAuthStore()
   const navigate = useNavigate()
 
   const handleClickTermsOfUse = () => {
@@ -55,8 +53,10 @@ export default function Register() {
       return
     }
 
+    const token = localStorage.getItem('authToken')
+
     const payload = {
-      token: authToken,
+      token: token,
       provider: 'google', // FIXME: should be dynamic value
     }
 

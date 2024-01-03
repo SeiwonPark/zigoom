@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 
 import { LocalOptions } from '@/typings/index'
+import { GetUserResponse } from '@/validations/user.validation'
 
 interface LocalOptionState extends LocalOptions {
   setIsVideoOn: (value: boolean) => void
@@ -9,13 +10,9 @@ interface LocalOptionState extends LocalOptions {
   setIsChatOpen: (value: boolean) => void
 }
 
-interface AuthState {
-  profileImage: string
-  authToken: string
-  isAuthenticated: boolean
-  setIsAuthenticated: (value: boolean) => void
-  setAuthToken: (value: string) => void
-  setProfileImage: (value: string) => void
+interface UserState {
+  user: GetUserResponse
+  setUser: (value: GetUserResponse) => void
 }
 
 interface SessionState {
@@ -38,16 +35,28 @@ const useLocalOption = create<LocalOptionState>((set) => ({
 }))
 
 /**
- * Stores states of client's authentication. Though it's been set by unpredictable operation, server
- * verifies every single request with authorization process.
+ * Stores states of client's user data. Server verifies every single request with authorization process.
  */
-const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: false,
-  authToken: '',
-  profileImage: 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
-  setIsAuthenticated: (value: boolean) => set((state) => ({ ...state, isAuthenticated: value })),
-  setAuthToken: (value: string) => set((state) => ({ ...state, authToken: value })),
-  setProfileImage: (value: string) => set((state) => ({ ...state, profileImage: value })),
+const useUserStore = create<UserState>((set) => ({
+  user: {
+    id: '',
+    name: '',
+    profileThumbnail: 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
+    sessionId: null,
+    createdAt: '',
+    modifiedAt: '',
+    role: '',
+    profile: null,
+    authProvider: [
+      {
+        id: '',
+        provider: '',
+        providerId: '',
+        userId: '',
+      },
+    ],
+  },
+  setUser: (value: GetUserResponse) => set((state) => ({ ...state, user: value })),
 }))
 
 const useSessionStore = create<SessionState>((set) => ({
@@ -55,4 +64,4 @@ const useSessionStore = create<SessionState>((set) => ({
   setIsGranted: (value: boolean) => set((state) => ({ ...state, isGranted: value })),
 }))
 
-export { useLocalOption, useAuthStore, useSessionStore }
+export { useLocalOption, useUserStore, useSessionStore }

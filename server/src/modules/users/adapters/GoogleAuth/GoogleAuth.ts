@@ -25,18 +25,18 @@ export default class GoogleAuth {
       }
 
       return {
-        provider: 'google',
-        providerId: payload.sub,
-        name: payload.name || 'Anonymous User',
         email: payload.email || 'no-email@example.com',
         familyName: payload.family_name || '',
         givenName: payload.given_name || '',
         locale: payload.locale || 'ko',
+        name: payload.name || 'Anonymous User',
         picture: payload.picture || 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
+        provider: 'google',
+        providerId: payload.sub,
       }
     } catch (e) {
       logger.error((e as Error).message)
-      return undefined
+      throw new RequestError('Failed to authenticate with GoogleAuth.', ErrorCode.InternalServerError)
     }
   }
 }

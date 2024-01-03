@@ -51,26 +51,16 @@ export default class CreateUserService {
       default:
       case 'google': {
         payload = await this.googleAuthProvider.authenticate(token)
+        break
       }
     }
 
-    const tokenPayload = {
-      email: payload?.email,
-      familyName: payload?.familyName,
-      givenName: payload?.givenName,
-      locale: payload?.locale,
-      name: payload?.name,
-      picture: payload?.picture,
-      providerId: payload?.providerId,
-      provider: provider,
-    }
-
-    if (!isAuthTokenSchema(tokenPayload)) {
+    if (!isAuthTokenSchema(payload)) {
       logger.error('Invalid token type for AuthTokenSchema.')
       throw new RequestError('Invalid token type for AuthTokenSchema.', ErrorCode.BadRequest)
     }
 
-    return tokenPayload
+    return payload
   }
 
   private async getValidatedData(data: AuthTokenSchema): Promise<Prisma.UserCreateInput> {

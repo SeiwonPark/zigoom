@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { MoreIcon, PinIconDisabled, PinIconEnabled } from '@/assets/icons'
 import { SVGIcon } from '@/components/Buttons'
-import { useAuthStore, useLocalOption } from '@/hooks/useStore'
+import { useLocalOption, useUserStore } from '@/hooks/useStore'
 
 import styles from './index.module.css'
 
@@ -19,7 +19,7 @@ interface VideoProps {
 export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, showHover }: VideoProps) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const { isVideoOn, isAudioOn, pinnedPeerId, setPinnedPeerId } = useLocalOption()
-  const { profileImage } = useAuthStore()
+  const { user } = useUserStore()
 
   useEffect(() => {
     if (videoRef.current) {
@@ -76,7 +76,7 @@ export const LocalVideo = ({ stream, peerId, peerIdPosition, numOfparticipants, 
         />
       ) : (
         <div>
-          <img className={styles.altImage} src={profileImage} alt="profile-image" />
+          <img className={styles.altImage} src={user.profileThumbnail} alt="profile-image" />
         </div>
       )}
       <div className={styles.peerId} style={{ ...setIdPosition() }}>

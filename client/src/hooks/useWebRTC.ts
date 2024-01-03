@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { VITE_ICE_CONFIG_3 } from '@/configs/env'
 import { defaultMediaConstraints, iceServers, offerOptions } from '@/configs/webrtc'
 import { SocketContext } from '@/contexts/SocketContext'
-import { useAuthStore, useLocalOption } from '@/hooks/useStore'
+import { useLocalOption, useUserStore } from '@/hooks/useStore'
 import { PeerDisconnectionType } from '@/typings/enums'
 import { PeerData, PeerInfo } from '@/typings/types'
 import { verifySession } from '@/utils/check'
@@ -38,7 +38,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
   const navigate = useNavigate()
   const params = new URLSearchParams(location.search)
   const { isVideoOn, isAudioOn } = useLocalOption()
-  const { profileImage } = useAuthStore()
+  const { user } = useUserStore()
   const isVideoOnRef = useRef(isVideoOn)
   const isAudioOnRef = useRef(isAudioOn)
 
@@ -143,7 +143,7 @@ export const useWebRTC = ({ roomId }: WebRTCProps) => {
         JSON.stringify({
           rtt: rtt,
           id: localPeerId.current,
-          img: profileImage,
+          img: user.profileThumbnail,
           video: isVideoOnRef.current,
           audio: isAudioOnRef.current,
         })
