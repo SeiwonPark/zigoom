@@ -4,18 +4,17 @@ import { AxiosError } from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 import { LogoIcon } from '@/assets/icons'
-import { Unnamed } from '@/assets/images'
 import { GoogleLoginButton } from '@/components/Buttons/GoogleLoginButton'
 import Dropdown from '@/components/Dropdown'
 import { ProfileModal } from '@/components/ProfileModal'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
-import { useAuthStore } from '@/hooks/useStore'
-import { getLocalStorageItem, storeDataInLocalStorage } from '@/utils/localStorage'
-import { GetUserResponse } from '@/validations/user.validation'
+import { useAuth } from '@/contexts/AuthContext'
+import { useUserStore } from '@/hooks/useStore'
 
 import { SVGIcon } from '../Buttons'
 import { HamburgerMenu } from '../HamburgerMenu'
+import { Spinner } from '../Spinner'
 import styles from './index.module.css'
 
 interface HeaderProps {
@@ -26,8 +25,8 @@ interface HeaderProps {
 export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   const [toggleProfile, setToggleProfile] = useState<boolean>(false)
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
-  const [userData, setUserData] = useState<GetUserResponse>()
-  const { isAuthenticated, setIsAuthenticated, setAuthToken, setProfileImage } = useAuthStore()
+  const { authState, setAuthState } = useAuth()
+  const { user, setUser } = useUserStore()
   const navigate = useNavigate()
 
   const profileRef = useRef<HTMLDivElement>(null)
@@ -53,8 +52,7 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
       })
 
       if (res.status === 200) {
-        setUserData(res.data)
-        setProfileImage(res.data.profileThumbnail)
+        setUser(res.data)
       }
     } catch (error) {
       console.error('Failed to fetch user data:', error)
@@ -62,46 +60,24 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
   }, [])
 
   useEffect(() => {
-    const init = async () => {
-      /**
-       * As this is VULNERABLE to XSS, setting short expiration time and storing non-critical
-       * data is required.
-       *
-       * But if this could be enhanced in security then that SHOULD be the top priority.
-       */
-      const token = getLocalStorageItem<string>('authToken')
-      if (token) {
-        setAuthToken(token)
-        setIsAuthenticated(true)
-        await getUserData()
-      } else {
-        const res = await axios.post(
-          `${VITE_BASE_URL}/v1/auth/verify`,
-          JSON.stringify({ provider: 'google', token: token })
-        )
-        if (res.status === 200) {
-          setIsAuthenticated(true)
-          await getUserData()
-        }
-      }
+    if (authState.isAuthenticated) {
+      getUserData()
     }
-
-    init()
-  }, [getUserData, setAuthToken, setIsAuthenticated])
+  }, [authState.isAuthenticated])
 
   const handleLoginSuccess = useCallback(
     async (credential: string) => {
       try {
-        setAuthToken(credential)
-        storeDataInLocalStorage('authToken', credential)
+        const normalizedCredential = credential.replace('"', '').replace("'", '')
 
-        const res = await axios.post(
-          `${VITE_BASE_URL}/v1/auth/verify`,
-          JSON.stringify({ provider: 'google', token: credential })
-        )
+        localStorage.setItem('authToken', normalizedCredential)
+        const res = await axios.post(`${VITE_BASE_URL}/v1/auth/verify`, {
+          provider: 'google',
+          token: normalizedCredential,
+        })
+
         if (res.status === 200) {
-          setIsAuthenticated(true)
-          await getUserData()
+          setAuthState({ ...authState, isAuthenticated: true })
         }
       } catch (e) {
         const error = e as AxiosError
@@ -109,11 +85,11 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
           navigate('/register')
         } else {
           console.error(error)
-          setIsAuthenticated(false)
+          setAuthState({ ...authState, isAuthenticated: false })
         }
       }
     },
-    [getUserData, navigate, setIsAuthenticated, setAuthToken]
+    [authState, setAuthState, navigate]
   )
 
   const handleLoginError = useCallback((error: any) => {
@@ -138,45 +114,39 @@ export const Header = ({ style, enterGuestMode }: HeaderProps) => {
         {windowWidth <= 600 && <HamburgerMenu />}
         <SVGIcon Icon={LogoIcon} width="80px" />
       </div>
-      <nav>{/* Navigation menu can be added here */}</nav>
       <div className={styles.authContainer}>
-        {!isAuthenticated && enterGuestMode && (
+        {!authState.isLoading && !authState.isAuthenticated && enterGuestMode && (
           <div className={styles.guestContainer}>
             <button className={styles.guestButton} id="guestButton" type="button" onClick={handleEnterGuestMode}>
               GUEST
             </button>
           </div>
         )}
-        <div className={styles.userContainer}>
-          {isAuthenticated ? (
-            <div>
-              {userData !== null && (
-                <div className={styles.profileImage} ref={profileRef} onClick={handleClickProfile}>
-                  <img
-                    src={userData?.profileThumbnail || Unnamed}
-                    alt="user"
-                    style={{ width: '40px', borderRadius: '20px' }}
-                  />
-                </div>
-              )}
-              {toggleProfile && (
-                <ProfileModal
-                  userData={userData}
-                  onClose={handleClickProfile}
-                  setIsAuthenticated={setIsAuthenticated}
-                  setToggleProfile={setToggleProfile}
+        {authState.isLoading ? (
+          <Spinner />
+        ) : (
+          <div className={styles.userContainer}>
+            {authState.isAuthenticated ? (
+              <div>
+                {user !== null && (
+                  <div className={styles.profileImage} ref={profileRef} onClick={handleClickProfile}>
+                    <img src={user.profileThumbnail} alt="user" style={{ width: '40px', borderRadius: '20px' }} />
+                  </div>
+                )}
+                {toggleProfile && (
+                  <ProfileModal userData={user} onClose={handleClickProfile} setToggleProfile={setToggleProfile} />
+                )}
+              </div>
+            ) : (
+              <Dropdown title="Login">
+                <GoogleLoginButton
+                  onSuccess={(credential: any) => handleLoginSuccess(credential.credential)}
+                  onError={handleLoginError}
                 />
-              )}
-            </div>
-          ) : (
-            <Dropdown title="Login">
-              <GoogleLoginButton
-                onSuccess={(credential: any) => handleLoginSuccess(credential.credential)}
-                onError={handleLoginError}
-              />
-            </Dropdown>
-          )}
-        </div>
+              </Dropdown>
+            )}
+          </div>
+        )}
       </div>
     </header>
   )

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 
 // import { VITE_SENTRY_DSN_KEY } from '@/configs/env.ts'
 import App from './App.tsx'
+import { AuthProvider } from './contexts/AuthContext.tsx'
 import './index.css'
 
 // Sentry.init({
@@ -17,4 +18,8 @@ import './index.css'
 //   environment: import.meta.env.MODE,
 // })
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />)
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+)

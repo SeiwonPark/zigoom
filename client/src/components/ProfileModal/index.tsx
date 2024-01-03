@@ -5,6 +5,7 @@ import { IconButton } from '@/components/Buttons/IconButton'
 import { OutlinedButton } from '@/components/Buttons/OutlinedButton'
 import { VITE_BASE_URL } from '@/configs/env'
 import axios from '@/configs/http'
+import { useAuth } from '@/contexts/AuthContext'
 import { GetUserResponse } from '@/validations/user.validation'
 
 import styles from './index.module.css'
@@ -12,16 +13,17 @@ import styles from './index.module.css'
 interface ProfileModalProps {
   userData: GetUserResponse | undefined
   onClose: (event: MouseEvent) => void
-  setIsAuthenticated: (value: boolean) => void
   setToggleProfile: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const ProfileModal = ({ userData, onClose, setIsAuthenticated, setToggleProfile }: ProfileModalProps) => {
+export const ProfileModal = ({ userData, onClose, setToggleProfile }: ProfileModalProps) => {
+  const { authState, setAuthState } = useAuth()
+
   const handleLogout = async () => {
     const res = await axios.post(`${VITE_BASE_URL}/v1/auth/logout`)
 
     if (res.status === 200) {
-      setIsAuthenticated(false)
+      setAuthState({ ...authState, isAuthenticated: false })
       setToggleProfile(false)
       localStorage.clear()
       console.log('Successfully logged out.')
