@@ -11,7 +11,7 @@ import { createClient } from 'redis'
 import 'reflect-metadata'
 import { Server } from 'socket.io'
 
-import { ALLOWED_ORIGIN, PORT, REDIS_URL, isDevelopment } from '@configs/env.config'
+import { ALLOWED_ORIGIN, PORT, PRODUCTION, REDIS_URL } from '@configs/env.config'
 import { format, logger, stream } from '@configs/logger.config'
 import { setupSocketHandlers } from '@handlers/socket.handler'
 import '@shared/container'
@@ -35,8 +35,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(helmet())
-app.get('/', (req, res) => res.sendStatus(200))
 app.set('trust proxy', 1)
+app.get('/', (req, res) => res.sendStatus(200))
 app.use(metricsMiddleware)
 app.use('/metrics', metricRouter)
 app.use(morgan(format, { stream: stream }))
@@ -49,7 +49,7 @@ const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      if (origin === ALLOWED_ORIGIN || (origin === undefined && isDevelopment)) {
+      if (origin === ALLOWED_ORIGIN || (origin === undefined && !PRODUCTION)) {
         callback(null, true)
       } else {
         callback(new Error('Not allowed by CORS'))

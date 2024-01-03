@@ -5,7 +5,7 @@ import { logger } from '@configs/logger.config'
 
 // FIXME: cluster
 export const limiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
+  windowMs: 6000, // 1 minute
   limit: 100,
   standardHeaders: 'draft-7',
   legacyHeaders: false,

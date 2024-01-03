@@ -8,5 +8,5 @@ const authController = new AuthController()
 
 export const authRouter = Router()
 
-authRouter.post('/verify', authController.verify)
+authRouter.post('/verify', authController.verifyAuthProvider)
 authRouter.post('/logout', requireAuthentication, authController.logout)

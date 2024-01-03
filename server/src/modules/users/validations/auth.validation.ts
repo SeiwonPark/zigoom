@@ -14,6 +14,8 @@ export const AuthToken = z.object({
   picture: z.string(),
   providerId: z.string(),
   provider: z.string(),
+  exp: z.number().optional(),
+  iat: z.number().optional(),
   // provider: z.union([z.literal('google'), z.literal('')]),
 })
 

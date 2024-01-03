@@ -1,51 +1,77 @@
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 import { TOKEN_KEY } from '@configs/env.config'
 import { logger } from '@configs/logger.config'
+import { redisClient } from '@configs/redis.config'
+import { AuthTokenSchema } from '@modules/users/validations/auth.validation'
 import { ErrorCode, RequestError } from '@shared/errors'
 
-export interface TokenPayload extends JwtPayload {
-  /**
-   * @see AuthProvider
-   */
-  provider: string
-  /**
-   * Auth provider's id.
-   */
-  providerId: string
-  name: string
-  email: string
+interface RenewalTokenIncluded {
+  payload: AuthTokenSchema
+  renewalToken: string | null
 }
 
 /**
- * This handles verifying JWT from client's request cookie.
- * @param {string} token - JWT from user.
- * @returns {TokenPayload | undefined} Decoded JWT payload.
+ * This handles verifying access/refresh token from client's request cookie. If accessToken is expired
+ * then validate refreshToken and return renewed accessToken.
+ *
+ * @param {string} accessToken - Access token from user.
+ * @param {string} refreshToken - Refresh token from user.
+ * @returns {RenewalTokenIncluded} Decoded JWT payload.
  */
-export const verifyToken = async (token: string): Promise<TokenPayload | undefined> => {
-  logger.debug('verifyToken invoked.')
-
+export const verifyToken = async (accessToken: string, refreshToken: string): Promise<RenewalTokenIncluded> => {
   try {
-    const decoded = jwt.verify(token, TOKEN_KEY) as TokenPayload
+    const decodedAccessToken = jwt.decode(accessToken) as AuthTokenSchema
+    const blacklistedId = await redisClient.get(`blacklist:${decodedAccessToken.providerId}`)
 
-    if (!decoded) {
-      logger.error('Failed to get payload from token')
-      throw new RequestError('Failed to get payload from token', ErrorCode.Unauthorized)
+    if (decodedAccessToken.providerId === blacklistedId) {
+      logger.error('Access token is blacklisted. Please log in again')
+      throw new RequestError('Access token is blacklisted. Please log in again', ErrorCode.Unauthorized)
     }
 
-    if (decoded.exp && Date.now() >= decoded.exp * 1000) {
-      logger.error('The token has been expired')
-      throw new RequestError('The token has been expired', ErrorCode.Unauthorized)
+    return {
+      payload: jwt.verify(accessToken, TOKEN_KEY) as AuthTokenSchema,
+      renewalToken: null,
     }
+  } catch (accessTokenError: any) {
+    if (accessTokenError.name === 'TokenExpiredError') {
+      logger.warn('The access token has been expired')
 
-    return decoded
-  } catch (err) {
-    logger.error('Token verification failed:', err)
-    return
+      try {
+        const decodedRefreshToken = jwt.verify(refreshToken, TOKEN_KEY) as AuthTokenSchema
+        const refreshTokenFromRedis = await redisClient.get(decodedRefreshToken.providerId)
+        const blacklistedId = await redisClient.get(`blacklist:${decodedRefreshToken.providerId}`)
+
+        if (decodedRefreshToken.providerId === blacklistedId) {
+          logger.error('Refresh token is blacklisted. Please log in again')
+          throw new RequestError('Refresh token is blacklisted. Please log in again', ErrorCode.Unauthorized)
+        } else if (refreshTokenFromRedis === refreshToken) {
+          const newAccessToken = signToken(decodedRefreshToken, 3600) // 1 hour
+          return {
+            renewalToken: newAccessToken,
+            payload: decodedRefreshToken,
+          }
+        } else {
+          logger.error("Refresh token doesn't match")
+          throw new RequestError("Refresh token doesn't match", ErrorCode.Unauthorized)
+        }
+      } catch (refreshTokenError: any) {
+        if (refreshTokenError.name === 'TokenExpiredError') {
+          logger.error('Both access and refresh tokens have been expired')
+          throw new RequestError('Both access and refresh tokens have been expired', ErrorCode.Unauthorized)
+        } else {
+          logger.error('Failed to verify refresh token')
+          throw new RequestError('Failed to verify refresh token', ErrorCode.Unauthorized)
+        }
+      }
+    } else {
+      logger.error('Failed to verify access token')
+      throw new RequestError('Failed to verify access token', ErrorCode.Unauthorized)
+    }
   }
 }
 
-export const signToken = (payload: TokenPayload, exp: number): string => {
+export const signToken = (payload: AuthTokenSchema, exp: number): string => {
   return jwt.sign(
     {
       ...payload,
