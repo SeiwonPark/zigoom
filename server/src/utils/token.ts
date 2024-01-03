@@ -45,11 +45,11 @@ export const verifyToken = async (token: string): Promise<TokenPayload | undefin
   }
 }
 
-export const signToken = (payload: TokenPayload): string => {
+export const signToken = (payload: TokenPayload, exp: number): string => {
   return jwt.sign(
     {
       ...payload,
-      exp: Math.floor(Date.now() / 1000) + 1 * 60 * 60, // 1 hour
+      exp: Math.floor(Date.now() / 1000) + exp,
     },
     TOKEN_KEY
   )

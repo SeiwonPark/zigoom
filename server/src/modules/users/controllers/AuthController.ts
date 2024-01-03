@@ -35,8 +35,10 @@ export default class AuthController {
       })
       res.sendStatus(303)
     } else {
-      const encodedToken = signToken(validatedPayload)
-      res.cookie('zigoomjwt', encodedToken, {
+      const accessToken = signToken(validatedPayload, 1 * 60 * 60) // 1 hour
+      const refreshToken = signToken(validatedPayload, 7 * 24 * 60 * 60) // 7 days
+
+      res.cookie('zigoomjwt', accessToken, {
         httpOnly: true,
         secure: true,
         maxAge: 1 * 60 * 60 * 1000, // 1 hour

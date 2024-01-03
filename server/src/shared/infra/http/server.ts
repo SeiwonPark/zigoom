@@ -23,18 +23,24 @@ import { metricRouter } from './middlewares/routes/metric.route'
 
 const app = express()
 
-const metricsMiddleware = promBundle({ autoregister: false, includeMethod: true, includePath: true })
+const metricsMiddleware = promBundle({
+  autoregister: false,
+  includeMethod: true,
+  includePath: true,
+  excludeRoutes: ['/', '/metrics'],
+})
 collectDefaultMetrics()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 app.use(helmet())
-app.use(morgan(format, { stream: stream }))
+app.get('/', (req, res) => res.sendStatus(200))
 app.set('trust proxy', 1)
-app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
 app.use(metricsMiddleware)
 app.use('/metrics', metricRouter)
+app.use(morgan(format, { stream: stream }))
+app.use(cors({ origin: ALLOWED_ORIGIN, credentials: true }))
 app.use(authHandler)
 app.use('/v1', limiter, router)
 app.use(errorHandler)
