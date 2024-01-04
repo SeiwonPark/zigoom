@@ -5,8 +5,8 @@ import { logger } from '@configs/logger.config'
 
 // FIXME: cluster
 export const limiter = rateLimit({
-  windowMs: 6000, // 1 minute
-  limit: 100,
+  windowMs: 60000, // 1 minute
+  limit: 50,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   keyGenerator(req: Request, res: Response): string {
