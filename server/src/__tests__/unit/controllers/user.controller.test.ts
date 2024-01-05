@@ -8,6 +8,7 @@ import UserController from '@modules/users/controllers/UserController'
 import UserRepositoryImpl from '@modules/users/repositories/implementations/UserRepositoryImpl'
 import CreateUserService from '@modules/users/services/CreateUserService'
 import GetUserService from '@modules/users/services/GetUserService'
+import SingleUploadService from '@modules/users/services/SingleUploadService'
 import UpdateUserService from '@modules/users/services/UpdateUserService'
 import { ErrorCode, RequestError } from '@shared/errors'
 
@@ -25,6 +26,7 @@ describe('User Controller Unit Tests', () => {
   const userController = new UserController()
   const googleAuth = new GoogleAuth()
   const googleAuthProvider = new GoogleAuthProvider(googleAuth)
+  const singleUploadService = new SingleUploadService()
 
   const sendMock = jest.fn()
 
@@ -46,7 +48,7 @@ describe('User Controller Unit Tests', () => {
     role: Role.USER,
   }
 
-  const createUserService = new CreateUserService(userRepository, googleAuthProvider)
+  const createUserService = new CreateUserService(userRepository, googleAuthProvider, singleUploadService)
   const getUserService = new GetUserService(userRepository)
   const updateUserService = new UpdateUserService(userRepository)
 

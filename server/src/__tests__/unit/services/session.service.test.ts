@@ -16,23 +16,22 @@ describe('Session Service Unit Tests', () => {
   let sessionRepository: SessionRepository
 
   const validToken = {
-    id: '',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     name: 'Seiwon Park',
-    family_name: 'Park',
-    given_name: 'Seiwon',
+    familyName: 'Park',
+    givenName: 'Seiwon',
+    locale: 'ko',
     exp: ~~(Date.now() / 1000) + 60,
-    picture: 'https://avatars.githubusercontent.com/u/63793178?v=4',
+    picture: 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
     email: 'psw7347@gmail.com',
-    sub: '000000000000000000000',
-    iss: 'https://accounts.google.com',
-    aud: 'client-id',
-    iat: 123,
+    providerId: '000000000000000000000',
+    provider: 'google',
     isGuest: false,
   }
   const user: User = {
     id: '123e4567-e89b-12d3-a456-426614174000',
     name: 'Seiwon Park',
-    profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
+    profileThumbnail: 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
     sessionId: null,
     createdAt: new Date(),
     modifiedAt: new Date(),
@@ -41,7 +40,7 @@ describe('Session Service Unit Tests', () => {
   const anotherUser: User = {
     id: 'fedcba98-7654-3210-fedc-ba9876543210',
     name: 'Tony Park',
-    profileThumbnail: 'https://avatars.githubusercontent.com/u/63793178?v=4',
+    profileThumbnail: 'https://zigoom-public-assets.s3.ap-northeast-2.amazonaws.com/profile.png',
     sessionId: null,
     createdAt: new Date(),
     modifiedAt: new Date(),
