@@ -90,9 +90,9 @@ const handleUserMode = async (req: Request, res: Response, next: NextFunction): 
  * Wraps controller as router-level middleware to ensure authentication.
  */
 export const requireAuthentication = (req: Request, res: Response, next: NextFunction): void => {
-  const { accessToken, confirmed } = req.cookies
+  const { accessToken } = req.cookies
 
-  if (!accessToken && !confirmed && req.ctx.user.isGuest) {
+  if (!accessToken || req.ctx.user.isGuest) {
     logger.warn('Authentication required - guest user attempting to access protected resource')
     throw new RequestError(
       'Authentication required - guest user attempting to access protected resource',
