@@ -10,11 +10,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./client
     defaults:
       run:
-        working-directory: ${{ env.working-directory }}
+        working-directory: ./client
 
     steps:
       - name: Checkout
