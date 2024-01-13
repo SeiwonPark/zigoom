@@ -10,11 +10,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./server
     defaults:
       run:
-        working-directory: ./client
+        working-directory: ./server
 
     steps:
       - name: Checkout
